@@ -1,0 +1,72 @@
+"""Mutations that the old source-parity validator incorrectly accepted."""
+import copy
+import sys
+import unittest
+from pathlib import Path
+
+import yaml
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from verify import UniqueKeysLoader
+from validate_config import validate_profile, validate_override
+
+
+class ConfigTests(unittest.TestCase):
+    def setUp(self):
+        self.profile = yaml.load((ROOT / "StashKit.yaml").read_text(), Loader=UniqueKeysLoader)
+
+    def test_shipped_profile_and_provider_override(self):
+        validate_profile(self.profile)
+        example = yaml.load((ROOT / "overrides/provider.stoverride.example").read_text(), Loader=UniqueKeysLoader)
+        validate_override(example)
+        merged = copy.deepcopy(self.profile)
+        merged["proxy-providers"] = example["proxy-providers"]
+        validate_profile(merged)
+
+    def test_self_reference_rejected(self):
+        self.profile["proxy-groups"][0]["proxies"] = ["Proxy"]
+        with self.assertRaisesRegex(ValueError, "cyclic"):
+            validate_profile(self.profile)
+
+    def test_indirect_cycle_rejected(self):
+        next(g for g in self.profile["proxy-groups"] if g["name"] == "AI")["proxies"] = ["ChatGPT"]
+        next(g for g in self.profile["proxy-groups"] if g["name"] == "ChatGPT")["proxies"] = ["AI"]
+        with self.assertRaisesRegex(ValueError, "cyclic"):
+            validate_profile(self.profile)
+
+    def test_misspelled_group_type_rejected(self):
+        self.profile["proxy-groups"][6]["type"] = "seelct"
+        with self.assertRaisesRegex(ValueError, "group type"):
+            validate_profile(self.profile)
+
+    def test_unsupported_nested_dns_key_rejected(self):
+        self.profile["dns"]["hijack-dns"] = "*:53"
+        with self.assertRaisesRegex(ValueError, "unknown StashKit keys"):
+            validate_profile(self.profile)
+
+    def test_group_url_rejected(self):
+        self.profile["proxy-groups"][1]["url"] = "http://www.bing.com"
+        with self.assertRaisesRegex(ValueError, "unknown StashKit keys"):
+            validate_profile(self.profile)
+
+    def test_string_boolean_rejected(self):
+        self.profile["dns"]["follow-rule"] = "false"
+        with self.assertRaisesRegex(ValueError, "boolean"):
+            validate_profile(self.profile)
+
+    def test_unknown_policy_and_provider_rejected(self):
+        for rule in ("DOMAIN,example.com,Missing", "RULE-SET,missing,Proxy"):
+            with self.subTest(rule=rule):
+                profile = copy.deepcopy(self.profile)
+                profile["rules"].insert(0, rule)
+                with self.assertRaisesRegex(ValueError, "Unknown rule"):
+                    validate_profile(profile)
+
+    def test_duplicate_yaml_keys_rejected(self):
+        with self.assertRaisesRegex(AssertionError, "Duplicate YAML key"):
+            yaml.load("dns: {}\ndns: {}\n", Loader=UniqueKeysLoader)
+
+
+if __name__ == "__main__":
+    unittest.main()

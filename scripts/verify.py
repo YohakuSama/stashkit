@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import yaml
+from validate_config import validate_profile, validate_override
 
 KIT = Path(__file__).resolve().parents[1]
 ROOT = KIT / "upstream" / "loonkit"
@@ -107,6 +108,9 @@ def main():
     assert ROOT.is_dir(), "Missing pinned upstream/loonkit checkout"
     manifest = json.loads((ROOT / "build/release_manifest.json").read_text(encoding="utf-8"))
     profile = yaml.load((KIT / "StashKit.yaml").read_text(encoding="utf-8"), Loader=UniqueKeysLoader)
+    validate_profile(profile)
+    example = yaml.load((KIT / "overrides/provider.stoverride.example").read_text(encoding="utf-8"), Loader=UniqueKeysLoader)
+    validate_override(example)
     original = (ROOT / "LoonKit.lcf").read_text(encoding="utf-8")
     resources = manifest["runtime_resources"]
     adjustments = load_adjustments()
@@ -144,7 +148,7 @@ def main():
     assert by_name["Fallback"]["type"] == "fallback" and by_name["Fallback"]["interval"] == 900
     assert by_name["ALL"]["type"] == "select"
     for group in (by_name["Auto"], by_name["Fallback"], by_name["ALL"]):
-        assert group["include-all"] and group["proxies"] == ["REJECT"], "Missing safe empty-node guard"
+        assert group["include-all"] and group["proxies"] == ["REJECT"], "Missing unconfigured-pool REJECT placeholder"
     assert by_name["AdBlock"]["proxies"][0] == "REJECT"
     assert by_name["Final"]["proxies"][0] == "Proxy"
     assert by_name["Microsoft"]["proxies"][0] == "DIRECT"
@@ -214,8 +218,8 @@ def main():
     print(f"PASS: {len(resources)} production LoonKit sources; {len(expected_providers)} Stash "
           f"rule providers; {len(names)} groups; {generated_total:,} rules "
           f"({domain_count:,} domain / {ip_count:,} CIDR / {asn_count:,} ASN).")
-    print("PASS: SHA-256, no duplicated entries, canonical Stash rule syntax, "
-          "no-resolve, provider URLs, all rule paths, routing priority and policy targets.")
+    print("PASS: SHA-256, reviewed source adjustments, no within-set duplicates, project schema, "
+          "acyclic group references, no-resolve, provider URLs and expected routing order.")
 
 
 if __name__ == "__main__":

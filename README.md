@@ -36,7 +36,7 @@ Stash 官方参考：[DNS 服务](https://stash.wiki/features/dns-server) · [�
 
 ## 自动校验
 
-[GitHub Actions](./.github/workflows/ci.yml) 校验：全量规则逐条一致、源 SHA256、重复项、类型语法、54 个引用地址、策略名称、匹配顺序及 YAML 结构。CI 另会真实探测 DoH bootstrap 证书与解析，主分支还会通过 HTTP 实际下载全部 54 个规则集，比对字节完全一致，包括两个大型规则文件。
+[GitHub Actions](./.github/workflows/ci.yml) 校验：固定上游及本地修正、源 SHA256、集合内重复项、54 个引用地址、策略名称、匹配顺序及 YAML 结构；另运行离线路由、策略引用环、字段/类型和 DNS 异常应答回归测试。配置校验器只覆盖本项目使用的 Stash 字段，采用新功能时需同步扩展校验器，不能将其当成全部 Stash 功能的通用 schema。CI 还会真实探测 DoH bootstrap 的证书身份，以及完整的成功 DNS 应答；主分支下载全部 54 个规则集并比对字节，包括两个大型文件。
 
 为保证可复现，源版本固定在 [LoonKit commit 5f272104](https://github.com/YohakuSama/loonkit/tree/5f272104fc1207612c1cbd18f3e19d861d459ed9)，防止上游改动自动变更生产策略。手动验证：
 
@@ -45,7 +45,8 @@ git clone https://github.com/YohakuSama/stashkit.git
 cd stashkit
 git clone https://github.com/YohakuSama/loonkit.git upstream/loonkit
 git -C upstream/loonkit checkout 5f272104fc1207612c1cbd18f3e19d861d459ed9
-python -m pip install 'PyYAML>=6,<7'
+python -m pip install -r requirements-dev.txt
+python -m unittest discover -s tests -v
 python scripts/verify.py
 python scripts/check_remote.py
 ```
