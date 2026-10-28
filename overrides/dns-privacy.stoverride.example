@@ -1,0 +1,10 @@
+name: StashKit — Privacy DNS through selected proxy
+desc: >-
+  Optional privacy preference only after adding a live node and selecting Proxy.
+  Routes public AliDNS DoH by Proxy; bootstrap/node DNS and LAN system DNS remain direct.
+dns:
+  follow-rule: true
+# Stash merges override rule arrays ahead of the main rules.
+# This explicit DoH endpoint route prevents ChinaDirect matching it first.
+rules:
+  - DOMAIN,dns.alidns.com,Proxy
