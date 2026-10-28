@@ -1,0 +1,36 @@
+name: StashKit CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout StashKit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Checkout pinned LoonKit production baseline
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: YohakuSama/loonkit
+          ref: 5f272104fc1207612c1cbd18f3e19d861d459ed9
+          path: upstream/loonkit
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12'
+      - name: Install PyYAML
+        run: python -m pip install 'PyYAML>=6,<7'
+      - name: Verify all sources, routing, YAML and rule assets
+        run: python scripts/verify.py
+      - name: Verify all published remote rule URLs and bytes
+        if: github.ref == 'refs/heads/main'
+        run: python scripts/check_remote.py
