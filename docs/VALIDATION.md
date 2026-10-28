@@ -53,3 +53,14 @@ curl --get 'http://127.0.0.1:9090/rules/match' \
 - **隐私**：先通过个人订阅加载节点，手动切换 Proxy 再启用 `dns-privacy.stoverride`；查看 AliDNS 主机的最终代理链及 DNS 记录。观察 Apple CDN、Wi-Fi/蜂窝切换、节点域名解析。若 DNS 不可用，先禁用覆写，不能断言绝对防泄漏。
 - **图标**：39 个旧图标 URL 已移除，策略页应使用 Stash 默认图标。
 - **发布流程**：新的规则变更先完成源文件与生成器 CI，在一个包含全部新规则的固定 commit 上发布；配置文件随后单独修改 pin 和缓存版本号，切勿以当前配置 commit 的可变 main 指针做规则订阅。
+
+## 自动采集真机运行时证据（只读）
+
+在 Stash 已运行的 Mac（或同一受信任局域网内可访问 iOS Stash 控制端口的电脑）中，按 [Stash 官方 HTTP API](https://stash.wiki/features/http-api) 开启外部控制并设置密钥。不要把密钥提交到 GitHub。运行：
+
+```sh
+export STASH_API_TOKEN='由你在 Stash 设置的控制器密钥'
+python scripts/stash_runtime_audit.py --base-url http://127.0.0.1:9090
+```
+
+iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，不要向公共互联网开放控制接口。脚本使用**只读 GET** 检查模式、Proxy 实际选择、54 个 provider 数量、几项路由匹配及内存接口；不会输出 API 密钥、个人节点订阅或者整个 DNS 缓存。**运行结果来自你的真实 Stash 才能称为真机验收**，GitHub Actions 无法代替它。DNS 旁路测试还需检查客户端连接记录与第三方 DNS 测试；单次 API 通过不是绝对无泄漏证明。
