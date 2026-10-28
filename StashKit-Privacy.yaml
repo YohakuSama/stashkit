@@ -1,0 +1,731 @@
+# StashKit v0.1.3 PRIVACY MODE — DNS follows outbound policy; requires a working selected proxy
+# Requires Stash iOS/tvOS 3.6+ or macOS 4.3+ for encrypted DNS bootstrap.
+# No nodes or private subscription URLs are bundled. Apply your own proxy-provider via an Override.
+# Routing assets are generated Stash-native snapshots in this repository.
+mode: rule
+log-level: warning
+
+dns:
+  # Bootstrap the DoH hostname through encrypted DNS; direct encrypted DNS is not VPN tunneling.
+  # Use an IP-literal endpoint to avoid a DNS-bootstrap cycle.
+  default-nameserver:
+    - https://223.5.5.5/dns-query
+  # App/host DNS is handled by Stash Fake-IP. The resolver itself is direct,
+  # not automatically tunneled through a proxy; see README privacy notes.
+  nameserver:
+    - https://dns.alidns.com/dns-query
+  # Resolve proxy-server hostnames independently, avoiding proxy/DNS recursion.
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+  # Private names need the LAN/system resolver; public names still use DoH.
+  nameserver-policy:
+    'geosite:private': system
+    '+.local': system
+    '+.lan': system
+    '+.home.arpa': system
+  follow-rule: true
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - 'geosite:private'
+    - 'localhost'
+    - '+.local'
+    - '+.lan'
+    - '+.home.arpa'
+    - 'captive.apple.com'
+    - 'dns.msftncsi.com'
+    - 'dns.msftconnecttest.com'
+    - '*.n.n.srv.nintendo.net'
+    - 'xbox.*.*.microsoft.com'
+    - '*.*.xboxlive.com'
+    - '+.stun.*.*'
+    - '+.stun.*.*.*'
+    - '+.stun.*.*.*.*'
+
+proxy-groups:
+  - name: "Proxy"
+    type: select
+    # Fail closed until the user explicitly selects a valid node pool.
+    # Empty remote providers may be substituted with DIRECT by Stash.
+    proxies:
+      - REJECT
+      - Auto
+      - Fallback
+      - ALL
+  - name: "Auto"
+    type: url-test
+    include-all: true
+    proxies:
+      - REJECT
+    interval: 600
+    tolerance: 60
+  - name: "Fallback"
+    type: fallback
+    include-all: true
+    proxies:
+      - REJECT
+    interval: 900
+  - name: ALL
+    type: select
+    include-all: true
+    proxies:
+      - REJECT
+  - name: "AdBlock"
+    type: select
+    proxies:
+      - "REJECT"
+      - "DIRECT"
+      - "Proxy"
+  - name: "Final"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "DIRECT"
+  - name: "AI"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "ChatGPT"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Gemini"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Claude"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "GitHub"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Google"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Microsoft"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Apple"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Cloudflare"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Speedtest"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "YouTube"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Netflix"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Disney"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "PrimeVideo"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Spotify"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "TikTok"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Twitch"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "HBO"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Abema"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "動畫瘋"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Dazn"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "BBC"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Bilibili"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Telegram"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Whatsapp"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Instagram"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Facebook"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Twitter"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Discord"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Line"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Reddit"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Linkedin"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+  - name: "Steam"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "DIRECT"
+      - "ALL"
+  - name: "Paypal"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "ALL"
+
+rule-providers:
+  "AdBlockBalanced-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/AdBlockBalanced.domain.txt
+    path: ./rules/v0.1.3/AdBlockBalanced.domain.txt
+    interval: 86400
+  "DomesticCore-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/DomesticCore.domain.txt
+    path: ./rules/v0.1.3/DomesticCore.domain.txt
+    interval: 86400
+  "DomesticSupplement-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/DomesticSupplement.domain.txt
+    path: ./rules/v0.1.3/DomesticSupplement.domain.txt
+    interval: 86400
+  "SteamCN-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/SteamCN.domain.txt
+    path: ./rules/v0.1.3/SteamCN.domain.txt
+    interval: 86400
+  "DomesticAI-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/DomesticAI.domain.txt
+    path: ./rules/v0.1.3/DomesticAI.domain.txt
+    interval: 86400
+  "ChatGPT-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/ChatGPT.domain.txt
+    path: ./rules/v0.1.3/ChatGPT.domain.txt
+    interval: 86400
+  "Gemini-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Gemini.domain.txt
+    path: ./rules/v0.1.3/Gemini.domain.txt
+    interval: 86400
+  "Claude-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Claude.domain.txt
+    path: ./rules/v0.1.3/Claude.domain.txt
+    interval: 86400
+  "AIScoped-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/AIScoped.domain.txt
+    path: ./rules/v0.1.3/AIScoped.domain.txt
+    interval: 86400
+  "GitHub-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/GitHub.domain.txt
+    path: ./rules/v0.1.3/GitHub.domain.txt
+    interval: 86400
+  "Speedtest-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Speedtest.domain.txt
+    path: ./rules/v0.1.3/Speedtest.domain.txt
+    interval: 86400
+  "Cloudflare-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Cloudflare.domain.txt
+    path: ./rules/v0.1.3/Cloudflare.domain.txt
+    interval: 86400
+  "Service-Spotify-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Service-Spotify.domain.txt
+    path: ./rules/v0.1.3/Service-Spotify.domain.txt
+    interval: 86400
+  "Service-Twitch-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Service-Twitch.domain.txt
+    path: ./rules/v0.1.3/Service-Twitch.domain.txt
+    interval: 86400
+  "Service-BBC-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Service-BBC.domain.txt
+    path: ./rules/v0.1.3/Service-BBC.domain.txt
+    interval: 86400
+  "Service-Line-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Service-Line.domain.txt
+    path: ./rules/v0.1.3/Service-Line.domain.txt
+    interval: 86400
+  "Service-Reddit-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Service-Reddit.domain.txt
+    path: ./rules/v0.1.3/Service-Reddit.domain.txt
+    interval: 86400
+  "Service-Linkedin-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Service-Linkedin.domain.txt
+    path: ./rules/v0.1.3/Service-Linkedin.domain.txt
+    interval: 86400
+  "Service-Abema-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Service-Abema.domain.txt
+    path: ./rules/v0.1.3/Service-Abema.domain.txt
+    interval: 86400
+  "SharedInfrastructure-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/SharedInfrastructure.domain.txt
+    path: ./rules/v0.1.3/SharedInfrastructure.domain.txt
+    interval: 86400
+  "AppleOTA-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/AppleOTA.domain.txt
+    path: ./rules/v0.1.3/AppleOTA.domain.txt
+    interval: 86400
+  "SteamGlobal-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/SteamGlobal.domain.txt
+    path: ./rules/v0.1.3/SteamGlobal.domain.txt
+    interval: 86400
+  "YouTube-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/YouTube.domain.txt
+    path: ./rules/v0.1.3/YouTube.domain.txt
+    interval: 86400
+  "YouTube-ipcidr":
+    behavior: ipcidr
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/YouTube.ipcidr.txt
+    path: ./rules/v0.1.3/YouTube.ipcidr.txt
+    interval: 86400
+  "Netflix-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Netflix.domain.txt
+    path: ./rules/v0.1.3/Netflix.domain.txt
+    interval: 86400
+  "Netflix-asn":
+    behavior: classical
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Netflix.asn.txt
+    path: ./rules/v0.1.3/Netflix.asn.txt
+    interval: 86400
+  "Disney-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Disney.domain.txt
+    path: ./rules/v0.1.3/Disney.domain.txt
+    interval: 86400
+  "PrimeVideo-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/PrimeVideo.domain.txt
+    path: ./rules/v0.1.3/PrimeVideo.domain.txt
+    interval: 86400
+  "TikTok-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/TikTok.domain.txt
+    path: ./rules/v0.1.3/TikTok.domain.txt
+    interval: 86400
+  "Bilibili-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Bilibili.domain.txt
+    path: ./rules/v0.1.3/Bilibili.domain.txt
+    interval: 86400
+  "AnimeCrazy-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/AnimeCrazy.domain.txt
+    path: ./rules/v0.1.3/AnimeCrazy.domain.txt
+    interval: 86400
+  "Dazn-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Dazn.domain.txt
+    path: ./rules/v0.1.3/Dazn.domain.txt
+    interval: 86400
+  "Telegram-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Telegram.domain.txt
+    path: ./rules/v0.1.3/Telegram.domain.txt
+    interval: 86400
+  "Telegram-ipcidr":
+    behavior: ipcidr
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Telegram.ipcidr.txt
+    path: ./rules/v0.1.3/Telegram.ipcidr.txt
+    interval: 86400
+  "Telegram-asn":
+    behavior: classical
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Telegram.asn.txt
+    path: ./rules/v0.1.3/Telegram.asn.txt
+    interval: 86400
+  "Whatsapp-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Whatsapp.domain.txt
+    path: ./rules/v0.1.3/Whatsapp.domain.txt
+    interval: 86400
+  "Whatsapp-ipcidr":
+    behavior: ipcidr
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Whatsapp.ipcidr.txt
+    path: ./rules/v0.1.3/Whatsapp.ipcidr.txt
+    interval: 86400
+  "Instagram-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Instagram.domain.txt
+    path: ./rules/v0.1.3/Instagram.domain.txt
+    interval: 86400
+  "Facebook-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Facebook.domain.txt
+    path: ./rules/v0.1.3/Facebook.domain.txt
+    interval: 86400
+  "Facebook-ipcidr":
+    behavior: ipcidr
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Facebook.ipcidr.txt
+    path: ./rules/v0.1.3/Facebook.ipcidr.txt
+    interval: 86400
+  "Facebook-asn":
+    behavior: classical
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Facebook.asn.txt
+    path: ./rules/v0.1.3/Facebook.asn.txt
+    interval: 86400
+  "Twitter-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Twitter.domain.txt
+    path: ./rules/v0.1.3/Twitter.domain.txt
+    interval: 86400
+  "Twitter-ipcidr":
+    behavior: ipcidr
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Twitter.ipcidr.txt
+    path: ./rules/v0.1.3/Twitter.ipcidr.txt
+    interval: 86400
+  "Discord-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Discord.domain.txt
+    path: ./rules/v0.1.3/Discord.domain.txt
+    interval: 86400
+  "HBO-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/HBO.domain.txt
+    path: ./rules/v0.1.3/HBO.domain.txt
+    interval: 86400
+  "Google-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Google.domain.txt
+    path: ./rules/v0.1.3/Google.domain.txt
+    interval: 86400
+  "Google-ipcidr":
+    behavior: ipcidr
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Google.ipcidr.txt
+    path: ./rules/v0.1.3/Google.ipcidr.txt
+    interval: 86400
+  "Microsoft-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Microsoft.domain.txt
+    path: ./rules/v0.1.3/Microsoft.domain.txt
+    interval: 86400
+  "Apple-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Apple.domain.txt
+    path: ./rules/v0.1.3/Apple.domain.txt
+    interval: 86400
+  "Steam-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Steam.domain.txt
+    path: ./rules/v0.1.3/Steam.domain.txt
+    interval: 86400
+  "Paypal-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/Paypal.domain.txt
+    path: ./rules/v0.1.3/Paypal.domain.txt
+    interval: 86400
+  "ChinaDirect-domain":
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/ChinaDirect.domain.txt
+    path: ./rules/v0.1.3/ChinaDirect.domain.txt
+    interval: 86400
+  "ChinaDirect-ipcidr":
+    behavior: ipcidr
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/ChinaDirect.ipcidr.txt
+    path: ./rules/v0.1.3/ChinaDirect.ipcidr.txt
+    interval: 86400
+  "ChinaDirect-asn":
+    behavior: classical
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/ChinaDirect.asn.txt
+    path: ./rules/v0.1.3/ChinaDirect.asn.txt
+    interval: 86400
+
+rules:
+  # Route encrypted upstream DoH via Proxy; this profile needs a working node.
+  - "DOMAIN,dns.alidns.com,Proxy"
+  # Fake-IP exceptions alone do not make a connection DIRECT.
+  - "DOMAIN,localhost,DIRECT"
+  - "DOMAIN-SUFFIX,local,DIRECT"
+  - "DOMAIN-SUFFIX,lan,DIRECT"
+  - "DOMAIN-SUFFIX,home.arpa,DIRECT"
+  - "GEOSITE,private,DIRECT"
+  - "GEOIP,LAN,DIRECT,no-resolve"
+  - "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
+  - "DOMAIN,trae-api-sg.mchost.guru,AI"
+  - "DOMAIN,trae-api-us.mchost.guru,AI"
+  - "DOMAIN,gemini.google.com,Gemini"
+  - "DOMAIN,aistudio.google.com,Gemini"
+  - "DOMAIN,copilot.microsoft.com,AI"
+  - "DOMAIN,copilot-proxy.githubusercontent.com,AI"
+  - "DOMAIN,copilot-telemetry-service.githubusercontent.com,AI"
+  - "DOMAIN,copilot-telemetry.githubusercontent.com,AI"
+  - "DOMAIN,copilot-workspace.githubnext.com,AI"
+  - "RULE-SET,AdBlockBalanced-domain,AdBlock"
+  - "RULE-SET,DomesticCore-domain,DIRECT"
+  - "RULE-SET,DomesticSupplement-domain,DIRECT"
+  - "RULE-SET,SteamCN-domain,DIRECT"
+  - "RULE-SET,DomesticAI-domain,DIRECT"
+  - "RULE-SET,ChatGPT-domain,ChatGPT"
+  - "RULE-SET,Gemini-domain,Gemini"
+  - "RULE-SET,Claude-domain,Claude"
+  - "RULE-SET,AIScoped-domain,AI"
+  - "RULE-SET,GitHub-domain,GitHub"
+  - "RULE-SET,Speedtest-domain,Speedtest"
+  - "RULE-SET,Cloudflare-domain,Cloudflare"
+  - "RULE-SET,Service-Spotify-domain,Spotify"
+  - "RULE-SET,Service-Twitch-domain,Twitch"
+  - "RULE-SET,Service-BBC-domain,BBC"
+  - "RULE-SET,Service-Line-domain,Line"
+  - "RULE-SET,Service-Reddit-domain,Reddit"
+  - "RULE-SET,Service-Linkedin-domain,Linkedin"
+  - "RULE-SET,Service-Abema-domain,Abema"
+  - "RULE-SET,SharedInfrastructure-domain,Proxy"
+  - "RULE-SET,AppleOTA-domain,Apple"
+  - "RULE-SET,SteamGlobal-domain,Steam"
+  - "RULE-SET,YouTube-domain,YouTube"
+  - "RULE-SET,YouTube-ipcidr,YouTube,no-resolve"
+  - "RULE-SET,Netflix-domain,Netflix"
+  - "RULE-SET,Netflix-asn,Netflix"
+  - "RULE-SET,Disney-domain,Disney"
+  - "RULE-SET,PrimeVideo-domain,PrimeVideo"
+  - "RULE-SET,TikTok-domain,TikTok"
+  - "RULE-SET,Bilibili-domain,Bilibili"
+  - "RULE-SET,AnimeCrazy-domain,動畫瘋"
+  - "RULE-SET,Dazn-domain,Dazn"
+  - "RULE-SET,Telegram-domain,Telegram"
+  - "RULE-SET,Telegram-ipcidr,Telegram,no-resolve"
+  - "RULE-SET,Telegram-asn,Telegram"
+  - "RULE-SET,Whatsapp-domain,Whatsapp"
+  - "RULE-SET,Whatsapp-ipcidr,Whatsapp,no-resolve"
+  - "RULE-SET,Instagram-domain,Instagram"
+  - "RULE-SET,Facebook-domain,Facebook"
+  - "RULE-SET,Facebook-ipcidr,Facebook,no-resolve"
+  - "RULE-SET,Facebook-asn,Facebook"
+  - "RULE-SET,Twitter-domain,Twitter"
+  - "RULE-SET,Twitter-ipcidr,Twitter,no-resolve"
+  - "RULE-SET,Discord-domain,Discord"
+  - "RULE-SET,HBO-domain,HBO"
+  - "RULE-SET,Google-domain,Google"
+  - "RULE-SET,Google-ipcidr,Google,no-resolve"
+  - "RULE-SET,Microsoft-domain,Microsoft"
+  - "RULE-SET,Apple-domain,Apple"
+  - "RULE-SET,Steam-domain,Steam"
+  - "RULE-SET,Paypal-domain,Paypal"
+  - "RULE-SET,ChinaDirect-domain,DIRECT"
+  - "RULE-SET,ChinaDirect-ipcidr,DIRECT,no-resolve"
+  - "RULE-SET,ChinaDirect-asn,DIRECT"
+  - "GEOIP,CN,DIRECT,no-resolve"
+  - "MATCH,Final"
