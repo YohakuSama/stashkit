@@ -2,7 +2,7 @@
 
 独立的 Stash 原生分流配置，基于 [LoonKit v7.0.10](https://github.com/YohakuSama/loonkit/tree/5f272104fc1207612c1cbd18f3e19d861d459ed9) 正式规则。全部规则自本仓库托管，不依赖旧的 `loonkit/stashkit` 目录。
 
-当前配置版本 **v0.1.2**。最低文档支持范围为 **Stash iOS/tvOS 3.6+、macOS 4.3+**，用于加密 DNS bootstrap 和独立的节点域名解析；不适用于把同名字段直接套到旧版 Clash 或 Loon。[变更记录](./docs/CHANGELOG.md) · [真机验收步骤](./docs/VALIDATION.md) · [架构审计与剩余风险](./docs/ARCHITECTURE_AUDIT.md)。
+当前配置版本 **v0.1.3**。最低文档支持范围为 **Stash iOS/tvOS 3.6+、macOS 4.3+**，用于加密 DNS bootstrap 和独立的节点域名解析；不适用于把同名字段直接套到旧版 Clash 或 Loon。[变更记录](./docs/CHANGELOG.md) · [真机验收步骤](./docs/VALIDATION.md) · [架构审计与剩余风险](./docs/ARCHITECTURE_AUDIT.md)。
 
 ## 导入
 
@@ -40,6 +40,24 @@ Auto、Fallback、ALL 中的 `REJECT` 仅为尚未配置节点池时的占位。
 
 Stash 官方参考：[DNS 服务](https://stash.wiki/features/dns-server) · [策略组](https://stash.wiki/proxy-protocols/proxy-groups) · [高效配置](https://stash.wiki/faq/effective-stash)。
 
+## v0.1.3：不可变规则与首次加载
+
+**在线配置（推荐）：**
+
+```text
+https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml
+```
+
+54 个规则 URL 固定到经 CI 验证的 commit `d63fa06b915d403e2cebc782a8f1551d32b6c927`，而不是可变 `main`。所有规则使用 **`path: ./rules/v0.1.3/<文件名>`**，Stash 会先读本地缓存，后台更新成功后覆写缓存。这避免了不同发布版本共享缓存路径，也降低重启时的网络依赖；**首次无缓存、GitHub Raw 被屏蔽时仍需要人工离线安装**。更新发布应先在仓库提交并验证规则，再发布一份指向该不可变提交的新配置；不能一次提交新规则并让配置引用未出现的版本。
+
+**离线资源包（GitHub Actions 产物）：** 在 [CI 工作流](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) 最新成功的 `main` 运行记录中下载 `StashKit-v0.1.3-offline`；包含 `StashKit-Local.yaml`、54 份规则文件和 `SHA256SUMS.txt`。也可自行运行 `python scripts/build_offline_bundle.py` 制作同一 ZIP。
+
+离线配置：[StashKit-Local.yaml](./StashKit-Local.yaml)（**仅引用本地 `path`，不进行远程规则下载**）。重要：**Stash 不会因为打开 ZIP 就自动将规则文件复制进其管理的资源目录。** 必须先把 ZIP 内 `rules/v0.1.3/*.txt` 按相同相对路径放入 Stash 的受管理规则资源目录，确认 54 个 provider 都已加载，才可启用本地配置。路径管理需按 Stash 实际版本的界面和 iCloud 目录操作；若设备不允许手动写入资源目录，不要把离线方式当成一键方案。参见 [Stash 官方 rule-provider 缓存说明](https://stash.wiki/rules/rule-set)。
+
+**DNS 隐私模式（可选）：** 配好真实节点、让 `Proxy` 组实际使用节点后，启用 [DNS 隐私覆写](./overrides/dns-privacy.stoverride.example)，另存为 `.stoverride`。它将 `dns.follow-rule` 设为 `true`，并将 `dns.alidns.com` 的 DoH 连接先于国内直连规则交给 `Proxy`。如果节点失效、尚未选节点或网络阻断，该模式可能导致**DNS 解析失败或变慢**；故不作为通用默认值。代理节点自身的加密 DNS bootstrap、节点域名解析仍走独立直连 DoH；内网 `system` DNS 仍会经局域网链路。此模式也不能保证设备上所有程序的 DNS 都被代理。
+
+**图标依赖：** 主配置已移除 39 个来自旧 LoonKit 仓库的远程 icon 字段，消除运行时对旧仓库的引用。代价是策略组使用 Stash 默认图标；规则与策略名称不变。
+
 ## 自动校验
 
 [GitHub Actions](./.github/workflows/ci.yml) 校验：固定上游及本地修正、源 SHA256、集合内重复项、54 个引用地址、策略名称、匹配顺序及 YAML 结构；另运行离线路由、策略引用环、字段/类型和 DNS 异常应答回归测试。配置校验器只覆盖本项目使用的 Stash 字段，采用新功能时需同步扩展校验器，不能将其当成全部 Stash 功能的通用 schema。CI 还会真实探测 DoH bootstrap 的证书身份，以及完整的成功 DNS 应答；PR 检查候选提交的全部 54 个远程文件，主分支检查生产地址，并比对字节，包括两个大型文件。
@@ -55,6 +73,7 @@ python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
 python scripts/verify.py
 python scripts/check_remote.py
+python scripts/build_offline_bundle.py --check
 ```
 
 生成新规则：`python scripts/build_rules.py`；仅检查可复现性：`python scripts/build_rules.py --check`。生成器先核对[源锁](./build/source-lock.json)、[冻结清单](./build/release_manifest.json)、全部源 SHA256、规则数量和遗留文件，再暂存输出并逐文件原子替换。输入校验失败不会部分改写规则。更新固定基准、调整清单及主配置前必须审查变更，不能自动替换为 beta 候选。
