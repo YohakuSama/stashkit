@@ -83,6 +83,7 @@ def main():
     assert by_name["ALL"]["type"] == "select"
     for group in (by_name["Auto"], by_name["Fallback"], by_name["ALL"]):
         assert group["include-all"] and group["proxies"] == ["REJECT"], "Missing unconfigured-pool REJECT placeholder"
+    assert by_name["Proxy"]["proxies"] == ["REJECT", "Auto", "Fallback", "ALL"], "Default Proxy must fail closed"
     assert by_name["AdBlock"]["proxies"][0] == "REJECT"
     assert by_name["Final"]["proxies"][0] == "Proxy"
     assert by_name["Microsoft"]["proxies"][0] == "DIRECT"
