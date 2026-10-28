@@ -23,7 +23,7 @@ def local_profile(config=None):
     content, intervals = INTERVAL_LINE.subn("", content)
     if (urls, intervals) != (54, 54):
         raise ValueError(f"Expected 54 URL/interval replacements, got {urls}/{intervals}")
-    if len(re.findall(r"^    path: \./rules/[\w.-]+\.txt$", content, re.M)) != 54:
+    if len(re.findall(r"^    path: \./rules/v0\.1\.3/[\w.-]+\.txt$", content, re.M)) != 54:
         raise ValueError("Expected 54 local rule provider paths")
     return content
 
