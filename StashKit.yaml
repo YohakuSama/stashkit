@@ -1,4 +1,5 @@
-# StashKit v0.1.0 — independent repository, port of LoonKit v7.0.10
+# StashKit v0.1.1 — Stash-native profile based on LoonKit v7.0.10 plus reviewed fixes
+# Requires Stash iOS/tvOS 3.6+ or macOS 4.3+ for encrypted DNS bootstrap.
 # No nodes or private subscription URLs are bundled. Apply your own proxy-provider via an Override.
 # Routing assets are generated Stash-native snapshots in this repository.
 mode: rule

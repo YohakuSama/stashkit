@@ -2,6 +2,8 @@
 
 独立的 Stash 原生分流配置，基于 [LoonKit v7.0.10](https://github.com/YohakuSama/loonkit/tree/5f272104fc1207612c1cbd18f3e19d861d459ed9) 正式规则。全部规则自本仓库托管，不依赖旧的 `loonkit/stashkit` 目录。
 
+当前配置版本 **v0.1.1**。最低文档支持范围为 **Stash iOS/tvOS 3.6+、macOS 4.3+**，用于加密 DNS bootstrap 和独立的节点域名解析；不适用于把同名字段直接套到旧版 Clash 或 Loon。[变更记录](./docs/CHANGELOG.md) · [真机验收步骤](./docs/VALIDATION.md)。
+
 ## 导入
 
 **配置 URL：**
@@ -13,6 +15,8 @@ https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml
 从 Stash 配置管理界面通过 URL 导入 [StashKit.yaml](./StashKit.yaml)。**需自行添加节点或兼容 Clash/Stash 的订阅**；项目不含个人节点或密钥。可参照 [订阅覆写示例](./overrides/provider.stoverride.example)，将 `example.invalid` 替换成合法的订阅 URL 后在 Stash 中应用。确认 Proxy、ALL、Auto、Fallback 节点池已加载并实际选路；Bing 测速不保证地区解锁。
 
 测速参数按 Stash 官方机制配置在节点或 `proxy-providers` 的 `benchmark-url` / `benchmark-timeout` 上；同一节点在多个组中共享测速结果。示例统一使用 Bing HTTP 测速，组内仅设置测试间隔，不使用 Clash 风格的组级 `url`。
+
+Auto、Fallback、ALL 中的 `REJECT` 仅为尚未配置节点池时的占位。Stash 官方说明空远程代理集可能以 DIRECT 替代，因此这里**不宣称空订阅时一定阻断**；必须按真机验收步骤分别测试空列表、下载失败和旧缓存场景。正常使用前应确认 provider 实际包含节点，并在 ALL 中明确选择可用节点。
 
 ## 规则与策略
 

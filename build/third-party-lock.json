@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "repository": "YohakuSama/loonkit",
+  "commit": "5f272104fc1207612c1cbd18f3e19d861d459ed9",
+  "files": [
+    {
+      "path": "rules/LICENSE.GPL-2.0",
+      "upstream_path": "rules/LICENSE.GPL-2.0",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+    },
+    {
+      "path": "rules/LICENSE.MIT-V2FLY",
+      "upstream_path": "rules/LICENSE.MIT-V2FLY",
+      "sha256": "b9d84a22870d3f21c91a4c6e410c9cc51d00902f5233ad0c84011479244bf7d2"
+    },
+    {
+      "path": "rules/LICENSE.WTFPL-FELIXONMARS",
+      "upstream_path": "rules/LICENSE.WTFPL-FELIXONMARS",
+      "sha256": "f9e00539c44942d94e3c6d20f0c90e63e810ea181b10f16a252c93e4ea5cefd7"
+    },
+    {
+      "path": "build/historical_license_sources.json",
+      "upstream_path": "build/license_sources.json",
+      "sha256": "fb97ac48e8f38ba15c9e2043728562bb008ae7a0900e053206ca6ab2abbaa01f"
+    }
+  ]
+}
