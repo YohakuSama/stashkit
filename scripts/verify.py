@@ -78,8 +78,24 @@ def main():
     assert manifest["label"] == "v7.0.10", "Regenerate StashKit when LoonKit baseline updates"
     assert len(resources) == manifest["remote_subscription_count"] == 43
     assert profile["mode"] == "rule"
-    assert profile["dns"]["nameserver"] == ["https://dns.alidns.com/dns-query"]
-    assert "fake-ip-range" in profile["dns"]
+    dns = profile["dns"]
+    assert dns["nameserver"] == ["https://dns.alidns.com/dns-query"]
+    assert dns["default-nameserver"] == ["https://223.5.5.5/dns-query"]
+    assert dns["proxy-server-nameserver"] == ["https://223.5.5.5/dns-query"]
+    assert dns["follow-rule"] is False
+    assert dns["fake-ip-range"] == "198.18.0.1/16"
+    # No LoonKit 'real-ip' blanket exemptions: protected domains should use
+    # Fake-IP unless an explicit Stash compatibility case requires otherwise.
+    filters = set(dns["fake-ip-filter"])
+    assert "geosite:private" in filters
+    assert "+.apple.com" not in filters and "+.icloud.com" not in filters
+    assert "captive.apple.com" in filters
+    assert all(not entry.startswith(("http://", "udp://", "tcp://")) and
+               (entry.startswith("https://") or entry == "system")
+               for entry in dns["default-nameserver"] + dns["nameserver"] + dns["proxy-server-nameserver"])
+    assert not (set(profile) & {"hijack-dns", "real-ip", "skip-proxy", "bypass-tun",
+                                  "disable-stun", "dns-reject-mode", "domain-reject-mode",
+                                  "udp-fallback-mode", "interface-mode"}), "Unsupported Loon-only directives"
     source_groups = original.split("[Proxy Group]", 1)[1].split("[Remote Rule]", 1)[0]
     group_names = [row.split("=", 1)[0].strip() for row in source_groups.splitlines() if " = " in row]
     groups = profile["proxy-groups"]
