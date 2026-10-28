@@ -2,18 +2,24 @@
 """StashKit static compatibility checks against the LoonKit production baseline."""
 import hashlib
 import ipaddress
-import json
 import re
 import sys
 from pathlib import Path
-from urllib.parse import urlparse
 
 import yaml
+from validate_config import validate_profile, validate_override
+from rule_sources import (KIT, ROOT, valid_domain, lines_from, generate_source_sets,
+                          load_adjustments, apply_adjustments, load_baseline, render_asset)
 
-KIT = Path(__file__).resolve().parents[1]
-ROOT = KIT / "upstream" / "loonkit"
 SOURCE_URL = "https://raw.githubusercontent.com/YohakuSama/stashkit/main/rules/"
-SUPPORTED = {"DOMAIN", "DOMAIN-SUFFIX", "IP-CIDR", "IP-CIDR6", "IP-ASN"}
+LOCAL_DIRECT_RULES = [
+    "DOMAIN,localhost,DIRECT",
+    "DOMAIN-SUFFIX,local,DIRECT",
+    "DOMAIN-SUFFIX,lan,DIRECT",
+    "DOMAIN-SUFFIX,home.arpa,DIRECT",
+    "GEOSITE,private,DIRECT",
+    "GEOIP,LAN,DIRECT,no-resolve",
+]
 
 
 class UniqueKeysLoader(yaml.SafeLoader):
@@ -33,48 +39,16 @@ def construct_mapping(loader, node):
 UniqueKeysLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, construct_mapping)
 
 
-def valid_domain(value):
-    assert value and not value.startswith(".") and not value.endswith("."), value
-    assert not any(x in value for x in (" ", "/", ",", "*", "+")), value
-    # Not a DNS validity oracle; protects against accidentally passing a Clash rule token.
-    assert len(value) <= 253, value
-
-
-def lines_from(path):
-    return [row.strip() for row in path.read_text(encoding="utf-8").splitlines()
-            if row.strip() and not row.lstrip().startswith("#")]
-
-
-def generate_source_sets(path):
-    buckets = {"domain": [], "ipcidr": [], "asn": []}
-    raw = lines_from(path)
-    assert len(raw) == len(set(raw)), f"Duplicated LoonKit source entries: {path}"
-    for row in raw:
-        pieces = row.split(",")
-        assert len(pieces) >= 2 and pieces[0] in SUPPORTED, (path, row)
-        kind, value = pieces[:2]
-        opts = pieces[2:]
-        if kind in ("DOMAIN", "DOMAIN-SUFFIX"):
-            assert not opts, (path, row)
-            valid_domain(value)
-            buckets["domain"].append(value if kind == "DOMAIN" else "+." + value)
-        elif kind in ("IP-CIDR", "IP-CIDR6"):
-            assert opts == ["no-resolve"], (path, row)
-            network = ipaddress.ip_network(value, strict=False)
-            assert network.version == (4 if kind == "IP-CIDR" else 6), (path, row)
-            buckets["ipcidr"].append(value)
-        else:
-            assert opts == ["no-resolve"] and value.isdigit(), (path, row)
-            buckets["asn"].append(row)
-    return buckets, len(raw)
-
-
 def main():
     assert ROOT.is_dir(), "Missing pinned upstream/loonkit checkout"
-    manifest = json.loads((ROOT / "build/release_manifest.json").read_text(encoding="utf-8"))
+    manifest, original = load_baseline()
     profile = yaml.load((KIT / "StashKit.yaml").read_text(encoding="utf-8"), Loader=UniqueKeysLoader)
-    original = (ROOT / "LoonKit.lcf").read_text(encoding="utf-8")
+    validate_profile(profile)
+    example = yaml.load((KIT / "overrides/provider.stoverride.example").read_text(encoding="utf-8"), Loader=UniqueKeysLoader)
+    validate_override(example)
     resources = manifest["runtime_resources"]
+    adjustments = load_adjustments()
+    assert {c["source"] for c in adjustments["changes"]} <= {Path(r["path"]).stem for r in resources}
     assert manifest["label"] == "v7.0.10", "Regenerate StashKit when LoonKit baseline updates"
     assert len(resources) == manifest["remote_subscription_count"] == 43
     assert profile["mode"] == "rule"
@@ -108,7 +82,7 @@ def main():
     assert by_name["Fallback"]["type"] == "fallback" and by_name["Fallback"]["interval"] == 900
     assert by_name["ALL"]["type"] == "select"
     for group in (by_name["Auto"], by_name["Fallback"], by_name["ALL"]):
-        assert group["include-all"] and group["proxies"] == ["REJECT"], "Missing safe empty-node guard"
+        assert group["include-all"] and group["proxies"] == ["REJECT"], "Missing unconfigured-pool REJECT placeholder"
     assert by_name["AdBlock"]["proxies"][0] == "REJECT"
     assert by_name["Final"]["proxies"][0] == "Proxy"
     assert by_name["Microsoft"]["proxies"][0] == "DIRECT"
@@ -130,6 +104,7 @@ def main():
         assert count == src["matcher_count"], f"Source count mismatch: {src['path']}"
         total += count
         base = original_path.stem
+        apply_adjustments(base, buckets, adjustments)
         assert src["policy"] == "DIRECT" or src["policy"] in names, src["policy"]
         for behavior in ("domain", "ipcidr", "asn"):
             values = buckets[behavior]
@@ -137,6 +112,7 @@ def main():
                 continue
             path = KIT / "rules" / f"{base}.{behavior}.txt"
             assert path.is_file(), path
+            assert path.read_bytes() == render_asset(base, behavior, values, manifest["label"]), f"Non-reproducible asset: {path}"
             saved = lines_from(path)
             assert saved == values, f"Source parity failed: {path}"
             assert len(saved) == len(set(saved)), f"Generated duplicates: {path}"
@@ -161,20 +137,24 @@ def main():
             expected_routes.append("RULE-SET," + key + "," + src["policy"] + (
                 ",no-resolve" if behavior == "ipcidr" else ""))
     assert total == manifest["remote_rule_count"] == 196561, total
+    generated_total = domain_count + ip_count + asn_count
+    assert generated_total == adjustments["expected_generated_rule_count"], generated_total
     assert profile["rule-providers"] == expected_providers, "Provider names/URL/types are inconsistent"
     assert len(expected_providers) == 54
     assert len(list((KIT / "rules").glob("*.txt"))) == 54
     source_rule_section = original.split("[Rule]", 1)[1].split("[Plugin]", 1)[0]
     source_rules = [row.strip() for row in source_rule_section.splitlines() if row.strip()]
-    expected_rules = source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
+    assert source_rules[0] == "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
+    source_rules[0] = "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
+    expected_rules = LOCAL_DIRECT_RULES + source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
     assert profile["rules"] == expected_rules, "Rules changed order, policy, or local precedence"
     assert profile["rules"][-1] == "MATCH,Final"
     assert len(expected_routes) == 54
     print(f"PASS: {len(resources)} production LoonKit sources; {len(expected_providers)} Stash "
-          f"rule providers; {len(names)} groups; {total:,} rules "
+          f"rule providers; {len(names)} groups; {generated_total:,} rules "
           f"({domain_count:,} domain / {ip_count:,} CIDR / {asn_count:,} ASN).")
-    print("PASS: SHA-256, no duplicated entries, canonical Stash rule syntax, "
-          "no-resolve, provider URLs, all rule paths, routing priority and policy targets.")
+    print("PASS: SHA-256, reviewed source adjustments, no within-set duplicates, project schema, "
+          "acyclic group references, no-resolve, provider URLs and expected routing order.")
 
 
 if __name__ == "__main__":

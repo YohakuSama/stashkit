@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Check that all StashKit remote rules actually download from the published GitHub Raw URLs.
 
-This is a release-only check: run after merge on main. Unlike a repository tree
-check, this catches HTTP errors, bad redirects and stale/raw content.
+By default it checks production main URLs. --ref checks candidate bytes at a
+commit before merging, without changing production URLs in StashKit.yaml.
 """
 import concurrent.futures
+import argparse
 import hashlib
 import sys
+import re
 import time
 import urllib.error
 import urllib.request
@@ -19,14 +21,23 @@ CONFIG = ROOT / "StashKit.yaml"
 PREFIX = "https://raw.githubusercontent.com/YohakuSama/stashkit/main/rules/"
 
 
-def check(item):
-    name, spec = item
+def published_url(spec, ref=None):
     url = spec["url"]
     if not url.startswith(PREFIX):
-        raise AssertionError(f"{name}: unexpected host/path: {url}")
+        raise ValueError(f"Unexpected host/path: {url}")
     basename = url[len(PREFIX):]
-    if "/" in basename or not basename.endswith(".txt"):
-        raise AssertionError(f"{name}: unsafe asset URL {url}")
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*\.txt", basename):
+        raise ValueError(f"Unsafe asset URL: {url}")
+    if ref is not None:
+        if not re.fullmatch(r"[0-9a-f]{40}", ref):
+            raise ValueError("--ref must be a full lowercase commit SHA")
+        url = PREFIX.replace("/main/rules/", f"/{ref}/rules/") + basename
+    return url, basename
+
+
+def check(item, ref=None):
+    name, spec = item
+    url, basename = published_url(spec, ref)
     local_path = ROOT / "rules" / basename
     expected = local_path.read_bytes()
     last_error = None
@@ -55,24 +66,27 @@ def check(item):
     raise AssertionError(f"{name}: unavailable after 3 attempts: {last_error}")
 
 
-def main():
+def main(ref=None):
     config = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
     items = list(config["rule-providers"].items())
     if len(items) != 54:
         raise AssertionError(f"Expected 54 providers, got {len(items)}")
     total_bytes = 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        futures = {executor.submit(check, item): item[0] for item in items}
+        futures = {executor.submit(check, item, ref): item[0] for item in items}
         for future in concurrent.futures.as_completed(futures):
             name, size = future.result()
             total_bytes += size
             print(f"PASS: {name} HTTP 200, {size} bytes, exact byte-for-byte match")
-    print(f"PASS: all 54 live GitHub Raw URLs verified, {total_bytes:,} total bytes")
+    print(f"PASS: all 54 live GitHub Raw URLs verified at {ref or 'main'}, {total_bytes:,} total bytes")
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--ref", help="full candidate commit SHA; defaults to production main")
+    args = parser.parse_args()
     try:
-        main()
+        main(args.ref)
     except Exception as error:
         print(f"FAIL: {error}", file=sys.stderr)
         raise

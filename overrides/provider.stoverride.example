@@ -5,3 +5,6 @@ proxy-providers:
   personal:
     url: https://example.invalid/REPLACE-WITH-YOUR-CLASH-YAML-PROXY-PROVIDER
     interval: 3600
+    # Stash tests nodes, and shares their results across strategy groups.
+    benchmark-url: http://www.bing.com
+    benchmark-timeout: 5

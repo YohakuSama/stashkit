@@ -1,4 +1,5 @@
-# StashKit v0.1.0 — independent repository, port of LoonKit v7.0.10
+# StashKit v0.1.1 — Stash-native profile based on LoonKit v7.0.10 plus reviewed fixes
+# Requires Stash iOS/tvOS 3.6+ or macOS 4.3+ for encrypted DNS bootstrap.
 # No nodes or private subscription URLs are bundled. Apply your own proxy-provider via an Override.
 # Routing assets are generated Stash-native snapshots in this repository.
 mode: rule
@@ -16,11 +17,20 @@ dns:
   # Resolve proxy-server hostnames independently, avoiding proxy/DNS recursion.
   proxy-server-nameserver:
     - https://223.5.5.5/dns-query
+  # Private names need the LAN/system resolver; public names still use DoH.
+  nameserver-policy:
+    'geosite:private': system
+    '+.local': system
+    '+.lan': system
+    '+.home.arpa': system
   follow-rule: false
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
     - 'geosite:private'
+    - 'localhost'
     - '+.local'
+    - '+.lan'
+    - '+.home.arpa'
     - 'captive.apple.com'
     - 'dns.msftncsi.com'
     - 'dns.msftconnecttest.com'
@@ -44,7 +54,6 @@ proxy-groups:
     include-all: true
     proxies:
       - REJECT
-    url: http://www.bing.com
     interval: 600
     tolerance: 60
     icon: https://raw.githubusercontent.com/YohakuSama/loonkit/d82214d057b27a68d6b9c07c61fb126a69adc903/icons/Auto.png
@@ -53,7 +62,6 @@ proxy-groups:
     include-all: true
     proxies:
       - REJECT
-    url: http://www.bing.com
     interval: 900
     icon: https://raw.githubusercontent.com/YohakuSama/loonkit/d82214d057b27a68d6b9c07c61fb126a69adc903/icons/Fallback.png
   - name: ALL
@@ -628,7 +636,14 @@ rule-providers:
     interval: 86400
 
 rules:
-  - "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
+  # Fake-IP exceptions alone do not make a connection DIRECT.
+  - "DOMAIN,localhost,DIRECT"
+  - "DOMAIN-SUFFIX,local,DIRECT"
+  - "DOMAIN-SUFFIX,lan,DIRECT"
+  - "DOMAIN-SUFFIX,home.arpa,DIRECT"
+  - "GEOSITE,private,DIRECT"
+  - "GEOIP,LAN,DIRECT,no-resolve"
+  - "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
   - "DOMAIN,trae-api-sg.mchost.guru,AI"
   - "DOMAIN,trae-api-us.mchost.guru,AI"
   - "DOMAIN,gemini.google.com,Gemini"

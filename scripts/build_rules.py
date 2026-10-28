@@ -1,35 +1,55 @@
 #!/usr/bin/env python3
-"""Regenerate Stash-native text assets from the LoonKit release manifest.
-
-This script only updates rule files. Review and update StashKit.yaml and version
-metadata separately when production categories or policy groups change.
-"""
-import json
+"""Render pinned inputs; validate everything before replacing any output file."""
+import argparse
+import os
+import tempfile
 from pathlib import Path
-from verify import ROOT, KIT, generate_source_sets
 
-manifest = json.loads((ROOT / "build/release_manifest.json").read_text(encoding="utf-8"))
-outdir = KIT / "rules"
-outdir.mkdir(parents=True, exist_ok=True)
-expected = set()
-for item in manifest["runtime_resources"]:
-    source = ROOT / item["path"]
-    groups, count = generate_source_sets(source)
-    if count != item["matcher_count"]:
-        raise ValueError(f"Source mismatch: {source}")
-    base = source.stem
-    for kind, content in groups.items():
-        if not content:
-            continue
-        output = outdir / (base + "." + kind + ".txt")
-        expected.add(output)
-        output.write_text(
-            "# StashKit " + base + " " + kind + " from LoonKit " + manifest["label"] + "\n"
-            + "\n".join(content) + "\n",
-            encoding="utf-8",
-        )
-for obsolete in outdir.glob("*.txt"):
-    if obsolete not in expected:
-        raise RuntimeError(f"Obsolete asset requires manual review: {obsolete}")
-print(f"Generated {len(expected)} Stash-native rule sets from "
-      f"{len(manifest['runtime_resources'])} LoonKit sources.")
+from rule_sources import KIT, ROOT, expected_assets
+
+
+def build(kit=KIT, source_root=ROOT, check=False):
+    assets = expected_assets(source_root, kit)
+    outdir = kit / "rules"
+    existing = {path.name for path in outdir.glob("*.txt")}
+    obsolete = existing - set(assets)
+    if obsolete:
+        raise ValueError(f"Obsolete assets require manual review: {sorted(obsolete)}")
+    changed = [name for name, content in assets.items()
+               if not (outdir / name).is_file() or (outdir / name).read_bytes() != content]
+    if check:
+        if changed:
+            raise ValueError(f"Rebuild differs from committed assets: {changed}")
+        return len(assets), 0
+    # Hash/count/schema checks and obsolete-file detection finish before writes.
+    # Stage every changed file first, then replace each target atomically.
+    outdir.mkdir(parents=True, exist_ok=True)
+    staged = []
+    try:
+        for name in changed:
+            with tempfile.NamedTemporaryFile(dir=outdir, prefix=".stashkit-", delete=False) as handle:
+                temporary = Path(handle.name)
+                staged.append((temporary, outdir / name))
+                handle.write(assets[name])
+            temporary.chmod(0o644)
+        for temporary, target in staged:
+            os.replace(temporary, target)
+    finally:
+        for temporary, _ in staged:
+            temporary.unlink(missing_ok=True)
+    return len(assets), len(changed)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="verify exact output bytes without writing")
+    args = parser.parse_args()
+    count, changed = build(check=args.check)
+    if args.check:
+        print(f"PASS: all {count} assets reproduce byte-for-byte from pinned inputs and reviewed adjustments")
+    else:
+        print(f"Generated {count} Stash-native rule sets; {changed} files changed")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "source_commit": "5f272104fc1207612c1cbd18f3e19d861d459ed9",
+  "expected_generated_rule_count": 196562,
+  "changes": [
+    {
+      "source": "AnimeCrazy",
+      "behavior": "domain",
+      "remove": ["+.digicert.com", "+.hinet.net"],
+      "add": ["gamer-cds.cdn.hinet.net", "gamer2-cds.cdn.hinet.net"],
+      "reason": "Do not route all DigiCert and HiNet traffic as anime streaming; retain the specific CDN hosts identified in Bahamut support diagnostics.",
+      "reference": "https://forum.gamer.com.tw/C.php?bsn=60404&page=2&snA=27729"
+    },
+    {
+      "source": "SteamCN",
+      "behavior": "domain",
+      "remove": [],
+      "add": ["alibaba.cdn.steampipe.steamcontent.com"],
+      "reason": "Promote the existing ChinaDirect exact CDN hostname ahead of the broad SteamGlobal steamcontent.com rule."
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-# StashKit • GitHub • domain • LoonKit v7.0.10
+# StashKit GitHub domain from LoonKit v7.0.10
 +.atom.io
 +.dependabot.com
 +.ghcr.io

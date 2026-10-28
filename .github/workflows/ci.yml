@@ -15,6 +15,7 @@ jobs:
       - name: Checkout StashKit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - name: Checkout pinned LoonKit production baseline
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -27,12 +28,21 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: '3.12'
-      - name: Install PyYAML
-        run: python -m pip install 'PyYAML>=6,<7'
+      - name: Install pinned verification dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Run routing and validation regression tests
+        run: python -m unittest discover -s tests -v
       - name: Verify all sources, routing, YAML and rule assets
         run: python scripts/verify.py
+      - name: Check reproducible rule generation without writing
+        run: python scripts/build_rules.py --check
       - name: Probe encrypted bootstrap DoH over certificate-verified HTTPS
         run: python scripts/test_dns_endpoint.py
+      - name: Verify candidate remote rule URLs and bytes before merge
+        if: github.event_name == 'pull_request'
+        env:
+          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
+        run: python scripts/check_remote.py --ref "$CANDIDATE_SHA"
       - name: Verify all published remote rule URLs and bytes
         if: github.ref == 'refs/heads/main'
         run: python scripts/check_remote.py

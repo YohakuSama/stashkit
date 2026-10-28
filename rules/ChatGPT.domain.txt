@@ -1,4 +1,4 @@
-# StashKit • ChatGPT • domain • LoonKit v7.0.10
+# StashKit ChatGPT domain from LoonKit v7.0.10
 openai-api.arkoselabs.com
 openaiassets.blob.core.windows.net
 openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net

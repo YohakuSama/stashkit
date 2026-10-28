@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.venv/
+upstream/
+# Personal provider overrides may contain subscription credentials.
+*.stoverride
