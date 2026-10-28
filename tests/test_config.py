@@ -24,6 +24,17 @@ class ConfigTests(unittest.TestCase):
         merged["proxy-providers"] = example["proxy-providers"]
         validate_profile(merged)
 
+    def test_default_proxy_chain_is_reject_until_opt_in(self):
+        by_name = {group["name"]: group for group in self.profile["proxy-groups"]}
+        self.assertEqual(by_name["Proxy"]["proxies"][0], "REJECT")
+        self.assertEqual(by_name["Final"]["proxies"][0], "Proxy")
+        self.assertEqual(by_name["ChatGPT"]["proxies"][0], "Proxy")
+        self.assertEqual(by_name["AI"]["proxies"][0], "Proxy")
+        self.assertEqual(by_name["AdBlock"]["proxies"][0], "REJECT")
+        # Even with no node providers and Stash's empty-provider DIRECT
+        # substitution, default global/service proxy selection is REJECT.
+        self.assertEqual(len(self.profile.get("proxy-providers", {})), 0)
+
     def test_self_reference_rejected(self):
         self.profile["proxy-groups"][0]["proxies"] = ["Proxy"]
         with self.assertRaisesRegex(ValueError, "cyclic"):
