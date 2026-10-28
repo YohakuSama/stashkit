@@ -13,6 +13,8 @@ python scripts/test_dns_endpoint.py
 
 回归测试使用离线输入；真实 HTTPS DoH 探测单独运行，遇到证书错误、DNS 错误或不完整消息会失败，不跳过 TLS 身份检查。GitHub CI 的实测不等于每个用户网络都可用。
 
+合并前可运行 `python scripts/check_remote.py --ref 完整候选提交SHA`，逐字节检查该提交已发布的 54 个远程资产；省略参数则检查生产 main。测试 PR 配置时，其 rule-providers 默认仍指向 main；需要手动把测试副本的远程规则 URL 中 main 替换为候选提交 SHA，避免误用旧资产，不能把临时测试 URL 提交回生产配置。
+
 ## Stash 真机验收
 
 使用 iOS/tvOS 3.6+ 或 macOS 4.3+，导入主配置和填好个人订阅地址的覆写，确认已加载 54 个规则集和实际节点。覆写需另存为 `.stoverride`；示例中的 example.invalid 有意不可用。

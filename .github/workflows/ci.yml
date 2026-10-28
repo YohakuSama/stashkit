@@ -15,6 +15,7 @@ jobs:
       - name: Checkout StashKit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - name: Checkout pinned LoonKit production baseline
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -37,6 +38,11 @@ jobs:
         run: python scripts/build_rules.py --check
       - name: Probe encrypted bootstrap DoH over certificate-verified HTTPS
         run: python scripts/test_dns_endpoint.py
+      - name: Verify candidate remote rule URLs and bytes before merge
+        if: github.event_name == 'pull_request'
+        env:
+          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
+        run: python scripts/check_remote.py --ref "$CANDIDATE_SHA"
       - name: Verify all published remote rule URLs and bytes
         if: github.ref == 'refs/heads/main'
         run: python scripts/check_remote.py
