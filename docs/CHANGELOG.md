@@ -4,7 +4,7 @@
 
 - 54 个规则订阅 URL 固定到不可变 Git commit；加入版本缓存 path，防止跨版本混用并复用本地规则。
 - 提供完整路径本地版 `StashKit-Local.yaml`、确定性离线 ZIP 及 CI 工作流产物；首次离线安装仍需手动放入 Stash 受管资源目录，不宣称一键导入。
-- 加入可选 DNS 隐私覆写，按 Stash 原生规则转发 AliDNS DoH，明确适用条件与残余直连。
+- 加入独立 `StashKit-Privacy.yaml` 及可选 DNS 隐私覆写，按 Stash 原生规则转发 AliDNS DoH，明确适用条件与残余直连。
 - 移除对 LoonKit 固定 commit 图标的运行时依赖，回退到 Stash 默认图标。
 
 ## v0.1.2 — 2026-10-29

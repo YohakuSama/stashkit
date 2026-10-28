@@ -54,7 +54,15 @@ https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml
 
 离线配置：[StashKit-Local.yaml](./StashKit-Local.yaml)（**仅引用本地 `path`，不进行远程规则下载**）。重要：**Stash 不会因为打开 ZIP 就自动将规则文件复制进其管理的资源目录。** 必须先把 ZIP 内 `rules/v0.1.3/*.txt` 按相同相对路径放入 Stash 的受管理规则资源目录，确认 54 个 provider 都已加载，才可启用本地配置。路径管理需按 Stash 实际版本的界面和 iCloud 目录操作；若设备不允许手动写入资源目录，不要把离线方式当成一键方案。参见 [Stash 官方 rule-provider 缓存说明](https://stash.wiki/rules/rule-set)。
 
-**DNS 隐私模式（可选）：** 配好真实节点、让 `Proxy` 组实际使用节点后，启用 [DNS 隐私覆写](./overrides/dns-privacy.stoverride.example)，另存为 `.stoverride`。它将 `dns.follow-rule` 设为 `true`，并将 `dns.alidns.com` 的 DoH 连接先于国内直连规则交给 `Proxy`。如果节点失效、尚未选节点或网络阻断，该模式可能导致**DNS 解析失败或变慢**；故不作为通用默认值。代理节点自身的加密 DNS bootstrap、节点域名解析仍走独立直连 DoH；内网 `system` DNS 仍会经局域网链路。此模式也不能保证设备上所有程序的 DNS 都被代理。
+**严格 DNS 隐私配置（直接导入可选）：**
+
+```text
+https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit-Privacy.yaml
+```
+
+[StashKit-Privacy.yaml](./StashKit-Privacy.yaml) 直接开启 `dns.follow-rule: true`，并把 `dns.alidns.com` 的 DoH 请求优先交给 Proxy。与普通配置相比，**54 份规则、40 个策略组、全部分流顺序不变**，但必须先添加并选定可用节点，否则 DNS 可能失败。此配置不是全设备防泄漏保证：节点 DNS bootstrap 和私有 LAN DNS 仍通过独立直连链路。
+
+**DNS 隐私模式（覆写现有普通配置，可选）：** 配好真实节点、让 `Proxy` 组实际使用节点后，启用 [DNS 隐私覆写](./overrides/dns-privacy.stoverride.example)，另存为 `.stoverride`。它将 `dns.follow-rule` 设为 `true`，并将 `dns.alidns.com` 的 DoH 连接先于国内直连规则交给 `Proxy`。如果节点失效、尚未选节点或网络阻断，该模式可能导致**DNS 解析失败或变慢**；故不作为通用默认值。代理节点自身的加密 DNS bootstrap、节点域名解析仍走独立直连 DoH；内网 `system` DNS 仍会经局域网链路。此模式也不能保证设备上所有程序的 DNS 都被代理。
 
 **图标依赖：** 主配置已移除 39 个来自旧 LoonKit 仓库的远程 icon 字段，消除运行时对旧仓库的引用。代价是策略组使用 Stash 默认图标；规则与策略名称不变。
 
