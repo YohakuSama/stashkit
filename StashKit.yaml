@@ -642,7 +642,7 @@ rules:
   - "DOMAIN-SUFFIX,home.arpa,DIRECT"
   - "GEOSITE,private,DIRECT"
   - "GEOIP,LAN,DIRECT,no-resolve"
-  - "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
+  - "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
   - "DOMAIN,trae-api-sg.mchost.guru,AI"
   - "DOMAIN,trae-api-us.mchost.guru,AI"
   - "DOMAIN,gemini.google.com,Gemini"

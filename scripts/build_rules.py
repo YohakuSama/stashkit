@@ -6,18 +6,20 @@ metadata separately when production categories or policy groups change.
 """
 import json
 from pathlib import Path
-from verify import ROOT, KIT, generate_source_sets
+from verify import ROOT, KIT, generate_source_sets, load_adjustments, apply_adjustments
 
 manifest = json.loads((ROOT / "build/release_manifest.json").read_text(encoding="utf-8"))
 outdir = KIT / "rules"
 outdir.mkdir(parents=True, exist_ok=True)
 expected = set()
+adjustments = load_adjustments()
 for item in manifest["runtime_resources"]:
     source = ROOT / item["path"]
     groups, count = generate_source_sets(source)
     if count != item["matcher_count"]:
         raise ValueError(f"Source mismatch: {source}")
     base = source.stem
+    apply_adjustments(base, groups, adjustments)
     for kind, content in groups.items():
         if not content:
             continue

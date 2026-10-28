@@ -16,8 +16,8 @@ https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml
 
 ## 规则与策略
 
-- 从 LoonKit 43 份正式源文件生成 **54 个 Stash 原生规则集**：43 domain、7 ipcidr、4 classical ASN，共 **196,561** 条匹配器。
-- 保留原有 39 个策略组，另新增 ALL 全量节点池（共 **40** 组）。保留策略首选项、规则优先级及 IP 子集 `no-resolve`。
+- 以 LoonKit 43 份正式源文件的 **196,561** 条匹配器为基准，经[明确列出的本地修正](./build/adjustments.json)生成 **54 个 Stash 原生规则集**：43 domain、7 ipcidr、4 classical ASN，共 **196,562** 条匹配器。
+- 保留原有 39 个策略组，另新增 ALL 全量节点池（共 **40** 组）。保留策略首选项及 IP 子集 `no-resolve`；内网、GitHub Raw 和 Steam 国内 CDN 的优先级修正见[路由说明](./docs/ROUTING.md)。
 - AdBlockBalanced **76,895** 条、ChinaDirect **114,705** 条按域名/IP 类型拆分；不把大型规则直接作为顺序匹配的 classical。
 - 使用 **Stash 自身的 Fake-IP + AliDNS DoH**。上游 DNS 与代理节点域名解析采用独立的 DNS 配置；不照搬 Loon 的 `real-ip` / `hijack-dns` 等指令，且 **DoH 加密不等于 DNS 一定经代理**。
 - 原 Loon 专用插件/脚本不冒充 Stash 兼容组件。

@@ -82,8 +82,23 @@ class RoutingTests(unittest.TestCase):
     def test_public_service_routes_stay_separate(self):
         for target, policy in (("api.openai.com", "ChatGPT"),
                                ("gemini.google.com", "Gemini"),
-                               ("raw.githubusercontent.com", "Proxy"),
+                               ("raw.githubusercontent.com", "GitHub"),
                                ("example.com", "Final")):
+            with self.subTest(target=target):
+                self.assertEqual(route(target, self.profile), policy)
+
+    def test_streaming_cdn_exceptions_are_scoped(self):
+        expected = {
+            "www.digicert.com": "Final",
+            "www.hinet.net": "Final",
+            "gamer-cds.cdn.hinet.net": "動畫瘋",
+            "gamer2-cds.cdn.hinet.net": "動畫瘋",
+            "alibaba.cdn.steampipe.steamcontent.com": "DIRECT",
+            "other.steamcontent.com": "Steam",
+            "control.kochava.com": "AdBlock",
+            "graph.facebook.com": "Whatsapp",
+        }
+        for target, policy in expected.items():
             with self.subTest(target=target):
                 self.assertEqual(route(target, self.profile), policy)
 

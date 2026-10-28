@@ -77,12 +77,40 @@ def generate_source_sets(path):
     return buckets, len(raw)
 
 
+def load_adjustments():
+    data = json.loads((KIT / "build/adjustments.json").read_text(encoding="utf-8"))
+    assert data["schema_version"] == 1
+    assert data["source_commit"] == "5f272104fc1207612c1cbd18f3e19d861d459ed9"
+    assert len({(c["source"], c["behavior"]) for c in data["changes"]}) == len(data["changes"])
+    return data
+
+
+def apply_adjustments(base, buckets, adjustments):
+    """Apply only explicit, reviewed changes after validating the upstream input."""
+    for change in adjustments["changes"]:
+        if change["source"] != base:
+            continue
+        assert change["behavior"] == "domain", change
+        assert change["reason"].strip(), change
+        values = buckets["domain"]
+        for value in change["remove"]:
+            assert value in values, (base, "missing removal", value)
+            values.remove(value)
+        for value in change["add"]:
+            valid_domain(value[2:] if value.startswith("+.") else value)
+            assert value not in values, (base, "duplicate addition", value)
+            values.append(value)
+    return buckets
+
+
 def main():
     assert ROOT.is_dir(), "Missing pinned upstream/loonkit checkout"
     manifest = json.loads((ROOT / "build/release_manifest.json").read_text(encoding="utf-8"))
     profile = yaml.load((KIT / "StashKit.yaml").read_text(encoding="utf-8"), Loader=UniqueKeysLoader)
     original = (ROOT / "LoonKit.lcf").read_text(encoding="utf-8")
     resources = manifest["runtime_resources"]
+    adjustments = load_adjustments()
+    assert {c["source"] for c in adjustments["changes"]} <= {Path(r["path"]).stem for r in resources}
     assert manifest["label"] == "v7.0.10", "Regenerate StashKit when LoonKit baseline updates"
     assert len(resources) == manifest["remote_subscription_count"] == 43
     assert profile["mode"] == "rule"
@@ -138,6 +166,7 @@ def main():
         assert count == src["matcher_count"], f"Source count mismatch: {src['path']}"
         total += count
         base = original_path.stem
+        apply_adjustments(base, buckets, adjustments)
         assert src["policy"] == "DIRECT" or src["policy"] in names, src["policy"]
         for behavior in ("domain", "ipcidr", "asn"):
             values = buckets[behavior]
@@ -169,17 +198,21 @@ def main():
             expected_routes.append("RULE-SET," + key + "," + src["policy"] + (
                 ",no-resolve" if behavior == "ipcidr" else ""))
     assert total == manifest["remote_rule_count"] == 196561, total
+    generated_total = domain_count + ip_count + asn_count
+    assert generated_total == adjustments["expected_generated_rule_count"], generated_total
     assert profile["rule-providers"] == expected_providers, "Provider names/URL/types are inconsistent"
     assert len(expected_providers) == 54
     assert len(list((KIT / "rules").glob("*.txt"))) == 54
     source_rule_section = original.split("[Rule]", 1)[1].split("[Plugin]", 1)[0]
     source_rules = [row.strip() for row in source_rule_section.splitlines() if row.strip()]
+    assert source_rules[0] == "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
+    source_rules[0] = "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
     expected_rules = LOCAL_DIRECT_RULES + source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
     assert profile["rules"] == expected_rules, "Rules changed order, policy, or local precedence"
     assert profile["rules"][-1] == "MATCH,Final"
     assert len(expected_routes) == 54
     print(f"PASS: {len(resources)} production LoonKit sources; {len(expected_providers)} Stash "
-          f"rule providers; {len(names)} groups; {total:,} rules "
+          f"rule providers; {len(names)} groups; {generated_total:,} rules "
           f"({domain_count:,} domain / {ip_count:,} CIDR / {asn_count:,} ASN).")
     print("PASS: SHA-256, no duplicated entries, canonical Stash rule syntax, "
           "no-resolve, provider URLs, all rule paths, routing priority and policy targets.")
