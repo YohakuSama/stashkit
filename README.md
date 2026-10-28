@@ -2,7 +2,7 @@
 
 独立的 Stash 原生分流配置，基于 [LoonKit v7.0.10](https://github.com/YohakuSama/loonkit/tree/5f272104fc1207612c1cbd18f3e19d861d459ed9) 正式规则。全部规则自本仓库托管，不依赖旧的 `loonkit/stashkit` 目录。
 
-当前配置版本 **v0.1.2**。最低文档支持范围为 **Stash iOS/tvOS 3.6+、macOS 4.3+**，用于加密 DNS bootstrap 和独立的节点域名解析；不适用于把同名字段直接套到旧版 Clash 或 Loon。[变更记录](./docs/CHANGELOG.md) · [真机验收步骤](./docs/VALIDATION.md)。
+当前配置版本 **v0.1.2**。最低文档支持范围为 **Stash iOS/tvOS 3.6+、macOS 4.3+**，用于加密 DNS bootstrap 和独立的节点域名解析；不适用于把同名字段直接套到旧版 Clash 或 Loon。[变更记录](./docs/CHANGELOG.md) · [真机验收步骤](./docs/VALIDATION.md) · [架构审计与剩余风险](./docs/ARCHITECTURE_AUDIT.md)。
 
 ## 导入
 
