@@ -53,7 +53,6 @@ proxy-groups:
     include-all: true
     proxies:
       - REJECT
-    url: http://www.bing.com
     interval: 600
     tolerance: 60
     icon: https://raw.githubusercontent.com/YohakuSama/loonkit/d82214d057b27a68d6b9c07c61fb126a69adc903/icons/Auto.png
@@ -62,7 +61,6 @@ proxy-groups:
     include-all: true
     proxies:
       - REJECT
-    url: http://www.bing.com
     interval: 900
     icon: https://raw.githubusercontent.com/YohakuSama/loonkit/d82214d057b27a68d6b9c07c61fb126a69adc903/icons/Fallback.png
   - name: ALL

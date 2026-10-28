@@ -12,6 +12,8 @@ https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml
 
 从 Stash 配置管理界面通过 URL 导入 [StashKit.yaml](./StashKit.yaml)。**需自行添加节点或兼容 Clash/Stash 的订阅**；项目不含个人节点或密钥。可参照 [订阅覆写示例](./overrides/provider.stoverride.example)，将 `example.invalid` 替换成合法的订阅 URL 后在 Stash 中应用。确认 Proxy、ALL、Auto、Fallback 节点池已加载并实际选路；Bing 测速不保证地区解锁。
 
+测速参数按 Stash 官方机制配置在节点或 `proxy-providers` 的 `benchmark-url` / `benchmark-timeout` 上；同一节点在多个组中共享测速结果。示例统一使用 Bing HTTP 测速，组内仅设置测试间隔，不使用 Clash 风格的组级 `url`。
+
 ## 规则与策略
 
 - 从 LoonKit 43 份正式源文件生成 **54 个 Stash 原生规则集**：43 domain、7 ipcidr、4 classical ASN，共 **196,561** 条匹配器。
