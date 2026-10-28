@@ -16,11 +16,20 @@ dns:
   # Resolve proxy-server hostnames independently, avoiding proxy/DNS recursion.
   proxy-server-nameserver:
     - https://223.5.5.5/dns-query
+  # Private names need the LAN/system resolver; public names still use DoH.
+  nameserver-policy:
+    'geosite:private': system
+    '+.local': system
+    '+.lan': system
+    '+.home.arpa': system
   follow-rule: false
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
     - 'geosite:private'
+    - 'localhost'
     - '+.local'
+    - '+.lan'
+    - '+.home.arpa'
     - 'captive.apple.com'
     - 'dns.msftncsi.com'
     - 'dns.msftconnecttest.com'
@@ -628,6 +637,13 @@ rule-providers:
     interval: 86400
 
 rules:
+  # Fake-IP exceptions alone do not make a connection DIRECT.
+  - "DOMAIN,localhost,DIRECT"
+  - "DOMAIN-SUFFIX,local,DIRECT"
+  - "DOMAIN-SUFFIX,lan,DIRECT"
+  - "DOMAIN-SUFFIX,home.arpa,DIRECT"
+  - "GEOSITE,private,DIRECT"
+  - "GEOIP,LAN,DIRECT,no-resolve"
   - "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
   - "DOMAIN,trae-api-sg.mchost.guru,AI"
   - "DOMAIN,trae-api-us.mchost.guru,AI"

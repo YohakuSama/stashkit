@@ -1,0 +1,92 @@
+"""Offline routing sentinels, not a replacement for Stash's /rules/match.
+
+Only the profile's explicit domain rules, text providers and private IPs are
+modelled. GeoSite data, public GeoIP/ASN data and DNS resolution require Stash.
+"""
+import ipaddress
+import sys
+import unittest
+from functools import lru_cache
+from pathlib import Path
+
+import yaml
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from verify import UniqueKeysLoader
+
+LAN_NETWORKS = tuple(map(ipaddress.ip_network, (
+    "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.0/8",
+    "169.254.0.0/16", "::1/128", "fc00::/7", "fe80::/10",
+)))
+
+
+@lru_cache(maxsize=None)
+def provider_entries(filename):
+    return frozenset(row.strip() for row in (ROOT / "rules" / filename).read_text().splitlines()
+                     if row.strip() and not row.lstrip().startswith("#"))
+
+
+def route(target, profile):
+    """Return the first statically decidable policy for a sentinel target."""
+    try:
+        address = ipaddress.ip_address(target)
+    except ValueError:
+        address = None
+    labels = target.lower().rstrip(".").split(".")
+    suffixes = {".".join(labels[i:]) for i in range(len(labels))}
+    for rule in profile["rules"]:
+        kind, *args = rule.split(",")
+        if kind == "MATCH":
+            return args[0]
+        value, policy = args[:2]
+        if kind == "DOMAIN" and target == value:
+            return policy
+        if kind == "DOMAIN-SUFFIX" and value in suffixes:
+            return policy
+        if kind == "GEOIP" and value == "LAN" and address is not None:
+            if any(address.version == net.version and address in net for net in LAN_NETWORKS):
+                return policy
+        if kind == "RULE-SET":
+            spec = profile["rule-providers"][value]
+            entries = provider_entries(spec["url"].rsplit("/", 1)[1])
+            if spec["behavior"] == "domain" and address is None:
+                if target in entries or any("+." + suffix in entries for suffix in suffixes):
+                    return policy
+            if spec["behavior"] == "ipcidr" and address is not None:
+                if any(address.version == net.version and address in net
+                       for net in map(ipaddress.ip_network, entries)):
+                    return policy
+    raise AssertionError("No MATCH rule")
+
+
+class RoutingTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.profile = yaml.load((ROOT / "StashKit.yaml").read_text(), Loader=UniqueKeysLoader)
+
+    def test_private_targets_are_direct(self):
+        for target in ("localhost", "nas.local", "router.lan", "printer.home.arpa",
+                       "192.168.1.1", "10.0.0.1", "172.16.1.1", "169.254.1.1",
+                       "127.0.0.1", "::1", "fd00::1", "fe80::1"):
+            with self.subTest(target=target):
+                self.assertEqual(route(target, self.profile), "DIRECT")
+
+    def test_private_dns_is_scoped_to_system(self):
+        dns = self.profile["dns"]
+        for name in ("geosite:private", "+.local", "+.lan", "+.home.arpa"):
+            self.assertEqual(dns["nameserver-policy"][name], "system")
+            self.assertIn(name, dns["fake-ip-filter"])
+        self.assertEqual(dns["nameserver"], ["https://dns.alidns.com/dns-query"])
+
+    def test_public_service_routes_stay_separate(self):
+        for target, policy in (("api.openai.com", "ChatGPT"),
+                               ("gemini.google.com", "Gemini"),
+                               ("raw.githubusercontent.com", "Proxy"),
+                               ("example.com", "Final")):
+            with self.subTest(target=target):
+                self.assertEqual(route(target, self.profile), policy)
+
+
+if __name__ == "__main__":
+    unittest.main()

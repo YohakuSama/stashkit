@@ -25,6 +25,7 @@ https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml
 - `dns.default-nameserver: https://223.5.5.5/dns-query`：使用 **IP 地址直连的加密 DoH** 解析 DoH 服务器的主机名，避免原先 `223.5.5.5` / `223.6.6.6` 普通 UDP DNS 的明文引导查询。CI 会测试该 IPv4 HTTPS 端点的证书和 RFC8484 应答。
 - `dns.nameserver: https://dns.alidns.com/dns-query`：Stash 的主 DNS 上游，默认**直连 DoH**，不是自动走代理。外部 DoH 服务商可看到需要真实解析的查询；Fake-IP 只能减少部分代理域名的本地 DNS 查询。
 - `dns.proxy-server-nameserver`：专门解析节点服务器域名，避免递归 DNS；同样采用加密 DoH，节点服务器名仍可能被 DNS 服务商看到。
+- 私有域名通过限定范围的 `nameserver-policy` 使用 `system`，便于访问路由器、NAS 和内网服务；这部分查询可能使用局域网明文 DNS，公共域名仍交给 DoH。私有域名和 LAN 地址另有前置 `DIRECT` 规则；`fake-ip-filter` 本身不负责直连。企业自定义域名需自行补充对应内网 DNS policy。
 - `dns.fake-ip-filter`：仅保留私有域名、局域网、网络探测、游戏及 STUN 的有限兼容例外。移除了此前沿用 LoonKit 的 `+.apple.com`、`+.icloud.com` **大范围 Real-IP 例外**，防止不必要的真实 DNS 查询。
 - `dns.follow-rule: false`：显式保留 Stash 官方默认行为，不把所有 DNS 强行代理（可能导致代理节点域名递归解析、CDN 延迟）。如需海外 DNS 全程代理，须根据自己的节点 IP/域名及 `proxy-server-nameserver` 单独设计，不能简单打开开关。
 - **不保证绝对无 DNS 泄漏**：其他 App 的内置 DoH、直连路径、VPN/Network Extension 的接管情况都需要设备上验证；建议在 Stash 连接后检查 DNS 测试和请求记录。

@@ -14,6 +14,14 @@ KIT = Path(__file__).resolve().parents[1]
 ROOT = KIT / "upstream" / "loonkit"
 SOURCE_URL = "https://raw.githubusercontent.com/YohakuSama/stashkit/main/rules/"
 SUPPORTED = {"DOMAIN", "DOMAIN-SUFFIX", "IP-CIDR", "IP-CIDR6", "IP-ASN"}
+LOCAL_DIRECT_RULES = [
+    "DOMAIN,localhost,DIRECT",
+    "DOMAIN-SUFFIX,local,DIRECT",
+    "DOMAIN-SUFFIX,lan,DIRECT",
+    "DOMAIN-SUFFIX,home.arpa,DIRECT",
+    "GEOSITE,private,DIRECT",
+    "GEOIP,LAN,DIRECT,no-resolve",
+]
 
 
 class UniqueKeysLoader(yaml.SafeLoader):
@@ -166,7 +174,7 @@ def main():
     assert len(list((KIT / "rules").glob("*.txt"))) == 54
     source_rule_section = original.split("[Rule]", 1)[1].split("[Plugin]", 1)[0]
     source_rules = [row.strip() for row in source_rule_section.splitlines() if row.strip()]
-    expected_rules = source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
+    expected_rules = LOCAL_DIRECT_RULES + source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
     assert profile["rules"] == expected_rules, "Rules changed order, policy, or local precedence"
     assert profile["rules"][-1] == "MATCH,Final"
     assert len(expected_routes) == 54
