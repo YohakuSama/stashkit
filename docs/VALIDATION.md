@@ -9,6 +9,7 @@ python -m unittest discover -s tests -v
 python scripts/verify.py
 python scripts/build_rules.py --check
 python scripts/test_dns_endpoint.py
+python scripts/build_offline_bundle.py --check
 ```
 
 回归测试使用离线输入；真实 HTTPS DoH 探测单独运行，遇到证书错误、DNS 错误或不完整消息会失败，不跳过 TLS 身份检查。GitHub CI 的实测不等于每个用户网络都可用。
@@ -44,3 +45,22 @@ curl --get 'http://127.0.0.1:9090/rules/match' \
 ```
 
 验收记录应写明 Stash 版本、平台、网络和实际出口。当前仓库的 CI 不启动 Stash，因此真机项目不能标成已由 CI 验证。
+
+## v0.1.3 离线和隐私验收
+
+- **在线**：检查各规则 URL 含同一固定 40 位 Git commit、provider 缓存 path 含 `v0.1.3`；第一次联网加载成功后切断网络再重启，确认 54 个缓存是否能继续使用（要注意代理本身也可能无法连通）。
+- **离线**：从主分支 CI 下载 ZIP，验 SHA256SUMS，按 Stash 受管资源目录的版本路径部署 54 份文件，再加载 `StashKit-Local.yaml`。单独导入 YAML 而不部署文件**应失败**，不能标记为正常配置。GitHub Actions 的 ZIP 是备份/安装材料，不是 App 一键导入包。
+- **隐私**：先通过个人订阅加载节点，手动切换 Proxy，再导入 `StashKit-Privacy.yaml`（或对普通配置启用 `dns-privacy.stoverride`，不要重复启用）；查看 AliDNS 主机的最终代理链及 DNS 记录。观察 Apple CDN、Wi-Fi/蜂窝切换、节点域名解析。若 DNS 不可用，先禁用覆写，不能断言绝对防泄漏。
+- **图标**：39 个旧图标 URL 已移除，策略页应使用 Stash 默认图标。
+- **发布流程**：新的规则变更先完成源文件与生成器 CI，在一个包含全部新规则的固定 commit 上发布；配置文件随后单独修改 pin 和缓存版本号，切勿以当前配置 commit 的可变 main 指针做规则订阅。
+
+## 自动采集真机运行时证据（只读）
+
+在 Stash 已运行的 Mac（或同一受信任局域网内可访问 iOS Stash 控制端口的电脑）中，按 [Stash 官方 HTTP API](https://stash.wiki/features/http-api) 开启外部控制并设置密钥。不要把密钥提交到 GitHub。运行：
+
+```sh
+export STASH_API_TOKEN='由你在 Stash 设置的控制器密钥'
+python scripts/stash_runtime_audit.py --base-url http://127.0.0.1:9090
+```
+
+iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，不要向公共互联网开放控制接口。脚本使用**只读 GET** 检查模式、Proxy 实际选择、54 个 provider 数量、几项路由匹配及内存接口；不会输出 API 密钥、个人节点订阅或者整个 DNS 缓存。**运行结果来自你的真实 Stash 才能称为真机验收**，GitHub Actions 无法代替它。DNS 旁路测试还需检查客户端连接记录与第三方 DNS 测试；单次 API 通过不是绝对无泄漏证明。

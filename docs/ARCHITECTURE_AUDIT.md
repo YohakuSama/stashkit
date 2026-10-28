@@ -1,6 +1,6 @@
 # StashKit 架构复审与风险记录（2026-10-29）
 
-> 基准：StashKit v0.1.2 候选、LoonKit v7.0.10 固定源。此文不是 Stash 官方核心的加载验收证书。
+> 基准：StashKit v0.1.3 候选、LoonKit v7.0.10 固定源。此文不是 Stash 官方核心的加载验收证书。
 
 ## 项目结构检查
 
@@ -25,11 +25,11 @@ v0.1.2 将 `Proxy` **第一个选项设为 `REJECT`**，并在 CI 固定这一�
 
 ### A2 — 高：DNS 不等于全程经代理（已明确告知，真机待验）
 
-DNS 配置中 `follow-rule: false`：外部上游 DNS 查询默认由 Stash 直接送往 AliDNS 加密 DoH。证书测试证明测试环境里 HTTPS 端点可用，但**不能证明 iOS 全设备无 DNS 泄漏**。`nameserver-policy` 的私有域名使用 `system`，局域网查询可能是明文；代理节点域名经独立 DoH 解析，DoH 服务商仍能看到这些查询。应用自带 DoH、VPN 旁路、IPv6/UDP 实际行为需要设备验证。见[官方 DNS 文档](https://stash.wiki/features/dns-server)。
+普通配置 `follow-rule: false`：外部上游 DNS 查询默认由 Stash 直接送往 AliDNS 加密 DoH。证书测试证明测试环境里 HTTPS 端点可用，但**不能证明 iOS 全设备无 DNS 泄漏**。`nameserver-policy` 的私有域名使用 `system`，局域网查询可能是明文；代理节点域名经独立 DoH 解析，DoH 服务商仍能看到这些查询。新增可选 `overrides/dns-privacy.stoverride.example` 开启 `follow-rule: true`，并优先将 AliDNS DoH 主机路由到 Proxy。仅适合节点可用且接受 CDN/解析递归风险的用户；该模式仍无法代理节点域名解析、私有 LAN 系统 DNS 和 VPN 之外的请求。应用自带 DoH、VPN 旁路、IPv6/UDP 实际行为需要设备验证。见[官方 DNS 文档](https://stash.wiki/features/dns-server)。
 
 ### A3 — 中：54 份远程资源的可达性、网络封锁与非原子更新
 
-CI 检查 GitHub Raw 的 54 个 URL 均返回 200，并与本仓库文件逐字节一致，但这是 GitHub Actions 网络，不保证所有地区/运营商均能连接。Stash 规则集合有本地缓存和后台更新；**如果首次下载失败且没有缓存，规则可能未加载完整**。目前这些 URL 指向可变 `main`，54 份规则按各自周期更新，跨版本发布存在短暂的版本不一致窗口。后续适合引入版本化/不可变发布地址和分阶段上线，不应直接认定现有链路没有网络启动依赖。见[官方规则集文档](https://stash.wiki/rules/rule-set)。
+CI 检查 GitHub Raw 的 54 个 URL 均返回 200，并与本仓库文件逐字节一致，但这是 GitHub Actions 网络，不保证所有地区/运营商均能连接。Stash 规则集合有本地缓存和后台更新；**如果首次下载失败且没有缓存，规则可能未加载完整**。v0.1.3 将 54 个 URL 改为同一个固定提交，版本缓存目录改为 `./rules/v0.1.3/`，避免后续 main 规则更新引起同一配置内的跨版本不一致，并为已有缓存提供重启保护。首次无缓存仍依赖 GitHub 可达；另提供完整 ZIP 与 path-only 离线配置，**但需手工安装至 Stash 受管资源目录**。每次发新规则要先发布规则快照、再切换配置 pin。见[官方规则集文档](https://stash.wiki/rules/rule-set)。
 
 ### A4 — 中：交叉规则覆盖不等于可安全全局去重
 
@@ -41,7 +41,7 @@ CI 检查 GitHub Raw 的 54 个 URL 均返回 200，并与本仓库文件逐字�
 
 ### A6 — 低：图标仍依赖 LoonKit 固定 commit
 
-主配置的 `icon:` 资源依然使用 LoonKit 不可变 commit 的图标 URLs。**规则和节点分流不依赖这些图标**，但如果原仓库资产被移除，图标可能无法加载。理想的独立发布应移入本仓库自托管，或显式保留这个只影响外观的可选依赖。
+v0.1.3 已**移除** 39 个旧 LoonKit 图标 URL：新配置使用 Stash 默认图标，不再因 LoonKit 仓库删除或图标改名而发生请求失败。若未来恢复定制图标，应先把资产独立托管在 StashKit，再添加引用。
 
 ### A7 — 中：项目自建校验器不等于 Stash 内核
 

@@ -24,6 +24,15 @@ class ConfigTests(unittest.TestCase):
         merged["proxy-providers"] = example["proxy-providers"]
         validate_profile(merged)
 
+    def test_all_rules_use_immutable_refs_and_explicit_cache_paths(self):
+        pin = "d63fa06b915d403e2cebc782a8f1551d32b6c927"
+        for name, provider in self.profile["rule-providers"].items():
+            with self.subTest(provider=name):
+                self.assertIn("/" + pin + "/rules/", provider["url"])
+                self.assertEqual(provider["path"], "./rules/v0.1.3/" + provider["url"].rsplit("/", 1)[1])
+        for group in self.profile["proxy-groups"]:
+            self.assertNotIn("icon", group)
+
     def test_default_proxy_chain_is_reject_until_opt_in(self):
         by_name = {group["name"]: group for group in self.profile["proxy-groups"]}
         self.assertEqual(by_name["Proxy"]["proxies"][0], "REJECT")
