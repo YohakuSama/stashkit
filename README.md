@@ -51,7 +51,7 @@ python scripts/verify.py
 python scripts/check_remote.py
 ```
 
-生成新规则：`python scripts/build_rules.py`，但更新 LoonKit 固定基准及主配置前必须审查变更，不能自动替换为 beta 候选。
+生成新规则：`python scripts/build_rules.py`；仅检查可复现性：`python scripts/build_rules.py --check`。生成器先核对[源锁](./build/source-lock.json)、[冻结清单](./build/release_manifest.json)、全部源 SHA256、规则数量和遗留文件，再暂存输出并逐文件原子替换。输入校验失败不会部分改写规则。更新固定基准、调整清单及主配置前必须审查变更，不能自动替换为 beta 候选。
 
 **验证边界**：静态规则、配置语法和远程 HTTP 文件校验，不能替代 Stash iOS/macOS 真机导入、DNS、规则更新、性能、广告和流媒体解锁验收。
 

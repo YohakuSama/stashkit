@@ -1,4 +1,4 @@
-# StashKit • Claude • domain • LoonKit v7.0.10
+# StashKit Claude domain from LoonKit v7.0.10
 servd-anthropic-website.b-cdn.net
 +.anthropic.com
 +.clau.de

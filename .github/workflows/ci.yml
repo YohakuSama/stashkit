@@ -33,6 +33,8 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Verify all sources, routing, YAML and rule assets
         run: python scripts/verify.py
+      - name: Check reproducible rule generation without writing
+        run: python scripts/build_rules.py --check
       - name: Probe encrypted bootstrap DoH over certificate-verified HTTPS
         run: python scripts/test_dns_endpoint.py
       - name: Verify all published remote rule URLs and bytes

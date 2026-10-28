@@ -1,4 +1,4 @@
-# StashKit • AIScoped • domain • LoonKit v7.0.10
+# StashKit AIScoped domain from LoonKit v7.0.10
 antigravity-pa.googleapis.com
 antigravity.googleapis.com
 cloudaicompanion.googleapis.com

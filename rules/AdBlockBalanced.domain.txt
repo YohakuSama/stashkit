@@ -1,4 +1,4 @@
-# StashKit • AdBlockBalanced • domain • sourced from LoonKit v7.0.10
+# StashKit AdBlockBalanced domain from LoonKit v7.0.10
 00-gov.cn
 0024aadd.com
 0026645142c89aeb1.com

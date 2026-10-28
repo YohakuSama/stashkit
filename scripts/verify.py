@@ -2,19 +2,16 @@
 """StashKit static compatibility checks against the LoonKit production baseline."""
 import hashlib
 import ipaddress
-import json
 import re
 import sys
 from pathlib import Path
-from urllib.parse import urlparse
 
 import yaml
 from validate_config import validate_profile, validate_override
+from rule_sources import (KIT, ROOT, valid_domain, lines_from, generate_source_sets,
+                          load_adjustments, apply_adjustments, load_baseline, render_asset)
 
-KIT = Path(__file__).resolve().parents[1]
-ROOT = KIT / "upstream" / "loonkit"
 SOURCE_URL = "https://raw.githubusercontent.com/YohakuSama/stashkit/main/rules/"
-SUPPORTED = {"DOMAIN", "DOMAIN-SUFFIX", "IP-CIDR", "IP-CIDR6", "IP-ASN"}
 LOCAL_DIRECT_RULES = [
     "DOMAIN,localhost,DIRECT",
     "DOMAIN-SUFFIX,local,DIRECT",
@@ -42,76 +39,13 @@ def construct_mapping(loader, node):
 UniqueKeysLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, construct_mapping)
 
 
-def valid_domain(value):
-    assert value and not value.startswith(".") and not value.endswith("."), value
-    assert not any(x in value for x in (" ", "/", ",", "*", "+")), value
-    # Not a DNS validity oracle; protects against accidentally passing a Clash rule token.
-    assert len(value) <= 253, value
-
-
-def lines_from(path):
-    return [row.strip() for row in path.read_text(encoding="utf-8").splitlines()
-            if row.strip() and not row.lstrip().startswith("#")]
-
-
-def generate_source_sets(path):
-    buckets = {"domain": [], "ipcidr": [], "asn": []}
-    raw = lines_from(path)
-    assert len(raw) == len(set(raw)), f"Duplicated LoonKit source entries: {path}"
-    for row in raw:
-        pieces = row.split(",")
-        assert len(pieces) >= 2 and pieces[0] in SUPPORTED, (path, row)
-        kind, value = pieces[:2]
-        opts = pieces[2:]
-        if kind in ("DOMAIN", "DOMAIN-SUFFIX"):
-            assert not opts, (path, row)
-            valid_domain(value)
-            buckets["domain"].append(value if kind == "DOMAIN" else "+." + value)
-        elif kind in ("IP-CIDR", "IP-CIDR6"):
-            assert opts == ["no-resolve"], (path, row)
-            network = ipaddress.ip_network(value, strict=False)
-            assert network.version == (4 if kind == "IP-CIDR" else 6), (path, row)
-            buckets["ipcidr"].append(value)
-        else:
-            assert opts == ["no-resolve"] and value.isdigit(), (path, row)
-            buckets["asn"].append(row)
-    return buckets, len(raw)
-
-
-def load_adjustments():
-    data = json.loads((KIT / "build/adjustments.json").read_text(encoding="utf-8"))
-    assert data["schema_version"] == 1
-    assert data["source_commit"] == "5f272104fc1207612c1cbd18f3e19d861d459ed9"
-    assert len({(c["source"], c["behavior"]) for c in data["changes"]}) == len(data["changes"])
-    return data
-
-
-def apply_adjustments(base, buckets, adjustments):
-    """Apply only explicit, reviewed changes after validating the upstream input."""
-    for change in adjustments["changes"]:
-        if change["source"] != base:
-            continue
-        assert change["behavior"] == "domain", change
-        assert change["reason"].strip(), change
-        values = buckets["domain"]
-        for value in change["remove"]:
-            assert value in values, (base, "missing removal", value)
-            values.remove(value)
-        for value in change["add"]:
-            valid_domain(value[2:] if value.startswith("+.") else value)
-            assert value not in values, (base, "duplicate addition", value)
-            values.append(value)
-    return buckets
-
-
 def main():
     assert ROOT.is_dir(), "Missing pinned upstream/loonkit checkout"
-    manifest = json.loads((ROOT / "build/release_manifest.json").read_text(encoding="utf-8"))
+    manifest, original = load_baseline()
     profile = yaml.load((KIT / "StashKit.yaml").read_text(encoding="utf-8"), Loader=UniqueKeysLoader)
     validate_profile(profile)
     example = yaml.load((KIT / "overrides/provider.stoverride.example").read_text(encoding="utf-8"), Loader=UniqueKeysLoader)
     validate_override(example)
-    original = (ROOT / "LoonKit.lcf").read_text(encoding="utf-8")
     resources = manifest["runtime_resources"]
     adjustments = load_adjustments()
     assert {c["source"] for c in adjustments["changes"]} <= {Path(r["path"]).stem for r in resources}
@@ -178,6 +112,7 @@ def main():
                 continue
             path = KIT / "rules" / f"{base}.{behavior}.txt"
             assert path.is_file(), path
+            assert path.read_bytes() == render_asset(base, behavior, values, manifest["label"]), f"Non-reproducible asset: {path}"
             saved = lines_from(path)
             assert saved == values, f"Source parity failed: {path}"
             assert len(saved) == len(set(saved)), f"Generated duplicates: {path}"

@@ -1,4 +1,4 @@
-# StashKit • DomesticCore • domain • sourced from LoonKit v7.0.10
+# StashKit DomesticCore domain from LoonKit v7.0.10
 +.alipay.com
 +.alipayobjects.com
 +.amap.com

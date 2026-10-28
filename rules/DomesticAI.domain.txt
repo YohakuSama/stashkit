@@ -1,4 +1,4 @@
-# StashKit • DomesticAI • domain • sourced from LoonKit v7.0.10
+# StashKit DomesticAI domain from LoonKit v7.0.10
 +.moonshot.cn
 +.kimichat.com
 +.zhipuai.cn
