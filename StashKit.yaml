@@ -5,21 +5,31 @@ mode: rule
 log-level: warning
 
 dns:
+  # Bootstrap the DoH hostname through encrypted DNS (no plaintext UDP/53 bootstrap).
+  # Use an IP-literal endpoint to avoid a DNS-bootstrap cycle.
   default-nameserver:
-    - 223.5.5.5
-    - 223.6.6.6
+    - https://223.5.5.5/dns-query
+  # App/host DNS is handled by Stash Fake-IP. The resolver itself is direct,
+  # not automatically tunneled through a proxy; see README privacy notes.
   nameserver:
     - https://dns.alidns.com/dns-query
+  # Resolve proxy-server hostnames independently, avoiding proxy/DNS recursion.
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+  follow-rule: false
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
-    - geosite:private
+    - 'geosite:private'
     - '+.local'
     - 'captive.apple.com'
-    - '+.apple.com'
-    - '+.icloud.com'
     - 'dns.msftncsi.com'
-    - '*.srv.nintendo.net'
-    - '+.xboxlive.com'
+    - 'dns.msftconnecttest.com'
+    - '*.n.n.srv.nintendo.net'
+    - 'xbox.*.*.microsoft.com'
+    - '*.*.xboxlive.com'
+    - '+.stun.*.*'
+    - '+.stun.*.*.*'
+    - '+.stun.*.*.*.*'
 
 proxy-groups:
   - name: "Proxy"
