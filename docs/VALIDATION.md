@@ -28,6 +28,7 @@ python scripts/test_dns_endpoint.py
 | 广告 | control.kochava.com → AdBlock；测试改变 AdBlock 的选项是否符合预期 |
 | DNS | 查看应答服务器：公共真实解析使用 DoH，私有域名使用系统 DNS；独立检查其他 App 内置 DNS 和 VPN 接管范围 |
 | 测速 | 检查 provider 的 benchmark-url 生效、节点失效后 Auto/Fallback 的实际选择；测速不证明服务地区解锁 |
+| 默认安全出口 | 初次导入检查 Proxy 是否选中 REJECT；确认订阅有真实可用节点后，主动改选 Auto/Fallback/ALL，再检查 ChatGPT 等服务最终出口；旧配置升级时策略选择可能被保留 |
 | 空订阅 | 分别测试合法但 proxies 为空、过滤后为空、首次下载失败、有旧缓存时下载失败；观察 Auto/Fallback/ALL 的真实出口，不能由 REJECT 占位推断绝对阻断 |
 | 网络变化 | Wi-Fi/蜂窝切换、IPv4/IPv6、断网重连；检查节点域名解析与规则缓存 |
 | 性能与播放 | 检查内存和请求记录，实际播放对应流媒体；离线路由测试不能证明播放或地区解锁 |

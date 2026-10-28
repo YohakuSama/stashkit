@@ -87,6 +87,18 @@ class RoutingTests(unittest.TestCase):
             with self.subTest(target=target):
                 self.assertEqual(route(target, self.profile), policy)
 
+    def test_advertising_overrides_earlier_service_and_cn_collections(self):
+        # Overlap is intentional: early AdBlock rules must not be shadowed by
+        # broad service or ChinaDirect suffixes.
+        expected = {
+            "0ka.com": "AdBlock",
+            "analytics.msnbc.msn.com": "AdBlock",
+            "collector.github.com": "AdBlock",
+        }
+        for target, policy in expected.items():
+            with self.subTest(target=target):
+                self.assertEqual(route(target, self.profile), policy)
+
     def test_streaming_cdn_exceptions_are_scoped(self):
         expected = {
             "www.digicert.com": "Final",

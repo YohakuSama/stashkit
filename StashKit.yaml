@@ -1,4 +1,4 @@
-# StashKit v0.1.1 — Stash-native profile based on LoonKit v7.0.10 plus reviewed fixes
+# StashKit v0.1.2 — Stash-native profile, fail-closed initial Proxy selection
 # Requires Stash iOS/tvOS 3.6+ or macOS 4.3+ for encrypted DNS bootstrap.
 # No nodes or private subscription URLs are bundled. Apply your own proxy-provider via an Override.
 # Routing assets are generated Stash-native snapshots in this repository.
@@ -44,7 +44,10 @@ dns:
 proxy-groups:
   - name: "Proxy"
     type: select
+    # Fail closed until the user explicitly selects a valid node pool.
+    # Empty remote providers may be substituted with DIRECT by Stash.
     proxies:
+      - REJECT
       - Auto
       - Fallback
       - ALL
