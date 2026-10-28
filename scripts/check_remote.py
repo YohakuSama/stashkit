@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check that all StashKit remote rules actually download from the published GitHub Raw URLs.
 
-By default it checks production main URLs. --ref checks candidate bytes at a
+By default it checks production immutable URLs. --ref checks candidate bytes at a
 commit before merging, without changing production URLs in StashKit.yaml.
 """
 import concurrent.futures
@@ -18,7 +18,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "StashKit.yaml"
-PREFIX = "https://raw.githubusercontent.com/YohakuSama/stashkit/main/rules/"
+PREFIX = "https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/"
 
 
 def published_url(spec, ref=None):
@@ -31,7 +31,7 @@ def published_url(spec, ref=None):
     if ref is not None:
         if not re.fullmatch(r"[0-9a-f]{40}", ref):
             raise ValueError("--ref must be a full lowercase commit SHA")
-        url = PREFIX.replace("/main/rules/", f"/{ref}/rules/") + basename
+        url = PREFIX.replace("/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/", f"/{ref}/rules/") + basename
     return url, basename
 
 
@@ -78,12 +78,12 @@ def main(ref=None):
             name, size = future.result()
             total_bytes += size
             print(f"PASS: {name} HTTP 200, {size} bytes, exact byte-for-byte match")
-    print(f"PASS: all 54 live GitHub Raw URLs verified at {ref or 'main'}, {total_bytes:,} total bytes")
+    print(f"PASS: all 54 pinned GitHub Raw URLs verified at {ref or 'd63fa06b915d403e2cebc782a8f1551d32b6c927'}, {total_bytes:,} total bytes")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--ref", help="full candidate commit SHA; defaults to production main")
+    parser.add_argument("--ref", help="full candidate commit SHA; defaults to immutable production snapshot")
     args = parser.parse_args()
     try:
         main(args.ref)

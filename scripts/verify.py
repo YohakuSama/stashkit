@@ -11,7 +11,7 @@ from validate_config import validate_profile, validate_override
 from rule_sources import (KIT, ROOT, valid_domain, lines_from, generate_source_sets,
                           load_adjustments, apply_adjustments, load_baseline, render_asset)
 
-SOURCE_URL = "https://raw.githubusercontent.com/YohakuSama/stashkit/main/rules/"
+SOURCE_URL = "https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/"
 LOCAL_DIRECT_RULES = [
     "DOMAIN,localhost,DIRECT",
     "DOMAIN-SUFFIX,local,DIRECT",
@@ -90,8 +90,10 @@ def main():
     for group in groups:
         for child in group["proxies"]:
             assert child in names or child in ("DIRECT", "REJECT"), (group["name"], child)
-        if group.get("icon"):
-            assert group["icon"].startswith("https://raw.githubusercontent.com/YohakuSama/loonkit/")
+        assert "icon" not in group, "Remote LoonKit icon dependency was removed"
+    release_lock = __import__("json").loads((KIT / "build/release-lock.json").read_text(encoding="utf-8"))
+    assert release_lock == {"version": "v0.1.3", "source_ref": "d63fa06b915d403e2cebc782a8f1551d32b6c927"}, "Immutable release lock changed"
+    assert SOURCE_URL == f"https://raw.githubusercontent.com/YohakuSama/stashkit/{release_lock['source_ref']}/rules/"
     expected_providers = {}
     expected_routes = []
     total = 0
@@ -133,6 +135,7 @@ def main():
                 "behavior": "classical" if behavior == "asn" else behavior,
                 "format": "text",
                 "url": SOURCE_URL + path.name,
+                "path": "./rules/" + path.name,
                 "interval": 86400,
             }
             expected_routes.append("RULE-SET," + key + "," + src["policy"] + (
