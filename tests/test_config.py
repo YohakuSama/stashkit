@@ -29,7 +29,7 @@ class ConfigTests(unittest.TestCase):
         for name, provider in self.profile["rule-providers"].items():
             with self.subTest(provider=name):
                 self.assertIn("/" + pin + "/rules/", provider["url"])
-                self.assertEqual(provider["path"], "./rules/" + provider["url"].rsplit("/", 1)[1])
+                self.assertEqual(provider["path"], "./rules/v0.1.3/" + provider["url"].rsplit("/", 1)[1])
         for group in self.profile["proxy-groups"]:
             self.assertNotIn("icon", group)
 

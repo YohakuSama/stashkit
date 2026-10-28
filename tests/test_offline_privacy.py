@@ -18,7 +18,7 @@ class OfflineAndPrivacyTests(unittest.TestCase):
         binary = make_zip()
         with zipfile.ZipFile(io.BytesIO(binary)) as archive:
             names = archive.namelist()
-            self.assertEqual(len([n for n in names if n.startswith("rules/")]), 54)
+            self.assertEqual(len([n for n in names if n.startswith("rules/v0.1.3/")]), 54)
             self.assertEqual(len(names), 57)
             self.assertEqual(archive.read("StashKit-Local.yaml"),
                              (ROOT / "StashKit-Local.yaml").read_bytes())
@@ -27,7 +27,7 @@ class OfflineAndPrivacyTests(unittest.TestCase):
             for provider in profile["rule-providers"].values():
                 self.assertNotIn("url", provider)
                 self.assertNotIn("interval", provider)
-                self.assertTrue(provider["path"].startswith("./rules/"))
+                self.assertTrue(provider["path"].startswith("./rules/v0.1.3/"))
             validate_profile(profile)
 
     def test_bundle_is_byte_reproducible(self):

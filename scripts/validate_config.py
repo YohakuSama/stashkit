@@ -176,11 +176,18 @@ def validate_profile(profile):
     for name, spec in providers.items():
         text(name, "rule-providers name")
         fields(spec, {"behavior", "format", "url", "path", "interval", "headers"},
-               {"behavior", "format", "url", "interval"}, f"rule-providers.{name}")
+               {"behavior", "format"}, f"rule-providers.{name}")
+        require("url" in spec or "path" in spec, f"{name}: remote URL or local path required")
+        if "url" in spec:
+            require("interval" in spec, f"{name}: remote provider interval required")
+        else:
+            require("interval" not in spec, f"{name}: local-only provider cannot auto-update")
         require(spec["behavior"] in {"domain", "ipcidr", "classical"}, f"{name}: invalid behavior")
         require(spec["format"] in {"text", "yaml"}, f"{name}: invalid format")
-        http_url(spec["url"], f"{name}.url")
-        require(type(spec["interval"]) is int and spec["interval"] > 0, f"{name}: invalid interval")
+        if "url" in spec:
+            http_url(spec["url"], f"{name}.url")
+        if "interval" in spec:
+            require(type(spec["interval"]) is int and spec["interval"] > 0, f"{name}: invalid interval")
         if "headers" in spec:
             validate_headers(spec["headers"], f"{name}.headers")
         if "path" in spec:

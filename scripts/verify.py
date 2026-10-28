@@ -135,7 +135,7 @@ def main():
                 "behavior": "classical" if behavior == "asn" else behavior,
                 "format": "text",
                 "url": SOURCE_URL + path.name,
-                "path": "./rules/" + path.name,
+                "path": "./rules/v0.1.3/" + path.name,
                 "interval": 86400,
             }
             expected_routes.append("RULE-SET," + key + "," + src["policy"] + (
