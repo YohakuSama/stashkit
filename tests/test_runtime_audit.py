@@ -138,6 +138,11 @@ class RuntimeAuditTests(unittest.TestCase):
                 self.responses['/rules'] = {'rules': [row]}
                 self.assertFalse(self.run_audit())
 
+    def test_earlier_stun_direct_cannot_be_hidden_by_a_later_reject(self):
+        self.responses['/rules']['rules'].insert(0,
+            {'type': 'Protocol', 'payload': 'STUN', 'proxy': 'DIRECT'})
+        self.assertFalse(self.run_audit())
+
 
 if __name__ == '__main__':
     unittest.main()

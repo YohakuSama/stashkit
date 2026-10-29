@@ -117,8 +117,8 @@ def declares_stun_guard(response):
         policy = row.get("proxy", row.get("policy", row.get("outbound")))
         if isinstance(policy, dict):
             policy = policy.get("name")
-        if (kind, payload, policy) == ("protocol", "STUN", "REJECT"):
-            return True
+        if (kind, payload) == ("protocol", "STUN"):
+            return policy == "REJECT"
     return False
 
 
