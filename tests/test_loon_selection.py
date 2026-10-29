@@ -59,7 +59,7 @@ class LoonSelectionTests(unittest.TestCase):
 
     def test_missing_and_conflicting_providers_fail(self):
         source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
-        with self.assertRaisesRegex(ValueError, "Named providers"):
+        with self.assertRaisesRegex(ValueError, "Named nodes or providers"):
             build_loon_selection(source, {})
         with self.assertRaisesRegex(ValueError, "conflict"):
             build_loon_selection(source, {"Proxy": PROVIDERS["personal"]})
@@ -81,7 +81,7 @@ class LoonSelectionTests(unittest.TestCase):
                     "url": "https://example.invalid/REPLACE-WITH-YOUR-SUBSCRIPTION",
                 }},
             }), encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "Replace the example"):
+            with self.assertRaisesRegex(ValueError, "Replace placeholder"):
                 read_provider_override(path)
             path.write_text(yaml.safe_dump({
                 "proxy-providers": PROVIDERS,
@@ -145,8 +145,8 @@ class LoonSelectionTests(unittest.TestCase):
             self.assertEqual(providers, PROVIDERS)
             built = build_loon_selection(source, providers, nodes)
             groups = {row["name"]: row for row in built["proxy-groups"]}
-            self.assertEqual(groups["Proxy"]["use"], list(PROVIDERS))
-            self.assertEqual(groups["ChatGPT"]["use"], list(PROVIDERS))
+            self.assertEqual(groups["Proxy"]["use"], list(providers))
+            self.assertEqual(groups["ChatGPT"]["use"], list(providers))
 
     def test_unknown_or_conflicting_node_name_rejected(self):
         source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
