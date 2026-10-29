@@ -55,6 +55,30 @@ class PolicyGroupParityTests(unittest.TestCase):
                         else:
                             self.assertNotIn("filter", group)
 
+    def test_direct_capable_service_groups_preserve_loon_choices(self):
+        # Exactly the six service selectors that allow manual DIRECT in LoonKit.
+        expected = {
+            "Microsoft": ["DIRECT", "Proxy", "Auto", "Fallback"],
+            "Apple": ["DIRECT", "Proxy", "Auto", "Fallback"],
+            "Speedtest": ["DIRECT", "Proxy", "Auto", "Fallback"],
+            "Bilibili": ["DIRECT", "Proxy", "Auto", "Fallback"],
+            "Line": ["DIRECT", "Proxy", "Auto", "Fallback"],
+            "Steam": ["Proxy", "Auto", "Fallback", "DIRECT"],
+        }
+        for filename in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+            profile = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
+            groups = {g["name"]: g for g in profile["proxy-groups"]}
+            for name, choices in expected.items():
+                with self.subTest(profile=filename, group=name):
+                    self.assertEqual(groups[name]["proxies"], choices)
+                    self.assertTrue(groups[name]["include-all"])
+                    self.assertEqual(groups[name]["filter"], ".*")
+            self.assertNotIn("DIRECT", groups["Proxy"]["proxies"])
+            for name in ("AI", "ChatGPT", "Gemini", "Claude"):
+                self.assertNotIn("DIRECT", groups[name]["proxies"])
+            self.assertEqual(groups["AdBlock"]["proxies"][0], "REJECT")
+            self.assertEqual(groups["Final"]["proxies"][0], "Proxy")
+
     def test_proxy_and_services_mix_named_policies_with_dynamic_nodes(self):
         profile = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
         groups = {g["name"]: g for g in profile["proxy-groups"]}
