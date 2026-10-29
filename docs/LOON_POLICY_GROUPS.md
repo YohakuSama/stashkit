@@ -2,6 +2,20 @@
 
 LoonKit 的 `ALL_Filter` 是节点筛选器，不是一个名为 `ALL` 的策略组。目标是让 `Proxy` 与 `ChatGPT` 等服务组都能直接选择订阅节点、`Auto` 和 `Fallback`。
 
+## 直连服务：与 LoonKit 保持一致
+
+`DIRECT` 是 Stash 的内建直连策略，**不需要创建额外的策略组**。与 LoonKit 正式配置对应：
+
+| 服务组 | 默认候选 | 其余候选 | 行为 |
+| --- | --- | --- | --- |
+| Apple、Microsoft、Bilibili、Line、Speedtest | `DIRECT` | `Proxy` / `Auto` / `Fallback` / 全部订阅节点 | 可默认直连，用户随时改走代理 |
+| Steam | `Proxy` | `Auto` / `Fallback` / `DIRECT` / 全部订阅节点 | Steam 中国 CDN 另有高优先级 `DIRECT` 规则 |
+| AI、ChatGPT、Gemini、Claude 等国际服务 | `Proxy` | `Auto` / `Fallback` / 全部订阅节点 | 按 LoonKit 维持代理优先；不全局增加直连 |
+
+国内服务（`DomesticCore`、`DomesticSupplement`、`DomesticAI`、`SteamCN`）由高优先级规则**直接路由到 `DIRECT`**，不依赖用户是否将 `Proxy` 设置成代理。策略组内有 `DIRECT` 只代表该服务允许手动选择直连，不能覆盖更早命中的广告、国内域名或其他规则。查看 Stash 连接记录中的**命中规则与最终出口**来核对。
+
+`Proxy` 本身不加 `DIRECT`：否则所有引用 `Proxy` 的国际服务会因一次误选而被整体放行。私有订阅生成器采用 `Auto → Fallback → 节点 → REJECT` 顺序；`REJECT` 仅保留为明确的拒绝选项，`Auto` / `Fallback` 无节点时仍有 `REJECT` 兜底。若设备记住了旧的 `Proxy=REJECT`，更新配置后需手动改选 `Auto`。
+
 ## 公共配置（v0.1.10）：完整的 LoonKit 同层候选结构
 
 默认 StashKit v0.1.10 在 `Proxy` 及 34 个服务选择组中同时设置 `proxies`（明确的 `Proxy` / `Auto` / `Fallback` 等策略候选）以及 `include-all: true`、`filter: '.*'`（订阅自动更新的实际节点）。不使用 `Manual` 或 `ALL`，也不要求订阅名称。该组合在公开 Stash 配置中已有使用，但其 iOS 版本的选择器显示需要在实际设备上确认。
@@ -38,9 +52,9 @@ proxy-groups:
   - name: Proxy
     type: select
     proxies:
-      - REJECT
       - Auto
       - Fallback
+      - REJECT
     use-url:
       - https://example.org/private-node-subscription
   - name: ChatGPT
@@ -63,7 +77,7 @@ proxy-groups:
 
 `scripts/build_loon_selection.py` 现在可以**读取已有的 Clash/Stash 节点 YAML**，自动提取其中的 `proxies` 节点名称和 `proxy-providers` Provider 名称。生成的完整配置中：
 
-- `Proxy` 有 `REJECT`、`Auto`、`Fallback` 及具体节点名；有 Provider 时自动附加 `use`。
+- `Proxy` 默认按 `Auto`、`Fallback`、具体节点名、`REJECT` 排列；有 Provider 时自动附加 `use`。
 - `ChatGPT`、`Gemini`、`Netflix` 等服务组有 `Proxy`、`Auto`、`Fallback` 及具体节点名；有 Provider 时自动附加 `use`。
 - `Auto` 和 `Fallback` 从相同的节点和 Provider 中选择，保留现有测速频率与策略优先级。
 - `AdBlock`、`Final` 不会被注入无关节点，原来的服务路由规则、DNS、WebRTC 和规则快照不变。
