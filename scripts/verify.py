@@ -89,7 +89,14 @@ def main():
     assert names == group_names, "Native defaults must preserve the LoonKit group order"
     assert not {"ALL", "Manual"} & set(names)
     by_name = {group["name"]: group for group in groups}
-    assert "proxy-providers" not in profile and not profile.get("proxies")
+    assert not profile.get("proxies")
+    assert profile["proxy-providers"] == {
+        "Airport": {
+            "url": "https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION",
+            "path": "./providers/stashkit-airport.yaml",
+            "interval": 3600,
+        },
+    }
     assert by_name["Auto"]["type"] == "url-test" and by_name["Auto"]["interval"] == 600
     assert by_name["Auto"]["tolerance"] == 60
     assert by_name["Fallback"]["type"] == "fallback" and by_name["Fallback"]["interval"] == 900
@@ -102,7 +109,7 @@ def main():
         assert "include-all" not in group and "filter" not in group
         assert "use-url" not in group
         if group["name"] not in {"AdBlock", "Final"}:
-            assert group["use"] == [], "Public template must not invent a private Provider"
+            assert group["use"] == ["Airport"], "Official profile must use its editable provider"
         else:
             assert "use" not in group
     for row in source_groups.splitlines():
