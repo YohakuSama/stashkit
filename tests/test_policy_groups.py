@@ -1,4 +1,4 @@
-"""Ensure native Stash group selectors match LoonKit's node-filter semantics."""
+"""Validate policy choices against the Stash UI and the pinned LoonKit group list."""
 import sys
 import unittest
 from pathlib import Path
@@ -52,7 +52,7 @@ class PolicyGroupParityTests(unittest.TestCase):
                         self.assertEqual(group["proxies"], children)
                         self.assertEqual(group.get("include-all", False), include_all)
 
-    def test_proxy_and_service_groups_expose_nodes_without_intermediary(self):
+    def test_service_groups_expose_named_strategies_without_node_only_mode(self):
         profile = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
         by_name = {group["name"]: group for group in profile["proxy-groups"]}
         self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT"])
@@ -65,6 +65,25 @@ class PolicyGroupParityTests(unittest.TestCase):
                 self.assertNotIn("ALL", group["proxies"])
         for name in ("AdBlock", "Final"):
             self.assertNotIn("include-all", by_name[name])
+
+
+    def test_every_profile_can_show_auto_and_fallback_for_services(self):
+        for filename in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+            with self.subTest(profile=filename):
+                profile = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
+                groups = {group["name"]: group for group in profile["proxy-groups"]}
+                for name, group in groups.items():
+                    if name in {"Proxy", "Auto", "Fallback"}:
+                        self.assertTrue(group.get("include-all"))
+                        self.assertFalse(set(group["proxies"]) & set(groups))
+                    else:
+                        self.assertNotIn("include-all", group)
+                        if name not in {"AdBlock", "Final"}:
+                            self.assertIn("Auto", group["proxies"])
+                            self.assertIn("Fallback", group["proxies"])
+                            self.assertIn("Proxy", group["proxies"])
+                self.assertEqual(groups["ChatGPT"]["proxies"],
+                                 ["Proxy", "Auto", "Fallback"])
 
 
 if __name__ == "__main__":
