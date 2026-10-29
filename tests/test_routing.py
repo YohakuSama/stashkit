@@ -28,7 +28,7 @@ def provider_entries(filename):
                      if row.strip() and not row.lstrip().startswith("#"))
 
 
-def route(target, profile):
+def route(target, profile, *, protocol=None):
     """Return the first statically decidable policy for a sentinel target."""
     target = target.lower().rstrip(".")
     try:
@@ -42,6 +42,8 @@ def route(target, profile):
         if kind == "MATCH":
             return args[0]
         value, policy = args[:2]
+        if kind == "PROTOCOL" and protocol is not None and protocol.upper() == value:
+            return policy
         if kind == "DOMAIN" and target == value:
             return policy
         if kind == "DOMAIN-SUFFIX" and value in suffixes:
@@ -151,6 +153,21 @@ class RoutingTests(unittest.TestCase):
         for target, policy in expected.items():
             with self.subTest(target=target):
                 self.assertEqual(route(target, self.profile), policy)
+
+    def test_stun_is_rejected_before_domain_and_ip_routes_in_every_profile(self):
+        # Protocol metadata is supplied here; only a real Stash packet test can
+        # verify sniffing, Tunnel capture and WebRTC candidate exposure.
+        for name in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+            profile = yaml.load((ROOT / name).read_text(), Loader=UniqueKeysLoader)
+            self.assertEqual(profile["rules"][0], "PROTOCOL,STUN,REJECT")
+            for target in ("stun.l.google.com", "stun.qq.com", "router.internal",
+                           "192.168.1.1", "203.0.113.10", "2001:db8::10", "fd00::1"):
+                with self.subTest(profile=name, target=target):
+                    self.assertEqual(route(target, profile, protocol="STUN"), "REJECT")
+            for protocol in ("UDP", "QUIC", "TLS"):
+                with self.subTest(profile=name, protocol=protocol):
+                    self.assertEqual(route("www.google.com", profile, protocol=protocol), "Google")
+                    self.assertEqual(route("192.168.1.1", profile, protocol=protocol), "DIRECT")
 
 
 if __name__ == "__main__":

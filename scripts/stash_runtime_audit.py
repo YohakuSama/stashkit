@@ -105,6 +105,23 @@ def rule_identity(decision):
     return re.sub(r"[^a-z]", "", str(kind).lower()), payload
 
 
+def declares_stun_guard(response):
+    """Check the loaded declaration, not packet sniffing or browser privacy."""
+    rows = response.get("rules") if isinstance(response, dict) else response
+    if not isinstance(rows, list):
+        return False
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        kind, payload = rule_identity({"rule": row})
+        policy = row.get("proxy", row.get("policy", row.get("outbound")))
+        if isinstance(policy, dict):
+            policy = policy.get("name")
+        if (kind, payload, policy) == ("protocol", "STUN", "REJECT"):
+            return True
+    return False
+
+
 def inspect(base, token, getter=get_json, profile=None):
     profile = profile if profile is not None else yaml.safe_load((ROOT / "StashKit.yaml").read_text())
     failures = []
@@ -113,6 +130,8 @@ def inspect(base, token, getter=get_json, profile=None):
     config = getter(base, token, "/configs")
     if not isinstance(config, dict) or config.get("mode") != "rule":
         failures.append("Stash is not in rule mode")
+    if not declares_stun_guard(getter(base, token, "/rules")):
+        failures.append("Loaded rules do not declare the expected STUN REJECT guard")
     proxies = named_objects(getter(base, token, "/proxies"), "proxies")
     try:
         if resolve_policy("Proxy", proxies) in BUILTINS:
@@ -158,7 +177,8 @@ def inspect(base, token, getter=get_json, profile=None):
         for failure in failures:
             print("FAIL:", failure, file=sys.stderr)
         return False
-    print(f"PASS: {len(counts)} providers, loaded counts, selected node and all routing sentinels verified")
+    print(f"PASS: {len(counts)} providers, STUN guard declaration, loaded counts, selected node and routing sentinels verified")
+    print("INFO: STUN packet recognition, IPv6 Tunnel capture and browser candidates require device testing")
     return True
 
 

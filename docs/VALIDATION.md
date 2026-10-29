@@ -46,7 +46,7 @@ curl --get 'http://127.0.0.1:9090/rules/match' \
 
 验收记录应写明 Stash 版本、平台、网络和实际出口。当前仓库的 CI 不启动 Stash，因此真机项目不能标成已由 CI 验证。
 
-## v0.1.4 离线和隐私验收
+## v0.1.5 离线、隐私与 WebRTC 验收
 
 - **在线**：检查各规则 URL 含同一固定 40 位 Git commit、provider 缓存 path 含 `v0.1.4`；第一次联网加载成功后切断网络再重启，确认 54 个缓存是否能继续使用（要注意代理本身也可能无法连通）。
 - **离线**：从主分支 CI 下载 ZIP，验 SHA256SUMS，按 Stash 受管资源目录的版本路径部署 54 份文件，再加载 `StashKit-Local.yaml`。单独导入 YAML 而不部署文件**应失败**，不能标记为正常配置。GitHub Actions 的 ZIP 是备份/安装材料，不是 App 一键导入包。
@@ -63,6 +63,16 @@ export STASH_API_TOKEN='由你在 Stash 设置的控制器密钥'
 python scripts/stash_runtime_audit.py --base-url http://127.0.0.1:9090
 ```
 
-iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，不要向公共互联网开放控制接口。脚本使用**只读 GET** 检查模式、Proxy 递归后的真实节点、55 个预期 provider 的名称和条目数、规则总量、广告及业务哨兵的命中规则与最终出口，并读取内存接口；不会输出 API 密钥、个人节点名、订阅或者整个 DNS 缓存。**运行结果来自你的真实 Stash 才能称为真机验收**，GitHub Actions 无法代替它。DNS 旁路测试还需检查客户端连接记录与第三方 DNS 测试；单次 API 通过不是绝对无泄漏证明。
+iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，不要向公共互联网开放控制接口。脚本使用**只读 GET** 检查模式、Proxy 递归后的真实节点、55 个预期 provider 的名称和条目数、规则总量、广告及业务哨兵的命中规则与最终出口，检查 `/rules` 中 STUN REJECT 声明，并读取内存接口；不会输出 API 密钥、个人节点名、订阅或者整个 DNS 缓存。**运行结果来自你的真实 Stash 才能称为真机验收**，GitHub Actions 无法代替它。DNS 旁路测试还需检查客户端连接记录与第三方 DNS 测试；单次 API 通过不是绝对无泄漏证明。
 
 私网冷启动应在未缓存 GeoSite 的设备上验证 `router.internal`、NAS 单标签名称、路由器品牌域名与私有反向解析；三套配置不再含 GeoSite 引用。脚本通过只证明控制器返回的规则与出口符合配置，不代替真实业务连通性、播放或 DNS 旁路测试。
+
+### iPhone WebRTC / STUN 设备验收
+
+1. 更新到 v0.1.5，使用规则模式，确认首条规则为 `PROTOCOL,STUN,REJECT`，并将 Proxy 选到有效节点。全局代理模式不执行这套分流规则。
+2. 在 Stash「网络设置 → 启用 Tunnel IPv6 路由」开启接管并重连。该 App 设置无法通过仓库 YAML 的 DNS IPv6 字段代替。参见 [Stash 官方 IPv6 说明](https://stash.wiki/faq/ipv6-compatible)。
+3. 关闭原测试标签页，重新打开 WebRTC 检测。分别在 Wi-Fi 和蜂窝网络测试；确认检测页显示的是关闭代理时本机公网地址、节点出口地址还是局域网/本机候选地址，不提交完整 IP 到仓库。
+4. 查看 Stash 连接记录，确认真实 STUN 流量命中 REJECT，并记录 IPv4/IPv6 接管情况。`/rules/match` 的目标域名匹配没有实际 STUN 数据包，不能代替协议识别测试。运行时审计读取 `/rules` 只证明防护规则已声明，不证明无 WebRTC 泄露。
+5. 测试常用通话、游戏和 NAT 打洞；新增拦截可能影响这些功能。若仍暴露地址，应继续区分未接管流量、STUN/TURN 探测和浏览器 host candidate，不能仅靠删除 Fake-IP 例外或关闭 AAAA 解析得出已修复结论。
+
+此配置补丁不宣称关闭浏览器 WebRTC、本机 IPv6 接口或设备全部旁路。v0.1.5 离线包仍按 `rules/v0.1.4/` 安装未变更的文件规则。
