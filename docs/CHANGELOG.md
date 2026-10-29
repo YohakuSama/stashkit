@@ -1,5 +1,12 @@
 # 变更记录
 
+## 配置派生与文档结构优化 — 2026-10-29
+
+- 以 `StashKit.yaml` 为唯一手工维护的主配置，新增 `scripts/build_profiles.py` 统一派生 Privacy/Local，并在 CI 中强制校验字节一致性。
+- 离线 ZIP 生成复用派生配置脚本，补充一致性、缺失字段和 YAML 英文注释测试。
+- 按 LoonKit 的使用导向精简 README、架构文档及配置注释；不修改 DNS、WebRTC、规则列表、策略选项或锁定的远程资源。
+
+
 ## WebRTC IPv4/IPv6 泄露缓解补丁 — 2026-10-29
 
 - 三套配置在 LAN/CN 直连之前阻止 STUN 协议及常用 STUN/TURN 目的端口，删除 STUN 的 Fake-IP Real-IP 例外；显式限制到受 Stash Tunnel 接管的流量。
