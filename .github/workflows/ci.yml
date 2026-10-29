@@ -51,12 +51,41 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: python scripts/check_remote.py
       - name: Generate self-contained local rule resource bundle
-        run: python scripts/build_offline_bundle.py --output dist/StashKit-v0.1.4-offline.zip
+        run: python scripts/build_offline_bundle.py
       - name: Upload offline resource archive
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: StashKit-v0.1.4-offline
-          path: dist/StashKit-v0.1.4-offline.zip
+          name: StashKit-offline
+          path: dist/StashKit-*-offline.zip
           if-no-files-found: error
           retention-days: 90
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout verified commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Publish versioned release and offline archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          version="$(python scripts/release_meta.py --profile-version)"
+          archive="$(python scripts/release_meta.py --archive-name)"
+          notes="docs/RELEASE_NOTES_${version}.md"
+          test -f "$notes"
+          python scripts/build_profiles.py --check
+          python scripts/build_offline_bundle.py
+          if gh release view "$version" >/dev/null 2>&1; then
+            echo "Release $version already exists"
+            exit 0
+          fi
+          gh release create "$version" "dist/$archive" --target "$GITHUB_SHA" --title "StashKit $version" --notes-file "$notes"
