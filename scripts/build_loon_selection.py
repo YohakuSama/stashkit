@@ -8,6 +8,7 @@ committed to the repository.
 import argparse
 import copy
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import yaml
 
@@ -62,12 +63,35 @@ def read_provider_override(path):
     return providers
 
 
-def build_loon_selection(source, providers=None, nodes=None):
+def read_subscription_urls(path):
+    """Read private subscription URLs without printing or committing them."""
+    lines = Path(path).read_text(encoding="utf-8").splitlines()
+    urls = [row.strip() for row in lines if row.strip()]
+    if not urls or len(urls) != len(set(urls)):
+        raise ValueError("Subscription URL file must contain unique nonempty URLs")
+    for url in urls:
+        try:
+            parts = urlsplit(url)
+            valid = (parts.scheme == "https" and bool(parts.hostname)
+                     and parts.port != 0 and not parts.fragment)
+        except ValueError:
+            valid = False
+        if not valid or "example.invalid" in url or "REPLACE-" in url:
+            raise ValueError("Subscription URLs must be real HTTPS links without fragments")
+    return urls
+
+
+def build_loon_selection(source, providers=None, nodes=None, subscription_urls=None):
     """Render standalone groups with both explicit strategies and discovered nodes."""
     providers = copy.deepcopy(providers or {})
     nodes = copy.deepcopy(nodes or [])
-    if not providers and not nodes:
-        raise ValueError("Named nodes or providers are required")
+    subscription_urls = list(subscription_urls or [])
+    if not providers and not nodes and not subscription_urls:
+        raise ValueError("Named nodes or providers or subscription URLs are required")
+    if subscription_urls and (providers or nodes):
+        raise ValueError("Subscription URLs cannot be mixed with inline nodes or named providers")
+    if len(subscription_urls) != len(set(subscription_urls)):
+        raise ValueError("Duplicate subscription URLs")
     output = copy.deepcopy(source)
     groups = output["proxy-groups"]
     # Private profiles explicitly enumerate nodes/providers and need no helper pool.
@@ -108,6 +132,10 @@ def build_loon_selection(source, providers=None, nodes=None):
             group["use"] = list(providers)
         else:
             group.pop("use", None)
+        if name not in SERVICE_EXCEPTIONS and subscription_urls:
+            group["use-url"] = subscription_urls
+        else:
+            group.pop("use-url", None)
     if nodes:
         output["proxies"] = nodes
     if providers:
@@ -124,23 +152,30 @@ def main():
                         help="Existing local Clash/Stash YAML: auto-discovers proxy names and providers")
     origin.add_argument("--provider-override", type=Path,
                         help="Legacy local override with proxy-providers definitions")
+    origin.add_argument("--subscription-file", type=Path,
+                        help="Local text file with HTTPS node subscription URLs, one per line")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
+    urls = []
     if args.nodes_from:
         nodes, providers = read_node_sources(args.nodes_from)
+    elif args.subscription_file:
+        nodes, providers = [], {}
+        urls = read_subscription_urls(args.subscription_file)
     else:
         nodes, providers = [], read_provider_override(args.provider_override)
     source = yaml.safe_load((ROOT / PROFILE_FILES[args.profile]).read_text(encoding="utf-8"))
-    output = build_loon_selection(source, providers, nodes)
+    output = build_loon_selection(source, providers, nodes, urls)
     output_file = args.output.resolve()
     if ROOT in output_file.parents and ROOT / "dist" not in output_file.parents:
         raise ValueError("Write private profiles only under dist/ or outside the repository")
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text(yaml.safe_dump(output, sort_keys=False, allow_unicode=True),
                            encoding="utf-8")
-    print(f"Generated private profile with {len(nodes)} nodes and "
-          f"{len(providers)} providers: {output_file}")
+    print(f"Generated private profile from {len(nodes)} local nodes, "
+          f"{len(providers)} providers and {len(urls)} direct subscription URL(s): "
+          f"{output_file}")
 
 
 if __name__ == "__main__":
