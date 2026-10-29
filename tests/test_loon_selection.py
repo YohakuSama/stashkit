@@ -43,7 +43,7 @@ class LoonSelectionTests(unittest.TestCase):
                 self.assertEqual(len(by_name), 39)
                 self.assertNotIn("ALL", by_name)
                 self.assertEqual(by_name["Proxy"]["proxies"],
-                                 ["REJECT", "Auto", "Fallback"])
+                                 ["Auto", "Fallback", "REJECT"])
                 self.assertEqual(by_name["Auto"]["proxies"], ["REJECT"])
                 self.assertEqual(by_name["Fallback"]["proxies"], ["REJECT"])
                 for name, group in by_name.items():
@@ -56,6 +56,38 @@ class LoonSelectionTests(unittest.TestCase):
                         self.assertTrue({"Proxy", "Auto", "Fallback"} <= set(group["proxies"]))
                 self.assertEqual(by_name["ChatGPT"]["proxies"],
                                  ["Proxy", "Auto", "Fallback"])
+
+    def test_direct_service_choices_survive_all_private_node_sources(self):
+        # LoonKit intentionally allows DIRECT for selected services, not for
+        # every overseas AI / streaming service or for the global Proxy.
+        direct_first = ("Microsoft", "Apple", "Speedtest", "Bilibili", "Line")
+        direct_optional = "Steam"
+        local_node = {"name": "Test Node", "type": "ss",
+                      "server": "198.51.100.10", "port": 443,
+                      "cipher": "aes-128-gcm", "password": "test-only"}
+        sources = (
+            ("providers", {"providers": PROVIDERS}),
+            ("local", {"nodes": [local_node]}),
+            ("use-url", {"subscription_urls": ["https://example.org/sub"]}),
+        )
+        for profile_name in PROFILE_FILES.values():
+            source = yaml.safe_load((ROOT / profile_name).read_text(encoding="utf-8"))
+            for source_type, options in sources:
+                with self.subTest(profile=profile_name, source=source_type):
+                    result = build_loon_selection(source, **options)
+                    groups = {group["name"]: group for group in result["proxy-groups"]}
+                    self.assertEqual(result["rules"], source["rules"])
+                    self.assertEqual(groups["Proxy"]["proxies"][0:2],
+                                     ["Auto", "Fallback"])
+                    self.assertEqual(groups["Proxy"]["proxies"][-1], "REJECT")
+                    self.assertNotIn("DIRECT", groups["Proxy"]["proxies"])
+                    for name in direct_first:
+                        self.assertEqual(groups[name]["proxies"][0:4],
+                                         ["DIRECT", "Proxy", "Auto", "Fallback"])
+                    self.assertEqual(groups[direct_optional]["proxies"][0:4],
+                                     ["Proxy", "Auto", "Fallback", "DIRECT"])
+                    for name in ("AI", "ChatGPT", "Gemini", "Claude", "Netflix"):
+                        self.assertNotIn("DIRECT", groups[name]["proxies"])
 
     def test_missing_and_conflicting_providers_fail(self):
         source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
@@ -122,7 +154,7 @@ class LoonSelectionTests(unittest.TestCase):
                     validate_profile(result)
                     groups = {group["name"]: group for group in result["proxy-groups"]}
                     self.assertEqual(groups["Proxy"]["proxies"],
-                                     ["REJECT", "Auto", "Fallback"] + [node["name"] for node in nodes])
+                                     ["Auto", "Fallback"] + [node["name"] for node in nodes] + ["REJECT"])
                     self.assertEqual(groups["ChatGPT"]["proxies"],
                                      ["Proxy", "Auto", "Fallback"] + [node["name"] for node in nodes])
                     self.assertEqual(groups["Auto"]["proxies"],
@@ -180,7 +212,7 @@ class LoonSelectionTests(unittest.TestCase):
                 self.assertNotIn("Manual", groups)
                 self.assertNotIn("ALL", groups)
                 self.assertEqual(groups["Proxy"]["proxies"],
-                                 ["REJECT", "Auto", "Fallback"])
+                                 ["Auto", "Fallback", "REJECT"])
                 self.assertEqual(groups["ChatGPT"]["proxies"],
                                  ["Proxy", "Auto", "Fallback"])
                 for name, group in groups.items():
