@@ -54,30 +54,11 @@ def local_profile(config=None):
 
 
 def subscription_profile(config=None):
-    """Render an editable YAML profile with one explicit remote provider."""
+    """Keep the old Subscription filename as an alias of the official main profile."""
     content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
-    content = replace_once(
-        content,
-        "# Template: bind private sources with build_loon_selection.py before importing.\n",
-        "# Edit the subscription URL locally; never publish private subscription credentials.\n",
-        "subscription profile header",
-    )
-    content = replace_once(
-        content,
-        "proxy-groups:\n",
-        "proxy-providers:\n"
-        "  Airport:\n"
-        "    # Replace this URL with your private Clash/Stash YAML subscription.\n"
-        "    url: 'https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION'\n"
-        "    path: ./providers/stashkit-airport.yaml\n"
-        "    interval: 3600\n"
-        "\nproxy-groups:\n",
-        "subscription provider section",
-    )
-    placeholder = "    use: []\n"
-    if content.count(placeholder) != 37:
-        raise ValueError("Expected 37 node-aware groups")
-    return content.replace(placeholder, "    use:\n      - Airport\n")
+    if content.count("      - Airport\n") != 37 or content.count("proxy-providers:\n") != 1:
+        raise ValueError("Expected 37 policy groups bound to the official Airport provider")
+    return content
 
 
 def derived_profiles(config):
@@ -126,7 +107,7 @@ def main():
                       if (ROOT / name).read_bytes() != value.encode("utf-8")]
         if mismatches:
             raise ValueError(f"Derived profiles differ from canonical source: {mismatches}")
-        print("PASS: 39-group defaults and explicit compatibility variants match canonical source")
+        print("PASS: 39-group editable subscription defaults and compatibility variants match canonical source")
     else:
         for name, value in outputs.items():
             (ROOT / name).write_text(value, encoding="utf-8")
