@@ -76894,3 +76894,11 @@ browser-intake-datadoghq.com
 cdn.usefathom.com
 events.statsigapi.net
 static.cloudflareinsights.com
++.doubleclick.net
++.doubleclick-cn.net
++.googleadservices.com
++.googleadservices-cn.com
++.googlesyndication.com
++.googlesyndication-cn.com
++.google-analytics.com
++.google-analytics-cn.com
