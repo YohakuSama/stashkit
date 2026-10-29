@@ -121,8 +121,12 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
     if layout == "nested":
         if len(groups) != EXPECTED_GROUP_COUNT or not NODE_POOLS.issubset(names):
             raise ValueError("Unexpected canonical group structure")
-    elif (len(groups) != EXPECTED_GROUP_COUNT - 1 or "ALL" in names
-          or not {"Proxy", "Auto", "Fallback"}.issubset(names)):
+    elif (not {"Proxy", "Auto", "Fallback"}.issubset(names) or
+          not ((len(groups) == EXPECTED_GROUP_COUNT - 1 and "ALL" not in names)
+               or (len(groups) == EXPECTED_GROUP_COUNT and
+                   NODE_POOLS.issubset(names)))):
+        # Native generation accepts either the old ALL backup or the
+        # published native profile, removing ALL only when present.
         raise ValueError("Unexpected canonical group structure")
     # Published native profiles declare only a local path-only Provider.
     canonical_providers = source.get("proxy-providers") or {}
