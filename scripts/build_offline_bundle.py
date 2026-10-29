@@ -7,23 +7,27 @@ the Stash-managed provider resource directory (see official rule-set docs).
 import argparse
 import hashlib
 import io
+import json
 import re
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+RELEASE = json.loads((ROOT / "build/release-lock.json").read_text())
+VERSION = RELEASE["version"]
+RULES_VERSION = RELEASE["rules_version"]
 URL_LINE = re.compile(r"^    url: https://raw\.githubusercontent\.com/YohakuSama/stashkit/[0-9a-f]{40}/rules/[A-Za-z0-9_.-]+\.txt\n", re.M)
 INTERVAL_LINE = re.compile(r"^    interval: 86400\n", re.M)
 
 
 def local_profile(config=None):
     content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
-    content = re.sub(r"^# StashKit v0\.1\.4.*$", "# StashKit v0.1.4 — LOCAL/OFFLINE rule providers: place rules/ in Stash managed resource directory", content, count=1, flags=re.M)
+    content = re.sub(r"^# StashKit " + re.escape(VERSION) + r".*$", f"# StashKit {VERSION} — LOCAL/OFFLINE rule providers: place rules/ in Stash managed resource directory", content, count=1, flags=re.M)
     content, urls = URL_LINE.subn("", content)
     content, intervals = INTERVAL_LINE.subn("", content)
     if (urls, intervals) != (54, 54):
         raise ValueError(f"Expected 54 URL/interval replacements, got {urls}/{intervals}")
-    if len(re.findall(r"^    path: \./rules/v0\.1\.4/[\w.-]+\.txt$", content, re.M)) != 54:
+    if len(re.findall(r"^    path: \./rules/" + re.escape(RULES_VERSION) + r"/[\w.-]+\.txt$", content, re.M)) != 54:
         raise ValueError("Expected 54 local rule provider paths")
     return content
 
@@ -38,14 +42,14 @@ def make_zip(root=ROOT):
         raise ValueError(f"Expected 54 rule assets, got {len(assets)}")
     files = {"StashKit-Local.yaml": profile}
     for path in assets:
-        files["rules/v0.1.4/" + path.name] = path.read_bytes()
+        files[f"rules/{RULES_VERSION}/" + path.name] = path.read_bytes()
     manifest = "\n".join(hashlib.sha256(data).hexdigest() + "  " + name
                          for name, data in sorted(files.items())) + "\n"
     files["SHA256SUMS.txt"] = manifest.encode()
     files["README-OFFLINE.txt"] = (
-        "StashKit v0.1.4 — offline provider bundle\n"
+        f"StashKit {VERSION} — offline provider bundle\n"
         "1) StashKit-Local.yaml uses 54 path-only file providers plus 1 embedded private provider.\n"
-        "2) Copy rules/v0.1.4/*.txt into the Stash-managed versioned resource directory.\n"
+        f"2) Copy rules/{RULES_VERSION}/*.txt into the Stash-managed versioned resource directory.\n"
         "3) Import StashKit-Local.yaml locally and apply your own proxy provider.\n"
         "4) Stash does NOT automatically install provider paths when importing a ZIP.\n"
         "5) Confirm all 55 providers load; otherwise do not use this as an active profile.\n"
@@ -63,7 +67,7 @@ def make_zip(root=ROOT):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", default="dist/StashKit-v0.1.4-offline.zip")
+    parser.add_argument("--output", default=f"dist/StashKit-{VERSION}-offline.zip")
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     result = make_zip()

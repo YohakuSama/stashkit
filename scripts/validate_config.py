@@ -10,6 +10,7 @@ from urllib.parse import urlsplit
 from rule_sources import valid_domain
 
 BUILTINS = {"DIRECT", "REJECT", "REJECT-DROP"}
+PROTOCOLS = {"TCP", "UDP", "HTTP", "TLS", "QUIC", "STUN"}
 
 
 def require(condition, message):
@@ -116,6 +117,8 @@ def validate_matcher(kind, value, where):
                 f"Invalid GEOIP value: {where}")
     elif kind == "GEOSITE":
         require(bool(re.fullmatch(r"[A-Za-z0-9_@!.-]+", value)), f"Invalid GEOSITE value: {where}")
+    elif kind == "PROTOCOL":
+        require(value in PROTOCOLS, f"Unsupported protocol: {where}")
     else:
         raise ValueError(f"Unsupported matcher: {where}")
 
@@ -258,7 +261,7 @@ def validate_profile(profile):
             profile["rules"][-1].startswith("MATCH,"), "MATCH must occur exactly once at the end")
     for rule in profile["rules"]:
         kind, *args = rule.split(",")
-        require(kind in {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-REGEX", "GEOIP", "GEOSITE", "IP-CIDR", "IP-CIDR6",
+        require(kind in {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-REGEX", "PROTOCOL", "GEOIP", "GEOSITE", "IP-CIDR", "IP-CIDR6",
                          "IP-ASN", "RULE-SET", "MATCH"}, f"Unsupported StashKit rule: {rule}")
         required = 1 if kind == "MATCH" else 2
         require(len(args) >= required, f"Malformed rule: {rule}")

@@ -2,7 +2,7 @@
 
 独立的 Stash 原生分流配置，基于 [LoonKit v7.0.10](https://github.com/YohakuSama/loonkit/tree/5f272104fc1207612c1cbd18f3e19d861d459ed9) 正式规则。全部规则自本仓库托管，不依赖旧的 `loonkit/stashkit` 目录。
 
-当前配置版本 **v0.1.4**。最低文档支持范围为 **Stash iOS/tvOS 3.6+、macOS 4.3+**，用于加密 DNS bootstrap 和独立的节点域名解析；不适用于把同名字段直接套到旧版 Clash 或 Loon。[变更记录](./docs/CHANGELOG.md) · [真机验收步骤](./docs/VALIDATION.md) · [架构审计与剩余风险](./docs/ARCHITECTURE_AUDIT.md)。
+当前配置版本 **v0.1.5**。最低文档支持范围为 **Stash iOS/tvOS 3.6+、macOS 4.3+**，用于加密 DNS bootstrap 和独立的节点域名解析；不适用于把同名字段直接套到旧版 Clash 或 Loon。[变更记录](./docs/CHANGELOG.md) · [真机验收步骤](./docs/VALIDATION.md) · [架构审计与剩余风险](./docs/ARCHITECTURE_AUDIT.md)。
 
 ## 导入
 
@@ -28,19 +28,27 @@ Auto、Fallback、ALL 中的 `REJECT` 仅为尚未配置节点池时的占位。
 - 使用 **Stash 自身的 Fake-IP + AliDNS DoH**。上游 DNS 与代理节点域名解析采用独立的 DNS 配置；不照搬 Loon 的 `real-ip` / `hijack-dns` 等指令，且 **DoH 加密不等于 DNS 一定经代理**。
 - 原 Loon 专用插件/脚本不冒充 Stash 兼容组件。
 
+## WebRTC / STUN 防护（v0.1.5）
+
+三套配置默认将 Stash 原生 `PROTOCOL,STUN,REJECT` 放在分流规则最前，先于内网、国内直连和服务集合，阻断被 Stash 接管并识别的 STUN 请求；此规则独立于 AdBlock 组选择。它可能影响网页通话、游戏联机与 NAT 打洞。规则不会关闭浏览器的 WebRTC API，也不保证消除浏览器直接报告的本机地址候选。
+
+iPhone 如需接管直接 IPv6 连接，还必须在 Stash **「网络设置 → 启用 Tunnel IPv6 路由」** 中开启对应选项并重新连接。这个 App 开关不能用 `dns.ipv6: false` 或顶层 `ipv6: false` 代替；它们控制解析行为，不会关闭 iPhone 的 IPv6 接口。官方参考：[规则类型](https://stash.wiki/rules/rule-types) · [IPv6 兼容性](https://stash.wiki/faq/ipv6-compatible)。保持规则模式，重新打开检测页面，检查 STUN 是否命中 REJECT，并分别复测 Wi-Fi 与蜂窝的公网 IPv4/IPv6。
+
+v0.1.5 只修改配置与校验，继续使用 v0.1.4 的规则快照和缓存目录，避免重新下载未变更的规则文件。
+
 ## DNS 保护边界与 Stash 原生配置
 
 - `dns.default-nameserver: https://223.5.5.5/dns-query`：使用 **IP 地址直连的加密 DoH** 解析 DoH 服务器的主机名，避免原先 `223.5.5.5` / `223.6.6.6` 普通 UDP DNS 的明文引导查询。CI 会测试该 IPv4 HTTPS 端点的证书和 RFC8484 应答。
 - `dns.nameserver: https://dns.alidns.com/dns-query`：Stash 的主 DNS 上游，默认**直连 DoH**，不是自动走代理。外部 DoH 服务商可看到需要真实解析的查询；Fake-IP 只能减少部分代理域名的本地 DNS 查询。
 - `dns.proxy-server-nameserver`：专门解析节点服务器域名，避免递归 DNS；同样采用加密 DoH，节点服务器名仍可能被 DNS 服务商看到。
 - 私有域名通过内嵌 `Private-local` 集合和限定范围的 `nameserver-policy` 使用 `system`，便于访问路由器、NAS 和内网服务；这部分查询可能使用局域网明文 DNS，公共域名仍交给 DoH。私有域名和 LAN 地址另有前置 `DIRECT` 规则；`fake-ip-filter` 本身不负责直连。企业自定义域名需自行补充对应内网 DNS policy。私网名单来自固定的 V2Fly `data/private`，源码和 SHA256 见 [私网源锁](./build/private-domains-lock.json)；精确域名、后缀和单标签 DNS 名称均内嵌配置，不再首次下载 GeoSite。
-- `dns.fake-ip-filter`：仅保留私有域名、局域网、网络探测、游戏及 STUN 的有限兼容例外。移除了此前沿用 LoonKit 的 `+.apple.com`、`+.icloud.com` **大范围 Real-IP 例外**，防止不必要的真实 DNS 查询。
+- `dns.fake-ip-filter`：仅保留私有域名、局域网、网络探测、游戏及 STUN 的有限解析兼容例外；STUN 的 Real-IP 例外不放行连接，前置协议规则仍会拦截。移除了此前沿用 LoonKit 的 `+.apple.com`、`+.icloud.com` **大范围 Real-IP 例外**，防止不必要的真实 DNS 查询。
 - `dns.follow-rule: false`：显式保留 Stash 官方默认行为，不把所有 DNS 强行代理（可能导致代理节点域名递归解析、CDN 延迟）。如需海外 DNS 全程代理，须根据自己的节点 IP/域名及 `proxy-server-nameserver` 单独设计，不能简单打开开关。
 - **不保证绝对无 DNS 泄漏**：其他 App 的内置 DoH、直连路径、VPN/Network Extension 的接管情况都需要设备上验证；建议在 Stash 连接后检查 DNS 测试和请求记录。
 
 Stash 官方参考：[DNS 服务](https://stash.wiki/features/dns-server) · [策略组](https://stash.wiki/proxy-protocols/proxy-groups) · [高效配置](https://stash.wiki/faq/effective-stash)。
 
-## v0.1.4：广告修正、内嵌私网与不可变规则
+## 固定规则快照与首次加载
 
 **在线配置（推荐）：**
 
@@ -50,7 +58,7 @@ https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml
 
 54 个规则 URL 固定到单独发布的规则快照 commit `f4feec81dfc9bde9824d297b6959fa977d5dc39b`，而不是可变 `main`。所有规则使用 **`path: ./rules/v0.1.4/<文件名>`**，Stash 会先读本地缓存，后台更新成功后覆写缓存。这避免了不同发布版本共享缓存路径，也降低重启时的网络依赖；**首次无缓存、GitHub Raw 被屏蔽时仍需要人工离线安装**。更新发布应先在仓库提交并验证规则，再发布一份指向该不可变提交的新配置；不能一次提交新规则并让配置引用未出现的版本。
 
-**离线资源包（GitHub Actions 产物）：** 在 [CI 工作流](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) 最新成功的 `main` 运行记录中下载 `StashKit-v0.1.4-offline`；包含 `StashKit-Local.yaml`、54 份规则文件和 `SHA256SUMS.txt`。也可自行运行 `python scripts/build_offline_bundle.py` 制作同一 ZIP。
+**离线资源包（GitHub Actions 产物）：** 在 [CI 工作流](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) 最新成功的 `main` 运行记录中下载 `StashKit-v0.1.5-offline`；包含 `StashKit-Local.yaml`、54 份规则文件和 `SHA256SUMS.txt`。也可自行运行 `python scripts/build_offline_bundle.py` 制作同一 ZIP。
 
 离线配置：[StashKit-Local.yaml](./StashKit-Local.yaml)（**文件规则仅引用本地 `path`，私网规则内嵌；不进行远程规则下载**）。重要：**Stash 不会因为打开 ZIP 就自动将规则文件复制进其管理的资源目录。** 必须先把 ZIP 内 `rules/v0.1.4/*.txt` 按相同相对路径放入 Stash 的受管理规则资源目录，确认 54 个文件 provider 和内嵌私网 provider 都已加载，才可启用本地配置。路径管理需按 Stash 实际版本的界面和 iCloud 目录操作；若设备不允许手动写入资源目录，不要把离线方式当成一键方案。参见 [Stash 官方 rule-provider 缓存说明](https://stash.wiki/rules/rule-set)。
 

@@ -22,6 +22,7 @@ class RuntimeAuditTests(unittest.TestCase):
         self.responses = {
             "/version": {"version": "fixture"},
             "/configs": {"mode": "rule"},
+            "/rules": {"rules": [{"type": "Protocol", "payload": "STUN", "proxy": "REJECT"}]},
             "/proxies": {"proxies": {
                 "Proxy": {"type": "Selector", "now": "Auto"},
                 "Auto": {"type": "URLTest", "now": "private-node-name"},
@@ -62,7 +63,7 @@ class RuntimeAuditTests(unittest.TestCase):
 
     def test_valid_controller_response_and_get_only(self):
         self.assertTrue(self.run_audit())
-        self.assertEqual(len(self.calls), 6 + len(SENTINELS))
+        self.assertEqual(len(self.calls), 7 + len(SENTINELS))
         self.assertTrue(all(path.startswith('/') for path in self.calls))
 
     def test_missing_or_wrong_provider_names_fail(self):
@@ -124,6 +125,22 @@ class RuntimeAuditTests(unittest.TestCase):
 
     def test_non_rule_mode_fails(self):
         self.responses['/configs']['mode'] = 'direct'
+        self.assertFalse(self.run_audit())
+
+    def test_old_profile_without_stun_guard_fails(self):
+        self.responses['/rules'] = {'rules': []}
+        self.assertFalse(self.run_audit())
+
+    def test_stun_direct_or_domain_rule_is_not_a_protocol_guard(self):
+        for row in ({'type': 'Protocol', 'payload': 'STUN', 'proxy': 'DIRECT'},
+                    {'type': 'Domain', 'payload': 'STUN', 'proxy': 'REJECT'}):
+            with self.subTest(row=row):
+                self.responses['/rules'] = {'rules': [row]}
+                self.assertFalse(self.run_audit())
+
+    def test_earlier_stun_direct_cannot_be_hidden_by_a_later_reject(self):
+        self.responses['/rules']['rules'].insert(0,
+            {'type': 'Protocol', 'payload': 'STUN', 'proxy': 'DIRECT'})
         self.assertFalse(self.run_audit())
 
 

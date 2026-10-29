@@ -125,6 +125,16 @@ class ConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "MATCH"):
             validate_profile(self.profile)
 
+    def test_native_protocol_rule_validation(self):
+        validate_profile(self.profile)
+        for row in ("PROTOCOL,STNU,REJECT", "PROTOCOL,STUN,REJECT,no-resolve",
+                    "PROTOCOL,STUN,REJECT,pre-matching"):
+            with self.subTest(row=row):
+                profile = copy.deepcopy(self.profile)
+                profile["rules"][0] = row
+                with self.assertRaises(ValueError):
+                    validate_profile(profile)
+
     def test_dns_collections_must_exist_and_match_domains(self):
         for name in ("missing", "YouTube-ipcidr"):
             with self.subTest(name=name):

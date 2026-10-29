@@ -3,6 +3,7 @@ import sys
 import unittest
 import zipfile
 import io
+import json
 from pathlib import Path
 
 import yaml
@@ -36,6 +37,14 @@ class OfflineAndPrivacyTests(unittest.TestCase):
     def test_bundle_is_byte_reproducible(self):
         self.assertEqual(make_zip(), make_zip())
 
+    def test_config_only_release_reuses_the_immutable_rule_cache(self):
+        lock = json.loads((ROOT / "build/release-lock.json").read_text())
+        self.assertEqual(lock["version"], "v0.1.5")
+        self.assertEqual(lock["rules_version"], "v0.1.4")
+        with zipfile.ZipFile(io.BytesIO(make_zip())) as archive:
+            self.assertIn(b"StashKit v0.1.5", archive.read("README-OFFLINE.txt"))
+            self.assertIn("rules/v0.1.4/AdBlockBalanced.domain.txt", archive.namelist())
+
     def test_privacy_profile_preserves_all_other_settings(self):
         standard = yaml.safe_load((ROOT / "StashKit.yaml").read_text())
         private = yaml.safe_load((ROOT / "StashKit-Privacy.yaml").read_text())
@@ -43,8 +52,9 @@ class OfflineAndPrivacyTests(unittest.TestCase):
         self.assertFalse(standard["dns"]["follow-rule"])
         self.assertTrue(private["dns"]["follow-rule"])
         private["dns"]["follow-rule"] = False
-        self.assertEqual(private["rules"][0], "DOMAIN,dns.alidns.com,Proxy")
-        private["rules"].pop(0)
+        self.assertEqual(private["rules"][0], "PROTOCOL,STUN,REJECT")
+        self.assertEqual(private["rules"][1], "DOMAIN,dns.alidns.com,Proxy")
+        private["rules"].pop(1)
         self.assertEqual(private, standard)
 
     def test_privacy_dns_override_prefix_and_bootstrap(self):

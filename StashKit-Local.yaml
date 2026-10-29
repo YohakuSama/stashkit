@@ -1,4 +1,4 @@
-# StashKit v0.1.4 — LOCAL/OFFLINE rule providers: place rules/ in Stash managed resource directory
+# StashKit v0.1.5 — LOCAL/OFFLINE rule providers: place rules/ in Stash managed resource directory
 # Requires Stash iOS/tvOS 3.6+ or macOS 4.3+ for encrypted DNS bootstrap.
 # No nodes or private subscription URLs are bundled. Apply your own proxy-provider via an Override.
 # Routing assets are generated Stash-native snapshots in this repository.
@@ -723,6 +723,9 @@ rule-providers:
     path: ./rules/v0.1.4/ChinaDirect.asn.txt
 
 rules:
+  # Block recognized STUN before domain/IP routes, including LAN and CN DIRECT.
+  # This may affect calls, games and NAT traversal; Tunnel IPv6 capture is an App setting.
+  - "PROTOCOL,STUN,REJECT"
   # Fake-IP exceptions alone do not make a connection DIRECT.
   - "DOMAIN,localhost,DIRECT"
   - "DOMAIN-SUFFIX,local,DIRECT"

@@ -4,6 +4,7 @@
 
 | 目标 | 策略 | 原因 |
 | --- | --- | --- |
+| 被识别的 STUN（IPv4/IPv6） | REJECT | 三套配置前置协议规则，先于内网和国内 DIRECT；可能影响通话、联机与打洞 |
 | 私有域名、LAN 地址 | DIRECT | Private-local 内嵌精确域名、后缀与单标签匹配，不依赖首次下载 GeoSite；Fake-IP 过滤不等于直连 |
 | raw.githubusercontent.com | GitHub | 默认仍经 Proxy，手动切换 GitHub 组时同时生效 |
 | alibaba.cdn.steampipe.steamcontent.com | DIRECT | 将 ChinaDirect 已有的精确国内 CDN 规则前移到 SteamCN |
@@ -30,3 +31,5 @@
 `AdBlock → DIRECT` 是终止匹配后直连，不是跳过广告规则继续分流。对某个业务需要放行时，在广告规则之前使用精确域名例外并指向其正确服务组。域名规则无法区分同一主机上的业务路径和广告路径。
 
 54 份文件规则的 URL 固定提交，定时更新只获取同一快照。发布新规则时需切换规则 pin 与版本缓存目录；不自动追随可变上游。
+
+v0.1.5 的 STUN guard 只对经过 Stash 且识别成功的流量生效。普通 UDP、QUIC 与既有服务路由继续按后续规则匹配。浏览器报告本机地址候选、系统旁路流量和未开启 Tunnel IPv6 路由均不由这条规则单独解决；设备步骤见验证文档。

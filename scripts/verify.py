@@ -14,6 +14,7 @@ from rule_sources import (KIT, ROOT, valid_domain, lines_from, generate_source_s
                           load_adjustments, apply_adjustments, load_baseline, render_asset)
 
 SOURCE_URL = "https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/"
+STUN_GUARD = "PROTOCOL,STUN,REJECT"
 LOCAL_DIRECT_RULES = [
     "DOMAIN,localhost,DIRECT",
     "DOMAIN-SUFFIX,local,DIRECT",
@@ -111,7 +112,7 @@ def main():
                                  f"{icon_ref}/icons/{expected_icon}"), f"Wrong icon URL: {group['name']}"
         assert expected_icon in icon_lock["asset_git_blob_shas"]
     release_lock = __import__("json").loads((KIT / "build/release-lock.json").read_text(encoding="utf-8"))
-    assert release_lock == {"version": "v0.1.4", "source_ref": "f4feec81dfc9bde9824d297b6959fa977d5dc39b"}, "Immutable release lock changed"
+    assert release_lock == {"version": "v0.1.5", "rules_version": "v0.1.4", "source_ref": "f4feec81dfc9bde9824d297b6959fa977d5dc39b"}, "Immutable release lock changed"
     assert SOURCE_URL == f"https://raw.githubusercontent.com/YohakuSama/stashkit/{release_lock['source_ref']}/rules/"
     expected_providers = {PRIVATE_NAME: private_provider()}
     expected_routes = []
@@ -170,7 +171,7 @@ def main():
     assert source_rules[0] == "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
     source_rules[0] = "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
     source_rules.remove("DOMAIN,copilot-telemetry.githubusercontent.com,AI")
-    expected_rules = LOCAL_DIRECT_RULES + source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
+    expected_rules = [STUN_GUARD] + LOCAL_DIRECT_RULES + source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
     assert profile["rules"] == expected_rules, "Rules changed order, policy, or local precedence"
     assert profile["rules"][-1] == "MATCH,Final"
     assert len(expected_routes) == 54
