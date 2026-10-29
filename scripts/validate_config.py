@@ -116,6 +116,11 @@ def validate_matcher(kind, value, where):
                 f"Invalid GEOIP value: {where}")
     elif kind == "GEOSITE":
         require(bool(re.fullmatch(r"[A-Za-z0-9_@!.-]+", value)), f"Invalid GEOSITE value: {where}")
+    elif kind == "PROTOCOL":
+        require(value == "STUN", f"Unsupported protocol: {where}")
+    elif kind == "DST-PORT":
+        require(value.isascii() and value.isdecimal() and 1 <= int(value) <= 65535,
+                f"Invalid destination port: {where}")
     else:
         raise ValueError(f"Unsupported matcher: {where}")
 
@@ -259,7 +264,7 @@ def validate_profile(profile):
     for rule in profile["rules"]:
         kind, *args = rule.split(",")
         require(kind in {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-REGEX", "GEOIP", "GEOSITE", "IP-CIDR", "IP-CIDR6",
-                         "IP-ASN", "RULE-SET", "MATCH"}, f"Unsupported StashKit rule: {rule}")
+                         "IP-ASN", "PROTOCOL", "DST-PORT", "RULE-SET", "MATCH"}, f"Unsupported StashKit rule: {rule}")
         required = 1 if kind == "MATCH" else 2
         require(len(args) >= required, f"Malformed rule: {rule}")
         policy = args[required - 1]

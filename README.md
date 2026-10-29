@@ -34,11 +34,25 @@ Auto、Fallback、ALL 中的 `REJECT` 仅为尚未配置节点池时的占位。
 - `dns.nameserver: https://dns.alidns.com/dns-query`：Stash 的主 DNS 上游，默认**直连 DoH**，不是自动走代理。外部 DoH 服务商可看到需要真实解析的查询；Fake-IP 只能减少部分代理域名的本地 DNS 查询。
 - `dns.proxy-server-nameserver`：专门解析节点服务器域名，避免递归 DNS；同样采用加密 DoH，节点服务器名仍可能被 DNS 服务商看到。
 - 私有域名通过内嵌 `Private-local` 集合和限定范围的 `nameserver-policy` 使用 `system`，便于访问路由器、NAS 和内网服务；这部分查询可能使用局域网明文 DNS，公共域名仍交给 DoH。私有域名和 LAN 地址另有前置 `DIRECT` 规则；`fake-ip-filter` 本身不负责直连。企业自定义域名需自行补充对应内网 DNS policy。私网名单来自固定的 V2Fly `data/private`，源码和 SHA256 见 [私网源锁](./build/private-domains-lock.json)；精确域名、后缀和单标签 DNS 名称均内嵌配置，不再首次下载 GeoSite。
-- `dns.fake-ip-filter`：仅保留私有域名、局域网、网络探测、游戏及 STUN 的有限兼容例外。移除了此前沿用 LoonKit 的 `+.apple.com`、`+.icloud.com` **大范围 Real-IP 例外**，防止不必要的真实 DNS 查询。
+- `dns.fake-ip-filter`：仅保留私有域名、局域网、网络探测及游戏的有限兼容例外。**已移除 STUN 的 Real-IP 例外**，避免应用从这些域名直接获取真实目标地址；此设置本身不能阻止通过 IP 字面量访问的 WebRTC。此前还移除了 `+.apple.com`、`+.icloud.com` 大范围例外。
 - `dns.follow-rule: false`：显式保留 Stash 官方默认行为，不把所有 DNS 强行代理（可能导致代理节点域名递归解析、CDN 延迟）。如需海外 DNS 全程代理，须根据自己的节点 IP/域名及 `proxy-server-nameserver` 单独设计，不能简单打开开关。
 - **不保证绝对无 DNS 泄漏**：其他 App 的内置 DoH、直连路径、VPN/Network Extension 的接管情况都需要设备上验证；建议在 Stash 连接后检查 DNS 测试和请求记录。
 
 Stash 官方参考：[DNS 服务](https://stash.wiki/features/dns-server) · [策略组](https://stash.wiki/proxy-protocols/proxy-groups) · [高效配置](https://stash.wiki/faq/effective-stash)。
+
+## WebRTC 公网 IPv4 / IPv6 泄露缓解（规则与设备设置共同生效）
+
+三份配置在普通内网和国内直连规则之前添加 `PROTOCOL,STUN,REJECT`，并封锁 3478/3479、5349/5350、19302–19309 目的端口（TCP/UDP），避免常见 STUN/TURN 经直连出口查询公网地址。还移除了 `fake-ip-filter` 中的 STUN 特例。这些规则**只处理进入 Stash 网络引擎的连接**；会降低 WebRTC 音视频、屏幕共享或游戏语音的可用性，部分连接可能失败。未知端口由 STUN 协议识别补足，但不能覆盖加密 TURN/TLS、非 STUN ICE 候选、绕过 Tunnel 的连接或浏览器直接暴露的网卡 IP。
+
+**必须在设备上额外检查**：
+
+1. 在 Stash 启用系统 Tunnel/VPN，而非仅使用浏览器 HTTP 系统代理；有原生 IPv6 的网络还需到 **Stash → 网络设置 → 启用 Tunnel IPv6 路由**。官方说明默认 Tunnel 只启用 IPv4。没有 IPv6 路由的环境需要单独验证兼容性，不能只依靠 YAML 的 `ipv6: false` / `dns.ipv6: false`，那两个选项仅影响 Stash 自身连接与 DNS/AAAA，不会移除浏览器从网卡收集的 IPv6 地址。
+2. **浏览器层阻断非代理 ICE**：桌面 Chromium/Chrome 可由受支持的策略或设置将 `WebRtcIPHandling` 设为 `disable_non_proxied_udp`；Firefox 如可接受网站音视频功能失效，可在 `about:config` 将 `media.peerconnection.enabled` 设为 `false`。其他浏览器需核实各自的 WebRTC/IP 隐私能力；Stash 配置无法替浏览器修改这些设置。
+3. 在**同一网络**分别记录关闭与开启 Stash 时 [BrowserLeaks WebRTC](https://browserleaks.com/webrtc) 的 `host` / `srflx` / `relay` 候选和 IPv4/IPv6 地址；与 HTTP 出口及真实运营商地址比较。启用后不得看到真实公网 IPv4 或全局 IPv6；若看到 `host` 全局 IPv6，即使 STUN 已被阻断也**仍是浏览器层暴露**。`.local` mDNS 候选或 RFC1918 私网地址不等同于公网 IP 泄漏。还应在 Wi-Fi、蜂窝网络切换后重测。
+
+在 Stash 的连接记录中确认目的端口命中 `REJECT`，以及使用 [HTTP API /rules/match](https://stash.wiki/features/http-api) 分别查询 `network=udp&port=3478`、`network=udp&port=19302` 的出口；`PROTOCOL,STUN` 需要真 UDP 报文才能识别，静态 /rules/match 查询并不能模拟协议解析。**这是一项针对受接管流量的防护措施，而非在任意浏览器、系统与 IPv6 网络下零泄漏的保证。**
+
+规则类型：[Stash 官方 PROTOCOL / DST-PORT](https://stash.wiki/rules/rule-types) · [Stash IPv6 兼容性](https://stash.wiki/faq/ipv6-compatible) · [Chrome WebRTC IP Handling](https://support.google.com/chrome/a/answer/2657289?hl=en)。
 
 ## v0.1.4：广告修正、内嵌私网与不可变规则
 

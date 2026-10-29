@@ -37,9 +37,6 @@ dns:
     - '*.n.n.srv.nintendo.net'
     - 'xbox.*.*.microsoft.com'
     - '*.*.xboxlive.com'
-    - '+.stun.*.*'
-    - '+.stun.*.*.*'
-    - '+.stun.*.*.*.*'
 
 proxy-groups:
   - name: "Proxy"
@@ -723,6 +720,21 @@ rule-providers:
     path: ./rules/v0.1.4/ChinaDirect.asn.txt
 
 rules:
+  # WebRTC leak mitigation: intercept tunneled STUN before LAN/CN/DIRECT routing.
+  # Port rules also block TURN when protocol sniffing is unavailable; they affect TCP and UDP.
+  - "PROTOCOL,STUN,REJECT"
+  - "DST-PORT,3478,REJECT"
+  - "DST-PORT,3479,REJECT"
+  - "DST-PORT,5349,REJECT"
+  - "DST-PORT,5350,REJECT"
+  - "DST-PORT,19302,REJECT"
+  - "DST-PORT,19303,REJECT"
+  - "DST-PORT,19304,REJECT"
+  - "DST-PORT,19305,REJECT"
+  - "DST-PORT,19306,REJECT"
+  - "DST-PORT,19307,REJECT"
+  - "DST-PORT,19308,REJECT"
+  - "DST-PORT,19309,REJECT"
   # Fake-IP exceptions alone do not make a connection DIRECT.
   - "DOMAIN,localhost,DIRECT"
   - "DOMAIN-SUFFIX,local,DIRECT"
