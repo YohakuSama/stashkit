@@ -42,7 +42,9 @@ class ConfigTests(unittest.TestCase):
         by_name = {group["name"]: group for group in self.profile["proxy-groups"]}
         self.assertEqual(by_name["Proxy"]["proxies"][0], "REJECT")
         self.assertTrue(by_name["Proxy"]["include-all"])
-        self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT", "Auto", "Fallback", "ALL"])
+        self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT", "Auto", "Fallback"])
+        self.assertEqual(len(by_name), 39)
+        self.assertNotIn("ALL", by_name)
         self.assertEqual(by_name["Final"]["proxies"][0], "Proxy")
         self.assertEqual(by_name["ChatGPT"]["proxies"][0], "Proxy")
         self.assertEqual(by_name["AI"]["proxies"][0], "Proxy")
@@ -55,9 +57,9 @@ class ConfigTests(unittest.TestCase):
         import hashlib
         import json
         lock = json.loads((ROOT / "build/icon-lock.json").read_text())
-        self.assertEqual(len(lock["group_icons"]), 40)
-        self.assertEqual(len(lock["asset_git_blob_shas"]), 40)
-        self.assertEqual(lock["group_icons"]["ALL"], "ALL.png")
+        self.assertEqual(len(lock["group_icons"]), 39)
+        self.assertEqual(len(lock["asset_git_blob_shas"]), 39)
+        self.assertNotIn("ALL", lock["group_icons"])
         for name, filename in lock["group_icons"].items():
             group = next(g for g in self.profile["proxy-groups"] if g["name"] == name)
             self.assertEqual(group["icon"], (
