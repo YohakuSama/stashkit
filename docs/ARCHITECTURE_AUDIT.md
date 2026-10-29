@@ -20,7 +20,7 @@
 
 - 54 个文件规则 provider（43 domain、7 ipcidr、4 classical ASN），另有 1 个内嵌 `Private-local` provider。
 - 原上游 43 份输入经人工审查的 [adjustments.json](../build/adjustments.json) 转换。规则资源固定到 [release-lock.json](../build/release-lock.json) 指向的不可变提交，不跟随远程 `main`。
-- 三份正式模板和默认 native 输出均保留 LoonKit 的 39 个策略组，无 ALL/Manual 中间组。公开模板的空 use 由本地生成器绑定真实 Provider/use-url；完整私有配置直接引用来源，保留 Stash 的后台节点更新，不下载成静态快照。旧 ALL 仅为显式兼容选项，flat 仅为静态快照选项。运行时审计逐组核对当前订阅节点，CI 不启动 Stash iOS，详见[订阅绑定说明](./NATIVE_PROVIDER_TRIAL.md)。
+- 三份正式配置和默认 native 输出均保留 LoonKit 的 39 个策略组，无 ALL/Manual 中间组。正式 YAML 使用 `Airport` 具名 Provider 和无效占位 URL，可直接在本地改为私人订阅；高级生成器仍可将其替换为多 Provider/use-url 来源，保留 Stash 的后台节点更新，不下载成静态快照。旧 ALL 仅为显式兼容选项，flat 仅为静态快照选项。运行时审计逐组核对当前订阅节点，CI 不启动 Stash iOS，详见[订阅绑定说明](./NATIVE_PROVIDER_TRIAL.md)。
 - STUN 和常用 TURN 端口拦截位于 LAN/CN 直连之前，所有三套配置保持一致。此次架构调整**不修改**这些网络规则。
 
 ## 测试与已知边界
