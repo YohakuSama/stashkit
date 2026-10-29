@@ -90,6 +90,17 @@ class LoonSelectionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Expected an override"):
                 read_provider_override(path)
 
+    def test_public_preview_requires_personal_provider_and_matches_generator(self):
+        preview = yaml.safe_load((ROOT / "StashKit-Loon-Preview.yaml").read_text(encoding="utf-8"))
+        source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        expected = build_loon_selection(source, {"personal": PROVIDERS["personal"]})
+        self.assertNotIn("proxy-providers", preview)
+        self.assertEqual(preview["proxy-groups"], expected["proxy-groups"])
+        for key in ("dns", "rules", "rule-providers", "mode", "log-level"):
+            self.assertEqual(preview[key], source[key])
+        preview["proxy-providers"] = {"personal": PROVIDERS["personal"]}
+        validate_profile(preview)
+
     def test_private_output_folder_is_gitignored(self):
         ignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
         self.assertIn("dist/", ignore)
