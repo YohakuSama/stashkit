@@ -197,7 +197,7 @@ class RuntimeAuditTests(unittest.TestCase):
         self.assertFalse(self.run_audit())
 
     def test_placeholder_is_rejected_even_when_controller_reports_working_nodes(self):
-        self.profile["proxy-providers"]["Airport"]["url"] = (
+        self.profile["proxy-providers"]["runtime-provider"]["url"] = (
             "https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION")
         self.assertFalse(self.run_audit())
 
