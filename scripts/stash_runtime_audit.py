@@ -90,6 +90,10 @@ def inspect_strategy_groups(profile, proxies):
              "fallback": {"fallback"}}
     pool_members = {}
     expected_groups = {group["name"]: group for group in profile["proxy-groups"]}
+    # An explicitly referenced public placeholder is still not a usable source.
+    if any(str(spec.get("url", "")).startswith("https://example.invalid/")
+           for spec in (profile.get("proxy-providers") or {}).values()):
+        return ["Public subscription placeholder has not been replaced locally"]
     if (not profile.get("proxies") and not any(
             group.get(key) for group in expected_groups.values()
             for key in ("use", "use-url", "include-all"))):
