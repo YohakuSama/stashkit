@@ -85,32 +85,34 @@ def main():
     group_names = [row.split("=", 1)[0].strip() for row in source_groups.splitlines() if " = " in row]
     groups = profile["proxy-groups"]
     names = [group["name"] for group in groups]
-    assert len(group_names) == 39 and len(names) == len(set(names)) == 40
-    assert names == group_names[:3] + ["ALL"] + group_names[3:], "Unexpected LoonKit adapter order"
+    assert len(group_names) == len(names) == len(set(names)) == 39
+    assert names == group_names, "Native defaults must preserve the LoonKit group order"
+    assert not {"ALL", "Manual"} & set(names)
     by_name = {group["name"]: group for group in groups}
     assert "proxy-providers" not in profile and not profile.get("proxies")
     assert by_name["Auto"]["type"] == "url-test" and by_name["Auto"]["interval"] == 600
     assert by_name["Auto"]["tolerance"] == 60
     assert by_name["Fallback"]["type"] == "fallback" and by_name["Fallback"]["interval"] == 900
-    assert by_name["Proxy"]["proxies"] == ["Auto", "Fallback", "ALL", "REJECT"]
-    for name in ("Auto", "Fallback", "ALL"):
+    assert by_name["Proxy"]["proxies"] == ["Auto", "Fallback", "REJECT"]
+    for name in ("Auto", "Fallback"):
         assert by_name[name]["proxies"] == []
     for name in ("ChatGPT", "Gemini", "Netflix", "GitHub"):
-        assert by_name[name]["proxies"] == ["Proxy", "Auto", "Fallback", "ALL"]
+        assert by_name[name]["proxies"] == ["Proxy", "Auto", "Fallback"]
     for group in groups:
-        if group["name"] in {"Auto", "Fallback", "ALL"}:
-            assert group["include-all"] is True and group["filter"] == ".*"
+        assert "include-all" not in group and "filter" not in group
+        assert "use-url" not in group
+        if group["name"] not in {"AdBlock", "Final"}:
+            assert group["use"] == [], "Public template must not invent a private Provider"
         else:
-            assert "include-all" not in group and "filter" not in group
-        assert "use" not in group and "use-url" not in group
+            assert "use" not in group
     for row in source_groups.splitlines():
         if " = " not in row:
             continue
         name, specification = row.split("=", 1)
         group = by_name[name.strip()]
         options = [part.strip() for part in specification.split(",img-url", 1)[0].split(",")]
-        expected_children = ["ALL" if part == "ALL_Filter" else part for part in options[1:]
-                             if part not in {"Auto_Filter", "Fallback_Filter"} and "=" not in part]
+        expected_children = [part for part in options[1:]
+                             if part not in {"ALL_Filter", "Auto_Filter", "Fallback_Filter"} and "=" not in part]
         if name.strip() in {"Auto", "Fallback"}:
             expected_children = []
         if name.strip() == "Proxy":
@@ -136,7 +138,7 @@ def main():
     for group in groups:
         for child in group["proxies"]:
             assert child in names or child in ("DIRECT", "REJECT"), (group["name"], child)
-        expected_icon = icon_lock["group_icons"]["Proxy" if group["name"] == "ALL" else group["name"]]
+        expected_icon = icon_lock["group_icons"][group["name"]]
         assert group["icon"] == (f"https://raw.githubusercontent.com/YohakuSama/stashkit/"
                                  f"{icon_ref}/icons/{expected_icon}"), f"Wrong icon URL: {group['name']}"
         assert expected_icon in icon_lock["asset_git_blob_shas"]

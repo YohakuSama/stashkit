@@ -1,4 +1,4 @@
-# StashKit v0.1.11 — provider reference only
+# StashKit v0.1.12 — provider reference only
 # Define a real personal provider before importing this reference.
 mode: rule
 log-level: warning
@@ -39,19 +39,19 @@ proxy-groups:
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Proxy.png
 - name: Auto
   type: url-test
+  use:
+  - personal
   proxies: []
   interval: 600
   tolerance: 60
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Auto.png
-  use:
-  - personal
 - name: Fallback
   type: fallback
+  use:
+  - personal
   proxies: []
   interval: 900
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Fallback.png
-  use:
-  - personal
 - name: ALL
   type: select
   proxies: []

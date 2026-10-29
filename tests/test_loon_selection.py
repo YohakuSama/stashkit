@@ -33,7 +33,7 @@ class LoonSelectionTests(unittest.TestCase):
             with self.subTest(profile=profile_name):
                 original = yaml.safe_load((ROOT / profile_name).read_text(encoding="utf-8"))
                 snapshot = copy.deepcopy(original)
-                generated = build_loon_selection(original, PROVIDERS)
+                generated = build_loon_selection(original, PROVIDERS, layout="nested")
                 validate_profile(generated)
                 self.assertEqual(original, snapshot)
                 for key in ("dns", "rules", "rule-providers", "mode", "log-level"):
@@ -126,7 +126,7 @@ class LoonSelectionTests(unittest.TestCase):
     def test_public_preview_requires_personal_provider_and_matches_generator(self):
         preview = yaml.safe_load((ROOT / "StashKit-Loon-Preview.yaml").read_text(encoding="utf-8"))
         source = yaml.safe_load((ROOT / "StashKit-ALL.yaml").read_text(encoding="utf-8"))
-        expected = build_loon_selection(source, {"personal": PROVIDERS["personal"]})
+        expected = build_loon_selection(source, {"personal": PROVIDERS["personal"]}, layout="nested")
         self.assertNotIn("proxy-providers", preview)
         self.assertEqual(preview["proxy-groups"], expected["proxy-groups"])
         for key in ("dns", "rules", "rule-providers", "mode", "log-level"):
@@ -151,7 +151,7 @@ class LoonSelectionTests(unittest.TestCase):
             for name in PROFILE_FILES.values():
                 with self.subTest(profile=name):
                     original = yaml.safe_load((ROOT / name).read_text(encoding="utf-8"))
-                    result = build_loon_selection(original, discovered_providers, discovered_nodes)
+                    result = build_loon_selection(original, discovered_providers, discovered_nodes, layout="nested")
                     validate_profile(result)
                     groups = {group["name"]: group for group in result["proxy-groups"]}
                     self.assertEqual(groups["Proxy"]["proxies"],
@@ -178,7 +178,7 @@ class LoonSelectionTests(unittest.TestCase):
             nodes, providers = read_node_sources(path)
             self.assertEqual(nodes, [])
             self.assertEqual(providers, PROVIDERS)
-            built = build_loon_selection(source, providers, nodes)
+            built = build_loon_selection(source, providers, nodes, layout="nested")
             groups = {row["name"]: row for row in built["proxy-groups"]}
             self.assertNotIn("use", groups["Proxy"])
             self.assertNotIn("use", groups["ChatGPT"])
@@ -208,7 +208,7 @@ class LoonSelectionTests(unittest.TestCase):
             with self.subTest(profile=filename):
                 original = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
                 snapshot = copy.deepcopy(original)
-                output = build_loon_selection(original, subscription_urls=urls)
+                output = build_loon_selection(original, subscription_urls=urls, layout="nested")
                 validate_profile(output)
                 self.assertEqual(original, snapshot)
                 self.assertEqual(len(output["proxy-groups"]), 40)
@@ -268,12 +268,12 @@ class LoonSelectionTests(unittest.TestCase):
                 validate_profile(result)
         bad = build_loon_selection(source,
                                    subscription_urls=["https://example.org/sub"])
-        # Inject into ALL, which actually owns use-url after the refactor.
-        next(g for g in bad["proxy-groups"] if g["name"] == "ALL")["include-all"] = True
+        # use-url cannot be combined with include-all in a node pool.
+        next(g for g in bad["proxy-groups"] if g["name"] == "Auto")["include-all"] = True
         with self.assertRaisesRegex(ValueError, "cannot mix"):
             validate_profile(bad)
 
-    def test_native_layout_experiments_single_level_provider_selection(self):
+    def test_native_layout_uses_single_level_provider_selection(self):
         """Native layout keeps Auto/Fallback and direct nodes on one level."""
         node = {"name": "Experiment Node", "type": "ss",
                 "server": "198.51.100.7", "port": 443,
@@ -348,6 +348,7 @@ class LoonSelectionTests(unittest.TestCase):
             source = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
             validate_profile(source)
             self.assertNotIn("proxy-providers", source)
+            self.assertEqual(len(source["proxy-groups"]), 39)
             generated = build_loon_selection(source, providers=PROVIDERS,
                                              layout="native")
             validate_profile(generated)

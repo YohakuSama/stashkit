@@ -127,13 +127,13 @@ class NodeSourceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             handler.redirect_request(request, None, 302, 'Found', {}, 'http://example.org/sub')
 
-    def test_cli_defaults_to_flat_and_writes_private_file_atomically(self):
+    def test_cli_flat_opt_in_writes_private_file_atomically(self):
         with tempfile.TemporaryDirectory(dir=ROOT.parent) as directory:
             source = Path(directory) / 'source.yaml'
             output = Path(directory) / 'result.yaml'
             source.write_text(yaml.safe_dump({'proxies': [node('One'), node('Two')]}))
             command = [sys.executable, str(ROOT / 'scripts/build_loon_selection.py'),
-                       '--nodes-from', str(source), '--output', str(output)]
+                       '--layout', 'flat', '--nodes-from', str(source), '--output', str(output)]
             success = subprocess.run(command, capture_output=True, text=True)
             self.assertEqual(success.returncode, 0, success.stderr)
             result = yaml.safe_load(output.read_text())

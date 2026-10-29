@@ -50,27 +50,29 @@ class PolicyGroupParityTests(unittest.TestCase):
             for key in ('rules', 'rule-providers', 'dns'):
                 self.assertEqual(result[key], source[key])
 
-    def test_public_adapter_keeps_named_policies_separate_from_dynamic_nodes(self):
+    def test_public_templates_preserve_original_39_policies_without_helpers(self):
         expected = loon_groups()
         for filename in ('StashKit.yaml', 'StashKit-Privacy.yaml', 'StashKit-Local.yaml'):
             profile = yaml.safe_load((ROOT / filename).read_text())
             groups = {g['name']: g for g in profile['proxy-groups']}
-            self.assertEqual(len(groups), 40)
+            self.assertEqual(list(groups), [row[0] for row in expected])
+            self.assertEqual(len(groups), 39)
             self.assertNotIn('proxy-providers', profile)
+            self.assertNotIn('proxies', profile)
             for name, kind, choices in expected:
                 with self.subTest(profile=filename, group=name):
-                    translated = ['ALL' if c == 'ALL_Filter' else c for c in choices
-                                  if c not in {'Auto_Filter', 'Fallback_Filter'}]
+                    translated = [c for c in choices
+                                  if c not in {'ALL_Filter', 'Auto_Filter', 'Fallback_Filter'}]
                     if name == 'Proxy':
                         translated.append('REJECT')
                     self.assertEqual(groups[name]['type'], kind)
                     self.assertEqual(groups[name]['proxies'], translated)
-            for name in ('Auto', 'Fallback', 'ALL'):
-                self.assertTrue(groups[name]['include-all'])
-                self.assertEqual(groups[name]['filter'], '.*')
-                self.assertEqual(groups[name]['proxies'], [])
-            for name in set(groups) - {'Auto', 'Fallback', 'ALL'}:
-                self.assertNotIn('include-all', groups[name])
+                    self.assertNotIn('include-all', groups[name])
+                    self.assertNotIn('filter', groups[name])
+                    if name not in {'AdBlock', 'Final'}:
+                        self.assertEqual(groups[name]['use'], [])
+                    else:
+                        self.assertNotIn('use', groups[name])
 
     def test_original_timing_and_direct_defaults_are_preserved(self):
         source = yaml.safe_load((ROOT / 'StashKit.yaml').read_text())

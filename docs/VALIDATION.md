@@ -2,7 +2,7 @@
 
 ## 自动检查
 
-按 [README](../README.md) 安装固定依赖和上游基准，然后运行前先确认 Proxy 的 Auto/Fallback 选项和具名 Provider 节点能在 Stash iOS 正确显示并实际选中。使用 `--profile StashKit-Privacy.yaml` 或 `--profile StashKit-Local.yaml` 可指定正在验收的版本。运行：
+按 [README](../README.md) 安装固定依赖和上游基准。以下自动检查不需要 Stash 或私人订阅；真机审计使用已绑定来源的私有 YAML，见下文。
 
 ```sh
 python scripts/build_profiles.py --check
@@ -19,7 +19,7 @@ python scripts/build_offline_bundle.py --check
 
 ## Stash 真机验收
 
-使用 iOS/tvOS 3.6+ 或 macOS 4.3+，导入主配置和填好个人订阅地址的覆写，确认已加载 54 个文件规则集、1 个内嵌 Private-local 和实际节点。覆写需另存为 `.stoverride`；示例中的 example.invalid 有意不可用。
+使用 iOS/tvOS 3.6+ 或 macOS 4.3+，按生成说明将真实 Provider/订阅绑定到 native 配置，再导入生成的完整文件，确认已加载 54 个文件规则集、1 个内嵌 Private-local 和实际节点。覆写需另存为 `.stoverride`；示例中的 example.invalid 有意不可用。
 
 | 项目 | 检查方法与预期 |
 | --- | --- |
@@ -30,8 +30,8 @@ python scripts/build_offline_bundle.py --check
 | 广告 | control.kochava.com、Google Ads / DoubleClick / Analytics 与 Copilot 遥测端点 → AdBlock；改选 DIRECT 为终止匹配后直连 |
 | DNS | 查看应答服务器：公共真实解析使用 DoH，私有域名使用系统 DNS；独立检查其他 App 内置 DNS 和 VPN 接管范围 |
 | 测速 | 检查 provider 的 benchmark-url 生效、节点失效后 Auto/Fallback 的实际选择；测速不证明服务地区解锁 |
-| 默认安全出口 | 初次导入检查实际出口，不能仅根据 Proxy 的 REJECT 配置保证故障阻断；先确认同一配置中真实节点已加载；公开版在 Proxy 选择 Auto/Fallback/ALL，flat 私有版可直接选择真实节点；检查每个服务组的策略选项 并检查连接记录；旧配置升级时策略选择可能被保留 |
-| 空订阅 | 分别测试合法但 proxies 为空、过滤后为空、首次下载失败、有旧缓存时下载失败；flat 生成必须失败且不覆盖旧文件；动态布局观察 Auto/Fallback/ALL 的真实成员和出口，不应把空 Provider 的 DIRECT 替代当成节点 |
+| 默认安全出口 | 初次导入检查实际出口，不能仅根据 Proxy 的 REJECT 配置保证故障阻断；先确认同一配置中真实节点已加载；默认 native 的 Proxy 与各业务组应同时列出自动策略和当前订阅节点，无 ALL；检查每个服务组的策略选项及连接记录；旧配置升级时策略选择可能被保留 |
+| 空订阅 | 分别测试合法但 proxies 为空、过滤后为空、首次下载失败、有旧缓存时下载失败；flat 生成必须失败且不覆盖旧文件；默认 native 观察 Auto/Fallback 及每个业务组的真实成员和出口，不应把空 Provider 的 DIRECT 替代当成节点 |
 | 网络变化 | Wi-Fi/蜂窝切换、IPv4/IPv6、断网重连；检查节点域名解析与规则缓存 |
 | 性能与播放 | 检查内存和请求记录，实际播放对应流媒体；离线路由测试不能证明播放或地区解锁 |
 
@@ -59,21 +59,22 @@ curl --get 'http://127.0.0.1:9090/rules/match' \
 
 ## 离线资源快照与 DNS 隐私验收
 
-- **在线**：检查各规则 URL 含同一固定 40 位 Git commit、provider 缓存路径使用 `build/release-lock.json` 的 `rules_version`（当前 `v0.1.4`，与配置版本 `v0.1.11` 不同）；第一次联网加载成功后切断网络再重启，确认 54 个缓存是否能继续使用（要注意代理本身也可能无法连通）。
-- **离线**：从主分支 CI 下载 ZIP，验 SHA256SUMS，按 Stash 受管资源目录的版本路径部署 54 份文件，再加载 `StashKit-Local.yaml`。单独导入 YAML 而不部署文件**应失败**，不能标记为正常配置。GitHub Actions 的 ZIP 是备份/安装材料，不是 App 一键导入包。
-- **隐私**：先通过个人订阅加载节点，手动切换 Proxy，再导入 `StashKit-Privacy.yaml`（或对普通配置启用 `dns-privacy.stoverride`，不要重复启用）；查看 AliDNS 主机的最终代理链及 DNS 记录。观察 Apple CDN、Wi-Fi/蜂窝切换、节点域名解析。若 DNS 不可用，先禁用覆写，不能断言绝对防泄漏。
-- **图标**：39 张原始 PNG 已迁入 StashKit 自有仓库，39 个对应策略组和复用 Proxy 图标的 ALL 入口均指向 StashKit 固定提交；联网更新配置后应看到专用图标。如仍显示默认图标，请重新导入或更新配置，并检查手机是否能访问 StashKit 的图标 PNG URL。
+- **在线**：检查各规则 URL 含同一固定 40 位 Git commit、provider 缓存路径使用 `build/release-lock.json` 的 `rules_version`（当前 `v0.1.4`，与配置版本 `v0.1.12` 不同）；第一次联网加载成功后切断网络再重启，确认 54 个缓存是否能继续使用（要注意代理本身也可能无法连通）。
+- **离线**：从主分支 CI 下载 ZIP，验 SHA256SUMS，按 Stash 受管资源目录的版本路径部署 54 份文件，再用 `--profile local` 绑定真实节点来源并导入生成结果。单独导入 YAML 而不部署文件**应失败**，不能标记为正常配置。GitHub Actions 的 ZIP 是备份/安装材料，不是 App 一键导入包。
+- **隐私**：先通过个人订阅加载节点，手动切换 Proxy，再导入由 `--profile privacy` 生成的完整私有配置（或对普通配置启用 `dns-privacy.stoverride`，不要重复启用）；查看 AliDNS 主机的最终代理链及 DNS 记录。观察 Apple CDN、Wi-Fi/蜂窝切换、节点域名解析。若 DNS 不可用，先禁用覆写，不能断言绝对防泄漏。
+- **图标**：39 张原始 PNG 已迁入 StashKit 自有仓库，39 个正式策略组均指向 StashKit 固定提交；联网更新配置后应看到专用图标。如仍显示默认图标，请重新导入或更新配置，并检查手机是否能访问 StashKit 的图标 PNG URL。
 - **发布流程**：新的规则变更先完成源文件与生成器 CI，在一个包含全部新规则的固定 commit 上发布；配置文件随后单独修改 pin 和缓存版本号，切勿以当前配置 commit 的可变 main 指针做规则订阅。
 
 ## 自动采集真机运行时证据（只读）
 
-在 Stash 已运行的 Mac（或同一受信任局域网内可访问 iOS Stash 控制端口的电脑）中，按 [Stash 官方 HTTP API](https://stash.wiki/features/http-api) 开启外部控制并设置密钥。不要把密钥提交到 GitHub。运行前先确认 Proxy 的 Auto/Fallback 选项和具名 Provider 节点能在 Stash iOS 正确显示并实际选中。使用 `--profile StashKit-Privacy.yaml` 或 `--profile StashKit-Local.yaml` 可指定正在验收的版本。运行：
+在 Stash 已运行的 Mac（或同一受信任局域网内可访问 iOS Stash 控制端口的电脑）中，按 [Stash 官方 HTTP API](https://stash.wiki/features/http-api) 开启外部控制并设置密钥。不要把密钥提交到 GitHub。运行前先确认 Proxy 的 Auto/Fallback 选项和具名 Provider 节点能在 Stash iOS 正确显示并实际选中。运行时审计的 `--profile` 必须指向已绑定节点的私有 YAML，例如 `dist/StashKit-Personal.yaml`；公开模板仍是空 use，不是完整个人配置。运行：
 
 ```sh
 export STASH_API_TOKEN='由你在 Stash 设置的控制器密钥'
-python scripts/stash_runtime_audit.py --base-url http://127.0.0.1:9090
+python scripts/stash_runtime_audit.py --base-url http://127.0.0.1:9090 \
+  --profile dist/StashKit-Personal.yaml
 ```
 
-iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，不要向公共互联网开放控制接口。脚本使用**只读 GET** 检查模式、Proxy 递归后的真实节点、55 个预期 provider 的名称和条目数、规则总量、广告及业务哨兵的命中规则与最终出口，并读取内存接口；不会输出 API 密钥、个人节点名、订阅或者整个 DNS 缓存。**运行结果来自你的真实 Stash 才能称为真机验收**，GitHub Actions 无法代替它。DNS 旁路测试还需检查客户端连接记录与第三方 DNS 测试；单次 API 通过不是绝对无泄漏证明。
+iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，不要向公共互联网开放控制接口。脚本使用**只读 GET** 检查模式、39 个组的类型/选项/选择、每个业务组是否包含当前 Provider 全部节点、Proxy 递归后的真实节点、55 个预期 provider 的名称和条目数、规则总量、广告及业务哨兵的命中规则与最终出口，并读取内存接口；不会输出 API 密钥、个人节点名、订阅或者整个 DNS 缓存。**运行结果来自你的真实 Stash 才能称为真机验收**，GitHub Actions 无法代替它。DNS 旁路测试还需检查客户端连接记录与第三方 DNS 测试；单次 API 通过不是绝对无泄漏证明。
 
 私网冷启动应在未缓存 GeoSite 的设备上验证 `router.internal`、NAS 单标签名称、路由器品牌域名与私有反向解析；三套配置不再含 GeoSite 引用。脚本通过只证明控制器返回的规则与出口符合配置，不代替真实业务连通性、播放或 DNS 旁路测试。
