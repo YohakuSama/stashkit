@@ -1,4 +1,4 @@
-# StashKit v0.1.12 — local rule providers — legacy ALL compatibility
+# StashKit v0.1.13 — local rule providers — legacy ALL compatibility
 mode: rule
 log-level: warning
 dns:

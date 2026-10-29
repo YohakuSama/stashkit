@@ -111,8 +111,18 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
             or not ((len(groups) == EXPECTED_GROUP_COUNT and "ALL" not in names)
                     or (len(groups) == EXPECTED_GROUP_COUNT + 1 and "ALL" in names))):
         raise ValueError("Unexpected canonical group structure")
-    if source.get("proxies") or source.get("proxy-providers"):
-        raise ValueError("Canonical profile must not bundle personal nodes/providers")
+    # The official public profile contains a deliberately invalid example URL.
+    # Generated private profiles must discard it before binding user sources.
+    sample = {
+        "Airport": {
+            "url": "https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION",
+            "path": "./providers/stashkit-airport.yaml",
+            "interval": 3600,
+        },
+    }
+    existing = source.get("proxy-providers") or {}
+    if source.get("proxies") or (existing and existing != sample):
+        raise ValueError("Canonical profile must contain only the public sample provider")
     output.pop("proxy-providers", None)
     local_names = [node["name"] for node in nodes]
     if len(local_names) != len(set(local_names)):

@@ -34,7 +34,7 @@ def make_zip(root=ROOT):
         f"StashKit {PROFILE_VERSION} — offline provider bundle\n"
         "1) StashKit-Local.yaml uses 54 path-only file providers plus 1 embedded private provider.\n"
         f"2) Copy rules/{RULES_VERSION}/*.txt into the Stash-managed versioned resource directory.\n"
-        "3) Bind private sources with build_loon_selection.py --profile local before importing.\n"
+        "3) Replace the example Airport URL in StashKit-Local.yaml locally before importing.\n"
         "4) Stash does NOT automatically install provider paths when importing a ZIP.\n"
         "5) Confirm all 55 providers load; otherwise do not use this as an active profile.\n"
         "6) StashKit.yaml is the online profile with immutable pinned URLs and cache.\n"

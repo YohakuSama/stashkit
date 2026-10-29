@@ -347,7 +347,9 @@ class LoonSelectionTests(unittest.TestCase):
         for filename in NATIVE_PROFILE_FILES.values():
             source = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
             validate_profile(source)
-            self.assertNotIn("proxy-providers", source)
+            self.assertEqual(list(source["proxy-providers"]), ["Airport"])
+            self.assertEqual(source["proxy-providers"]["Airport"]["url"],
+                             "https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION")
             self.assertEqual(len(source["proxy-groups"]), 39)
             generated = build_loon_selection(source, providers=PROVIDERS,
                                              layout="native")

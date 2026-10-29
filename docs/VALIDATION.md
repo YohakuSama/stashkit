@@ -19,7 +19,7 @@ python scripts/build_offline_bundle.py --check
 
 ## Stash 真机验收
 
-使用 iOS/tvOS 3.6+ 或 macOS 4.3+，按生成说明将真实 Provider/订阅绑定到 native 配置，再导入生成的完整文件，确认已加载 54 个文件规则集、1 个内嵌 Private-local 和实际节点。覆写需另存为 `.stoverride`；示例中的 example.invalid 有意不可用。
+使用 iOS/tvOS 3.6+ 或 macOS 4.3+，在本地将正式 YAML 的 Airport 占位 URL 替换为真实订阅后导入，或通过高级生成器绑定私人来源，确认已加载 54 个文件规则集、1 个内嵌 Private-local 和实际节点。覆写需另存为 `.stoverride`；示例中的 example.invalid 有意不可用。
 
 | 项目 | 检查方法与预期 |
 | --- | --- |
@@ -60,14 +60,14 @@ curl --get 'http://127.0.0.1:9090/rules/match' \
 ## 离线资源快照与 DNS 隐私验收
 
 - **在线**：检查各规则 URL 含同一固定 40 位 Git commit、provider 缓存路径使用 `build/release-lock.json` 的 `rules_version`（当前 `v0.1.4`，与配置版本 `v0.1.12` 不同）；第一次联网加载成功后切断网络再重启，确认 54 个缓存是否能继续使用（要注意代理本身也可能无法连通）。
-- **离线**：从主分支 CI 下载 ZIP，验 SHA256SUMS，按 Stash 受管资源目录的版本路径部署 54 份文件，再用 `--profile local` 绑定真实节点来源并导入生成结果。单独导入 YAML 而不部署文件**应失败**，不能标记为正常配置。GitHub Actions 的 ZIP 是备份/安装材料，不是 App 一键导入包。
-- **隐私**：先通过个人订阅加载节点，手动切换 Proxy，再导入由 `--profile privacy` 生成的完整私有配置（或对普通配置启用 `dns-privacy.stoverride`，不要重复启用）；查看 AliDNS 主机的最终代理链及 DNS 记录。观察 Apple CDN、Wi-Fi/蜂窝切换、节点域名解析。若 DNS 不可用，先禁用覆写，不能断言绝对防泄漏。
+- **离线**：从主分支 CI 下载 ZIP，验 SHA256SUMS，按 Stash 受管资源目录的版本路径部署 54 份文件，并在本地替换 Local 配置里的 Airport URL 后导入；高级用法仍可通过 `--profile local` 生成个人配置。单独导入 YAML 而不部署文件**应失败**，不能标记为正常配置。GitHub Actions 的 ZIP 是备份/安装材料，不是 App 一键导入包。
+- **隐私**：先在本地填写 Privacy YAML 的 Airport URL，手动切换 Proxy，再导入这份文件（或对普通配置启用 `dns-privacy.stoverride`，不要重复启用）；查看 AliDNS 主机的最终代理链及 DNS 记录。观察 Apple CDN、Wi-Fi/蜂窝切换、节点域名解析。若 DNS 不可用，先禁用覆写，不能断言绝对防泄漏。
 - **图标**：39 张原始 PNG 已迁入 StashKit 自有仓库，39 个正式策略组均指向 StashKit 固定提交；联网更新配置后应看到专用图标。如仍显示默认图标，请重新导入或更新配置，并检查手机是否能访问 StashKit 的图标 PNG URL。
 - **发布流程**：新的规则变更先完成源文件与生成器 CI，在一个包含全部新规则的固定 commit 上发布；配置文件随后单独修改 pin 和缓存版本号，切勿以当前配置 commit 的可变 main 指针做规则订阅。
 
 ## 自动采集真机运行时证据（只读）
 
-在 Stash 已运行的 Mac（或同一受信任局域网内可访问 iOS Stash 控制端口的电脑）中，按 [Stash 官方 HTTP API](https://stash.wiki/features/http-api) 开启外部控制并设置密钥。不要把密钥提交到 GitHub。运行前先确认 Proxy 的 Auto/Fallback 选项和具名 Provider 节点能在 Stash iOS 正确显示并实际选中。运行时审计的 `--profile` 必须指向已绑定节点的私有 YAML，例如 `dist/StashKit-Personal.yaml`；公开模板仍是空 use，不是完整个人配置。运行：
+在 Stash 已运行的 Mac（或同一受信任局域网内可访问 iOS Stash 控制端口的电脑）中，按 [Stash 官方 HTTP API](https://stash.wiki/features/http-api) 开启外部控制并设置密钥。不要把密钥提交到 GitHub。运行前先确认 Proxy 的 Auto/Fallback 选项和具名 Provider 节点能在 Stash iOS 正确显示并实际选中。运行时审计的 `--profile` 必须指向已绑定节点的私有 YAML，例如 `dist/StashKit-Personal.yaml`；仓库公开 YAML 的 Airport URL 是无效占位符，不是完整个人配置。运行：
 
 ```sh
 export STASH_API_TOKEN='由你在 Stash 设置的控制器密钥'

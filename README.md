@@ -2,7 +2,7 @@
 
 面向 [Stash](https://stash.wiki/) 的规则分流配置。国内常用服务直连，AI、开发平台、流媒体与社交服务可独立选路。规则基于 [LoonKit v7.0.10 固定版本](https://github.com/YohakuSama/loonkit/tree/5f272104fc1207612c1cbd18f3e19d861d459ed9) 转换，产物由本仓库托管。
 
-当前配置：**v0.1.12** · [发布说明](./docs/RELEASE_NOTES_v0.1.12.md) · [变更记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
+当前配置：**v0.1.13** · [发布说明](./docs/RELEASE_NOTES_v0.1.13.md) · [变更记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
 
 ## 功能概览
 
@@ -10,19 +10,19 @@
 
 **服务直连** — Apple、Microsoft、Bilibili、Line、Speedtest 可以默认选 `DIRECT`，Steam 可手动选 `DIRECT`；国内核心、国内 AI、SteamCN CDN 仍由规则直连。国际 AI 服务不自动增加直连。
 
-**无 ALL 的同层选路（默认）** — [生成器](./docs/NATIVE_PROVIDER_TRIAL.md)默认使用 `native`，将真实 Provider 的 `use` 或订阅的 `use-url` 直接绑定到 `Proxy`、`Auto`、`Fallback` 与业务组。`Proxy` 保留 Auto/Fallback，业务组保留 Loon 的默认策略及 DIRECT 选项，具体节点从同一动态来源导入。没有二层 ALL 入口，也不使用 include-all 混合选择。
+**无 ALL 的同层选路（默认）** — 正式配置直接使用具名 `Airport` 远程代理集，将订阅节点绑定到 `Proxy`、`Auto`、`Fallback` 与业务组。高级[生成器](./docs/NATIVE_PROVIDER_TRIAL.md)仍可生成多来源配置。`Proxy` 保留 Auto/Fallback，业务组保留 Loon 的默认策略及 DIRECT 选项，具体节点从同一动态来源导入。没有二层 ALL 入口，也不使用 include-all 混合选择。
 
 **订阅更新** — 输入 Provider 时保留名称、URL、刷新间隔、认证头、过滤条件与缓存路径；节点增删由 Stash 更新，不需要重新运行生成器。只有 URL 时可用 `--subscription-file`，通过 Stash 的 use-url 自动管理；需要自定义刷新间隔时使用具名 Provider。只有静态 proxies 的输入仍为静态节点。
 
-**首次绑定自己的节点来源** — 三份公开 YAML 是无私人节点的 **39 组模板**，`use: []` 表示尚未绑定，不能作为完整个人配置直接启用。先用生成器绑定自己的订阅或 Provider，再从文件导入完整结果。模板不引用虚构的 personal 文件；任意 Provider 名称均可，另一个独立配置中的订阅不会自动合入。
+**首次绑定自己的节点来源** — 正式三份 YAML 均包含 `proxy-providers.Airport.url` 订阅占位符；仅在**本地文件**中替换成自己的 HTTPS Clash/Stash YAML 订阅 URL，再从文件导入 Stash。占位符无效，不需要可视化编辑或 Python。
 
 **网络保护** — 使用 Stash Fake-IP、AliDNS 加密 DNS 和前置 STUN/常见 TURN 端口拦截规则。WebRTC 防护仅适用于被 Stash Tunnel 接管的连接。
 
 ## 直接填写订阅（推荐）
 
-先下载 [StashKit-Subscription.yaml](./StashKit-Subscription.yaml) 到**本地**，将文件里的 `proxy-providers → Airport → url` 从 `https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION` 改为自己的 HTTPS **Clash/Stash YAML 节点订阅地址**（保留单引号），然后在 Stash **从文件导入**并启用。不要导入还带占位 URL 的公开模板。
+先下载正式版 [StashKit.yaml](./StashKit.yaml) 到**本地**，将文件里的 `proxy-providers → Airport → url` 从 `https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION` 改为自己的 HTTPS **Clash/Stash YAML 节点订阅地址**（保留单引号），然后在 Stash **从文件导入**并启用。不要导入还带占位 URL 的公开模板。
 
-该文件将 `Proxy` 中的 **Auto、Fallback、REJECT 和真实节点**放在同一层；`Auto`、`Fallback` 和其他 35 个节点策略组通过 `use: [Airport]` 引用同一个 Provider。节点每 3600 秒自动更新，39 个原有策略组、分流规则及默认顺序不变，无需可视化编辑或 Python。机场返回的必须是含 `proxies` 的 Clash/Stash YAML；如果返回 URI/Base64 文本，需先切换为 YAML 格式。
+正式版将 `Proxy` 中的 **Auto、Fallback、REJECT 和真实节点**放在同一层；`Auto`、`Fallback` 和其他 35 个节点策略组通过 `use: [Airport]` 引用同一个 Provider。节点每 3600 秒自动更新，39 个原有策略组、分流规则及默认顺序不变，无需可视化编辑或 Python。机场返回的必须是含 `proxies` 的 Clash/Stash YAML；如果返回 URI/Base64 文本，需先切换为 YAML 格式。
 
 **请勿将带 Token 的私人订阅 URL 提交到公开 GitHub 仓库。** 填写订阅后先确认 Stash 确实加载了实际节点；空远程代理集可能被当作 DIRECT。
 
@@ -37,14 +37,14 @@
 `--layout flat` 是明确选择的静态快照模式，节点变化后才需要重新生成。`StashKit-ALL.yaml` 等旧版兼容配置保留供主动选择，正式默认不再使用它们。完整步骤见[订阅绑定说明](./docs/NATIVE_PROVIDER_TRIAL.md)。
 
 > [!IMPORTANT]
-> Stash 官方说明空节点组或空 Provider 可能按 DIRECT 处理。公开模板尚未绑定节点，须先生成完整个人配置；动态订阅是否非空需在 Stash 中确认。`REJECT` 手动选项不能保证空订阅自动阻断。[运行时审计](./docs/VALIDATION.md)会检查各组成员、节点池及真实选择。
+> Stash 官方说明空节点组或空 Provider 可能按 DIRECT 处理。公开配置中的 URL 是无效占位符，须在本地填写真实订阅；动态订阅是否非空需在 Stash 中确认。`REJECT` 手动选项不能保证空订阅自动阻断。[运行时审计](./docs/VALIDATION.md)会检查各组成员、节点池及真实选择。
 
 ## 配置版本
 
 | 配置 | 用途 |
 | --- | --- |
-| [StashKit.yaml](./StashKit.yaml) | 不含订阅的生成器主模板；公共 DNS 使用 AliDNS DoH，`follow-rule: false` |
-| [StashKit-Subscription.yaml](./StashKit-Subscription.yaml) | 单文件版：本地填写一处订阅 URL，无需生成器 |
+| [StashKit.yaml](./StashKit.yaml) | **正式推荐**：本地填写一处机场订阅 URL，使用 AliDNS DoH |
+| [StashKit-Subscription.yaml](./StashKit-Subscription.yaml) | 保留的兼容别名，内容与正式主配置一致 |
 | [StashKit-Privacy.yaml](./StashKit-Privacy.yaml) | 公共 DoH 请求跟随路由并优先走 `Proxy`；须先选择可用节点 |
 | [StashKit-Local.yaml](./StashKit-Local.yaml) | 离线规则版；须先把 54 份文件规则放入 Stash 资源目录 |
 | [StashKit-ALL.yaml](./StashKit-ALL.yaml) | 可选的旧版 ALL 兼容布局；不属于默认 39 组方案 |
@@ -61,8 +61,8 @@
 
 | 目录 | 内容 |
 | --- | --- |
-| `StashKit.yaml` | 39 组主模板，生成器绑定私有节点来源 |
-| `StashKit-Subscription.yaml` | 从主模板确定性生成的直接订阅版本 |
+| `StashKit.yaml` | 39 组正式主配置：直接填写机场订阅 URL |
+| `StashKit-Subscription.yaml` | 与正式主配置同步的兼容副本 |
 | `StashKit-Privacy.yaml`、`StashKit-Local.yaml` | 由主配置确定性生成 |
 | `rules/` | 54 份固定版本的 Stash 原生规则文件 |
 | `build/` | 上游 SHA、来源锁、人工审查的规则调整记录 |

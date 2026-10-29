@@ -4,15 +4,15 @@
 
 ## 无需生成器：直接编辑 YAML
 
-如果只想在配置文件填写订阅链接，下载 [StashKit-Subscription.yaml](../StashKit-Subscription.yaml) 到本地，把 `proxy-providers.Airport.url` 的 `example.invalid` URL 改成 HTTPS Clash/Stash YAML 节点订阅，再在 Stash 从文件导入。无需可视化编辑或 Python。
+正式主配置现在直接填写订阅链接：下载 [StashKit.yaml](../StashKit.yaml) 到本地，把 `proxy-providers.Airport.url` 的 `example.invalid` URL 改成 HTTPS Clash/Stash YAML 节点订阅，再在 Stash 从文件导入。无需可视化编辑或 Python。
 
 所有 37 个需要节点的组显式使用 `use: [Airport]`，保留 `Proxy` 内的 `Auto`、`Fallback` 和 `REJECT`，每 3600 秒自动更新 Provider。若添加多个机场，请增加 `proxy-providers` 条目，并将名称加入需要节点的策略组 `use`。私人订阅可能含 Token，**切勿推送到公开 GitHub**。导入后要确认节点非空并检查实际策略选择。
 
-下文的生成器方法继续适合复杂、多机场和高级绑定需求。
+下文的生成器方法继续适合复杂、多机场和高级绑定需求；StashKit-Subscription.yaml 仅为兼容别名。
 
 ## 首次准备
 
-公开 `StashKit.yaml`、Privacy、Local 是不含私人订阅的模板。`use: []` 表示尚未绑定来源，不是可直接启用的完整个人配置；模板不要求 personal 名称，也不引用不存在的 personal.yaml。先在自己的电脑上完成一次绑定：
+公开 `StashKit.yaml`、Privacy、Local 已声明 `Airport` Provider，但其 URL 是无效占位地址。简单使用无需生成器，在本地填真实 URL 即可。以下仅说明复杂多来源使用时如何通过生成器替换示例 Provider：
 
 ```sh
 git clone https://github.com/YohakuSama/stashkit.git
@@ -64,7 +64,7 @@ python scripts/stash_runtime_audit.py \
   --profile dist/StashKit-Personal.yaml
 ```
 
-控制器密钥通过 STASH_API_TOKEN 环境变量传入。公开模板没有已绑定来源，不能用于证明真实订阅已通过验收。
+控制器密钥通过 STASH_API_TOKEN 环境变量传入。公开配置只包含无效订阅占位符，不能用于证明真实订阅已通过验收。
 
 默认 native 不下载订阅内容，因此生成成功仅证明引用与结构有效；必须在 Stash 中确认 Provider 已加载非空真实节点。官方说明空 Provider 可能用 DIRECT 替代，Proxy 中的 REJECT 手动选项不能保证空订阅阻断。运行时审计会拒绝这种替代。
 

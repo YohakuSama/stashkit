@@ -22,7 +22,7 @@ class ConfigTests(unittest.TestCase):
         example = yaml.load((ROOT / "overrides/provider.stoverride.example").read_text(), Loader=UniqueKeysLoader)
         validate_override(example)
         merged = copy.deepcopy(self.profile)
-        merged["proxy-providers"] = example["proxy-providers"]
+        merged["proxy-providers"].update(example["proxy-providers"])
         validate_profile(merged)
 
     def test_all_rules_use_immutable_refs_and_explicit_cache_paths(self):
@@ -41,11 +41,11 @@ class ConfigTests(unittest.TestCase):
     def test_public_template_has_39_groups_and_no_invented_node_source(self):
         by_name = {group["name"]: group for group in self.profile["proxy-groups"]}
         self.assertEqual(by_name["Proxy"]["proxies"], ["Auto", "Fallback", "REJECT"])
-        self.assertEqual(by_name["Proxy"]["use"], [])
+        self.assertEqual(by_name["Proxy"]["use"], ["Airport"])
         self.assertNotIn("include-all", by_name["Proxy"])
         self.assertNotIn("filter", by_name["Proxy"])
         self.assertEqual(by_name["ChatGPT"]["proxies"], ["Proxy", "Auto", "Fallback"])
-        self.assertEqual(by_name["ChatGPT"]["use"], [])
+        self.assertEqual(by_name["ChatGPT"]["use"], ["Airport"])
         self.assertNotIn("include-all", by_name["ChatGPT"])
         self.assertNotIn("filter", by_name["ChatGPT"])
         self.assertEqual(len(by_name), 39)
@@ -55,9 +55,10 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(by_name["ChatGPT"]["proxies"][0], "Proxy")
         self.assertEqual(by_name["AI"]["proxies"][0], "Proxy")
         self.assertEqual(by_name["AdBlock"]["proxies"][0], "REJECT")
-        self.assertNotIn("proxy-providers", self.profile)
+        self.assertEqual(self.profile["proxy-providers"]["Airport"]["url"],
+                         "https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION")
         for name in ("Auto", "Fallback"):
-            self.assertEqual(by_name[name]["use"], [])
+            self.assertEqual(by_name[name]["use"], ["Airport"])
             self.assertNotIn("include-all", by_name[name])
             self.assertEqual(by_name[name]["proxies"], [])
 

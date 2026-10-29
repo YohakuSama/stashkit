@@ -16,6 +16,7 @@ class SubscriptionProfileTests(unittest.TestCase):
         source = (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
         generated = subscription_profile(source)
         self.assertEqual((ROOT / "StashKit-Subscription.yaml").read_bytes(), generated.encode("utf-8"))
+        self.assertEqual(source, generated)
         data = yaml.safe_load(generated)
         canonical = yaml.safe_load(source)
         validate_profile(data)
@@ -43,7 +44,7 @@ class SubscriptionProfileTests(unittest.TestCase):
     def test_does_not_silently_omit_a_binding(self):
         source = (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
         with self.assertRaises(ValueError):
-            subscription_profile(source.replace("    use: []\n", "", 1))
+            subscription_profile(source.replace("      - Airport\n", "", 1))
 
 
 if __name__ == "__main__":
