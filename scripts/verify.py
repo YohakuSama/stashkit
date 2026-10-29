@@ -85,25 +85,29 @@ def main():
     group_names = [row.split("=", 1)[0].strip() for row in source_groups.splitlines() if " = " in row]
     groups = profile["proxy-groups"]
     names = [group["name"] for group in groups]
-    assert len(group_names) == len(names) == len(set(names)) == 39
-    assert names == group_names, "Stash group order must match LoonKit exactly"
+    assert len(group_names) == 39 and len(names) == len(set(names)) == 40
+    expected_order = group_names[:3] + ["ALL"] + group_names[3:]
+    assert names == expected_order, "Stash adds ALL after Fallback; remaining LoonKit groups retain order"
     by_name = {group["name"]: group for group in groups}
-    assert "ALL" not in by_name, "Redundant ALL strategy group must not return"
+    assert by_name["ALL"]["type"] == "select"
+    assert by_name["ALL"]["proxies"] == ["REJECT"]
+    assert by_name["ALL"]["include-all"] is True
+    assert by_name["ALL"]["filter"] == ".*"
     assert by_name["Auto"]["type"] == "url-test" and by_name["Auto"]["interval"] == 600
     assert by_name["Auto"]["tolerance"] == 60
     assert by_name["Fallback"]["type"] == "fallback" and by_name["Fallback"]["interval"] == 900
-    assert by_name["Proxy"]["proxies"] == ["Auto", "Fallback"]
-    assert by_name["Proxy"]["include-all"] is True
-    assert by_name["Proxy"]["filter"] == ".*"
+    assert by_name["Proxy"]["proxies"] == ["Auto", "Fallback", "ALL"]
+    assert "include-all" not in by_name["Proxy"]
+    assert "filter" not in by_name["Proxy"]
     for name in ("Auto", "Fallback"):
         assert by_name[name]["include-all"] is True
         assert by_name[name]["proxies"] == ["REJECT"]
     for name in ("ChatGPT", "Gemini", "Netflix", "GitHub"):
-        assert by_name[name]["proxies"][:3] == ["Proxy", "Auto", "Fallback"]
-        assert by_name[name]["include-all"] is True
-        assert by_name[name]["filter"] == ".*"
+        assert by_name[name]["proxies"] == ["Proxy", "Auto", "Fallback", "ALL"]
+        assert "include-all" not in by_name[name]
+        assert "filter" not in by_name[name]
     for group in groups:
-        dynamic = group["name"] not in {"AdBlock", "Final"}
+        dynamic = group["name"] in {"Auto", "Fallback", "ALL"}
         assert group.get("include-all", False) is dynamic, group["name"]
         if dynamic:
             assert group["filter"] == ".*", f"Node filter missing: {group['name']}"
@@ -117,15 +121,17 @@ def main():
         options = [part.strip() for part in specification.split(",img-url", 1)[0].split(",")]
         filter_names = {"ALL_Filter", "Auto_Filter", "Fallback_Filter"}
         has_node_filter = any(part in filter_names for part in options)
-        expected_dynamic = has_node_filter
+        expected_dynamic = has_node_filter and name.strip() in {"Auto", "Fallback"}
         assert group.get("include-all", False) is expected_dynamic, (
-            f"Dynamic node filter mismatches LoonKit: {name}")
+            f"Dynamic node pool differs from Stash nested layout: {name}")
         expected_children = [part for part in options[1:]
                              if part not in filter_names and "=" not in part]
         if name.strip() in {"Auto", "Fallback"}:
             expected_children = ["REJECT"]
+        elif name.strip() not in {"AdBlock", "Final"}:
+            expected_children.append("ALL")
         if name.strip() not in {"Proxy", "Auto", "Fallback", "Final", "AdBlock"}:
-            assert {"Proxy", "Auto", "Fallback"} <= set(expected_children), name
+            assert {"Proxy", "Auto", "Fallback", "ALL"} <= set(expected_children), name
         assert group["proxies"] == expected_children, f"Group option order differs: {name}"
     assert by_name["AdBlock"]["proxies"][0] == "REJECT"
     assert by_name["Final"]["proxies"][0] == "Proxy"

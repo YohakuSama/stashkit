@@ -6,13 +6,14 @@
 
 ## 功能概览
 
-**服务分流** — 提供与 LoonKit 一致的 39 个策略组，覆盖 AI、开发平台、流媒体、社交及国内常用服务；广告请求由 `AdBlock` 处理。
+**服务分流** — 提供LoonKit 的 39 个服务/策略组及 1 个 Stash 专用 ALL 节点组，覆盖 AI、开发平台、流媒体、社交及国内常用服务；广告请求由 `AdBlock` 处理。
 
 **服务直连** — Apple、Microsoft、Bilibili、Line、Speedtest 默认可选直连（首选为 `DIRECT`），Steam 可手动直连但默认走代理；国内核心服务、国内 AI 和 SteamCN CDN 在规则层直连。海外 AI / 流媒体保留独立代理选择，不把 `DIRECT` 泛加到所有服务或 `Proxy`。详见[路由策略](./docs/ROUTING.md)。
 
-**节点选路** — `Proxy` 明确包含 `Auto` / `Fallback`，并通过 `include-all` 和 `filter: '.*'` 收集订阅节点。ChatGPT 等服务组同时明确列出 `Proxy` / `Auto` / `Fallback` 和动态节点；没有 `ALL`、`Manual` 或具名 Provider 要求。项目不包含节点或个人订阅。
+**节点选路** — Stash iOS 实测在 `include-all` 与显式子策略混用时，`Proxy` 可能只显示节点、不显示 `Auto` / `Fallback`。为避免此问题，`Proxy` 现在明确列出 `Auto` / `Fallback` / `ALL`，`ALL` 是唯一用于手动展示全部订阅节点的选择组。ChatGPT 等服务组也保留 `Proxy` / `Auto` / `Fallback` / `ALL`，直连服务仍保留独立的 `DIRECT`。新增订阅节点无需改组名，手动挑节点需要进入 `ALL`。
 
-**LoonKit 选路兼容性** — 除公共配置的 `include-all` 外，还支持基于 Stash 原生 `use-url` 的[私有订阅生成方案](./docs/LOON_POLICY_GROUPS.md)：只需在本地提供已有 HTTPS 节点订阅 URL，不必指定 Provider 名称或列举节点，`Proxy` 与服务组明确列出 `Auto` / `Fallback`，并引用相同的动态订阅。无需 `ALL` / `Manual` 中转组；私有生成版 `Proxy` 以 `Auto` 为首选，`REJECT` 放在最后作为明确的拒绝兜底，保留上述服务的 `DIRECT` 选择。生成的私有文件含订阅凭据，不能提交到公开仓库。iOS 实际显示仍需验收。
+
+**LoonKit 选路兼容性** — LoonKit 原来的 `ALL_Filter` 可以在同一层展开节点；Stash 采用额外的 `ALL` 分组兼容动态订阅，不保证与 Loon iOS UI 完全一致。私有订阅生成器支持 `use-url`、具名 Provider 或本地 YAML，并只把动态节点交给 `Auto` / `Fallback` / `ALL`，避免在业务选择组混用动态来源与子策略。见[节点组与直连说明](./docs/LOON_POLICY_GROUPS.md)。私人订阅地址和凭据不可上传公开仓库。
 
 **网络保护** — 使用 Stash Fake-IP、AliDNS 加密 DNS 和前置 STUN/常见 TURN 端口拦截规则。WebRTC 防护仅适用于被 Stash Tunnel 接管的连接。
 
@@ -21,7 +22,7 @@
 1. **备份**现有 Stash 配置和节点订阅。
 2. 在 Stash 中通过 URL 导入[主配置](https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml)。
 3. 添加自己的节点或使用[订阅覆写示例](./overrides/provider.stoverride.example)，将示例地址替换为有效订阅。
-4. 更新配置后，在 `Proxy` 或服务策略组中选择 `Auto`、`Fallback` 或具体节点；确认 Stash iOS 是否同时展示这两类选项，并查看连接记录。
+4. 更新配置后，在 `Proxy` 或服务组中选择 `Auto`、`Fallback` 或 `ALL`；要手动指定节点，进入 `ALL`。检查每组的显示、规则命中和实际出口。
 5. 启动 Stash VPN/Tunnel，在请求记录中检查分流与实际出口。
 
 > [!IMPORTANT]

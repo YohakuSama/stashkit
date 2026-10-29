@@ -34,11 +34,10 @@ dns:
 proxy-groups:
   - name: "Proxy"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - Auto
       - Fallback
+      - ALL
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Proxy.png
   - name: "Auto"
     type: url-test
@@ -57,6 +56,13 @@ proxy-groups:
       - REJECT
     interval: 900
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Fallback.png
+  - name: "ALL"
+    type: select
+    include-all: true
+    filter: '.*'
+    proxies:
+      - REJECT
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Proxy.png
   - name: "AdBlock"
     type: select
     proxies:
@@ -74,315 +80,281 @@ proxy-groups:
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Final.png
   - name: "AI"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/AI.png
   - name: "ChatGPT"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/ChatGPT.png
   - name: "Gemini"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Gemini.png
   - name: "Claude"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Claude.png
   - name: "GitHub"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/GitHub.png
   - name: "Google"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Google.png
   - name: "Microsoft"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "DIRECT"
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Microsoft.png
   - name: "Apple"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "DIRECT"
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Apple.png
   - name: "Cloudflare"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Cloudflare.png
   - name: "Speedtest"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "DIRECT"
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Speedtest.png
   - name: "YouTube"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/YouTube.png
   - name: "Netflix"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Netflix.png
   - name: "Disney"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Disney.png
   - name: "PrimeVideo"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/PrimeVideo.png
   - name: "Spotify"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Spotify.png
   - name: "TikTok"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/TikTok.png
   - name: "Twitch"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Twitch.png
   - name: "HBO"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/HBO.png
   - name: "Abema"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Abema.png
   - name: "動畫瘋"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/AnimeCrazy.png
   - name: "Dazn"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Dazn.png
   - name: "BBC"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/BBC.png
   - name: "Bilibili"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "DIRECT"
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Bilibili.png
   - name: "Telegram"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Telegram.png
   - name: "Whatsapp"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Whatsapp.png
   - name: "Instagram"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Instagram.png
   - name: "Facebook"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Facebook.png
   - name: "Twitter"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Twitter.png
   - name: "Discord"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Discord.png
   - name: "Line"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "DIRECT"
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Line.png
   - name: "Reddit"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Reddit.png
   - name: "Linkedin"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Linkedin.png
   - name: "Steam"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
       - "DIRECT"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Steam.png
   - name: "Paypal"
     type: select
-    include-all: true
-    filter: '.*'
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Paypal.png
 rule-providers:
   # Shared by private DNS lookup and LAN routing.
