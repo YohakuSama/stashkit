@@ -52,10 +52,52 @@ def local_profile(config=None):
     return parts[0] + "\nrule-providers:\n" + providers + "\nrules:\n" + sections[1]
 
 
+
+def remote_subscription_override(config=None):
+    """Remote override for a user-managed Stash/Clash subscription profile.
+
+    The original subscription remains the active profile and owns the nodes.
+    StashKit replaces its routing and policy groups but deliberately leaves
+    'proxies' and 'proxy-providers' untouched. Every node-aware group uses
+    include-all to dynamically follow the current subscription's nodes.
+    """
+    content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
+    profile = yaml.safe_load(content)
+    groups = profile["proxy-groups"]
+    if len(groups) != 39 or any(group.get("use") != [] for group in groups
+                                if group["name"] not in {"AdBlock", "Final"}):
+        raise ValueError("Unexpected source strategy groups for remote override")
+    expected_dynamic = sum(group["name"] not in {"AdBlock", "Final"} for group in groups)
+    if content.count("    use: []\\n") != expected_dynamic:
+        raise ValueError("Expected one empty provider binding per node-aware group")
+
+    content = replace_once(
+        content, HEADER,
+        f"# StashKit {PROFILE_VERSION} — remote subscription override\\n",
+        "remote override header",
+    )
+    content = replace_once(
+        content,
+        "# Template: bind private sources with build_loon_selection.py before importing.\\n",
+        "# Uses nodes/providers from the active remote subscription profile.\\n",
+        "remote override node source",
+    )
+    content = content.replace("    use: []\\n", "    include-all: true\\n")
+    # Never allow the airport's own groups or MATCH to remain after merging.
+    # Preserve the provider's proxies / proxy-providers by not mentioning them.
+    for section in ("dns", "proxy-groups", "rule-providers", "rules"):
+        content = replace_once(content, f"{section}:\\n", f"{section}: #!replace\\n",
+                               f"remote override {section}")
+    return ("name: StashKit Remote Subscription\\n"
+            "desc: Use StashKit routing with nodes from the active remote profile.\\n"
+            + content)
+
+
 def derived_profiles(config):
     outputs = {
         "StashKit-Privacy.yaml": privacy_profile(config),
         "StashKit-Local.yaml": local_profile(config),
+        "StashKit.stoverride": remote_subscription_override(config),
     }
     # ALL remains an explicit compatibility variant, never a default alias.
     for filename, content in (("StashKit-ALL.yaml", config),
