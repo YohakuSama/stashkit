@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify all 40 pinned, self-hosted Stash strategy icons via real HTTPS downloads."""
+"""Verify all 39 active pinned, self-hosted Stash strategy icons via real HTTPS downloads."""
 import concurrent.futures
 import hashlib
 import json
@@ -38,7 +38,7 @@ def main():
     ref = lock["icons_commit"]
     prefix = f"https://raw.githubusercontent.com/YohakuSama/stashkit/{ref}/icons/"
     items = sorted(lock["asset_git_blob_shas"].items())
-    assert len(items) == 40
+    assert len(items) == 39
     count = 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
         futures = [pool.submit(check_icon, item, prefix) for item in items]
@@ -46,8 +46,8 @@ def main():
             name, size = future.result()
             count += 1
             print(f"PASS: {name}, HTTP 200, {size:,} bytes, exact match")
-    assert count == 40
-    print("PASS: all 40 StashKit icon URLs are reachable and match the pinned assets")
+    assert count == 39
+    print("PASS: all 39 StashKit icon URLs are reachable and match the pinned assets")
 
 
 if __name__ == "__main__":
