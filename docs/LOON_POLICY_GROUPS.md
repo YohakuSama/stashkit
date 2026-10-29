@@ -1,40 +1,46 @@
-# LoonKit 策略组在 Stash 中的对应方式
+# LoonKit 策略组到 Stash 的节点选择
 
-LoonKit 的 `ALL_Filter`、`Auto_Filter`、`Fallback_Filter` 是正则节点筛选器，不是独立策略组。目标行为：`Proxy` 和各服务策略组都可以选择 **Auto / Fallback / 订阅节点**；内置的 `DIRECT` 选项按原组保留。
+LoonKit 的 `ALL_Filter` 是节点筛选器，不是一个名为 `ALL` 的策略组。目标是让 `Proxy` 与 `ChatGPT` 等服务组都能直接选择订阅节点、`Auto` 和 `Fallback`。
 
-## 为什么不直接用 include-all
+## 已确认的行为与限制
 
-Stash 官方提供两种不同的节点引用方式：
+Stash 支持 `proxies`（具体节点名或策略组名）、`use`（具名远程节点 Provider）以及 `include-all`（收集全部节点）。官方文档分别描述了这些字段，但并未保证 iOS 在混用 `include-all` 和显式 `proxies` 时总能同时展示两类选项。用户提供的 iOS 截图中，动态节点显示正常，但 `Auto` 和 `Fallback` 不在同一个策略组的可选列表中。
 
-- `include-all: true`：从配置与订阅中收集全部节点，不需要知道 provider 名称。
-- `use: [provider-name]`：从已命名的 `proxy-providers` 引用节点，可与 `proxies` 中的 `Auto` / `Fallback` 等明确选项配合。
+因此，不能再把 `include-all: true` 与 `proxies: [Proxy, Auto, Fallback]` 的静态组合当作完成验收。另一个方案 `use: [personal]` 则要求预先声明了相应 Provider，不能自动引用用户设备上的未知订阅。
 
-用户提供的 iOS 截图已证明，在当前 Stash 环境中，`include-all` 和 `proxies` 混用时，服务组界面只出现实际节点，`Auto` / `Fallback` 没有出现在候选项中。所以不能把这样的组合当作已经通过真机验证。
+## 无需手动指定 Provider 名称的生成方式
 
-完整保留 LoonKit 的动态节点和嵌套策略候选，必须知道**具名 provider**。仓库不能推断个人订阅在设备里的 provider 名称，也不应提交订阅 URL。
+`scripts/build_loon_selection.py` 现在可以**读取已有的 Clash/Stash 节点 YAML**，自动提取其中的 `proxies` 节点名称和 `proxy-providers` Provider 名称。生成的完整配置中：
 
-## 个人专属配置
+- `Proxy` 有 `REJECT`、`Auto`、`Fallback` 及具体节点名；有 Provider 时自动附加 `use`。
+- `ChatGPT`、`Gemini`、`Netflix` 等服务组有 `Proxy`、`Auto`、`Fallback` 及具体节点名；有 Provider 时自动附加 `use`。
+- `Auto` 和 `Fallback` 从相同的节点和 Provider 中选择，保留现有测速频率与策略优先级。
+- `AdBlock`、`Final` 不会被注入无关节点，原来的服务路由规则、DNS、WebRTC 和规则快照不变。
 
-[provider 覆写示例](../overrides/provider.stoverride.example) 使用 `personal` 作为 provider 名称。请在本地复制并填入真实订阅 URL，不要把带有凭据的文件上传到 GitHub。
+在个人电脑本地使用：
 
 ```sh
-cp overrides/provider.stoverride.example overrides/provider.stoverride
-# Edit the URL locally, then generate:
+mkdir -p dist
+# 把现有的 Clash/Stash 节点 YAML 导出为 dist/source.yaml
 python scripts/build_loon_selection.py \
-  --provider-override overrides/provider.stoverride \
+  --nodes-from dist/source.yaml \
   --output dist/StashKit-Loon-Personal.yaml
 ```
 
-如果使用 Privacy 或离线配置，加上 `--profile privacy` 或 `--profile local`。多个 provider 可以放在同一个本地覆写文件里，生成器会把它们统一引用到 `Proxy`、`Auto`、`Fallback` 及 34 个服务策略组。
+`--profile privacy` 或 `--profile local` 可选用其他配置变体。**不需要填写 Provider 名称，也不需要向 GitHub 提交订阅 URL 或私钥。** 生成的 YAML 是可直接导入 Stash 的完整个人配置，不要再次叠加同一份节点订阅，以免出现重复名称。
 
-生成文件是包含 provider 定义的**完整个人配置**，导入 Stash 时不需要再叠加相同的 provider 覆写。请保护它，因为可能包含订阅链接或鉴权信息。生成器只允许在项目的 `dist/`（已在 .gitignore 中忽略）或项目外保存。
+`dist/` 在 `.gitignore` 中忽略。输入和输出可能包含节点密码、UUID、订阅凭据，**只保存在本地**，不要上传 Issues、PR、公共网盘或聊天记录。
 
-## iOS 验收预览
+### 更新订阅后的维护
 
-分支上的 [StashKit-Loon-Preview.yaml](../StashKit-Loon-Preview.yaml) 使用 `use: [personal]`，**故意不包含个人订阅 URL**。只有当 Stash 对它应用了名为 `personal` 的 provider 覆写后，才是有效配置；没有覆写时不要直接启用预览文件。
+节点名称或 Provider 列表变化后，需要重新运行生成命令并在 Stash 中更新个人配置。生成器不会在 iPhone 后台读取当前 Stash 的节点数据库。这是“完全不指定 Provider 名称”和“在同一组显示具体节点与自动策略”的代价；仅靠仓库中的一份公共静态 YAML 无法推断未来的私有节点名称。
 
-预期 `ChatGPT`、`Gemini`、`Netflix` 等服务组会显示 `Proxy`、`Auto`、`Fallback` 和具名 provider 中的实际节点；`Proxy` 也应能直接选择自动策略和节点。必须在 Stash 真机界面与连接记录中验证，自动化只能证明配置结构和引用有效，不能代替 App 的界面测试。
+如果现有来源本身含 `proxy-providers`，生成器会自动读取所有键名，无需指定 `personal`。原先的 `--provider-override` 仍可用于已有的具名 Provider 工作流。
 
-参考：[Stash 策略组](https://stash.wiki/proxy-protocols/proxy-groups) · [远程代理集](https://stash.wiki/proxy-protocols/proxy-providers) · [配置覆写](https://stash.wiki/configuration/override)。
+## 当前的预览状态
 
-**现有正式版 v0.1.8 不受此试验影响。** 正式发布前需要在实际 iOS Stash 验证节点与 `Auto` / `Fallback` 确实同时显示、可切换，并检查断网及空订阅出口。
+[StashKit-Loon-Preview.yaml](../StashKit-Loon-Preview.yaml) 仍是**具名 Provider 的示例**，引用 `personal`，不是免配置的通用订阅 URL。不要在没有相应 Provider 覆写时直接启用它。
+
+本地生成方案已经纳入回归测试，但**仍需在 Stash iOS 上确认实际节点、Auto、Fallback 三种选项同时出现且可以切换**。CI 成功只代表 YAML 结构正确，不代表 iOS 控件已通过真机验收。正式版 `StashKit.yaml` 保持现状，待实际测试通过再调整发布行为。
+
+参考：[Stash 策略组](https://stash.wiki/proxy-protocols/proxy-groups) · [Stash 远程代理集](https://stash.wiki/proxy-protocols/proxy-providers)。
