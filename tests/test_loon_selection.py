@@ -273,6 +273,76 @@ class LoonSelectionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "cannot mix"):
             validate_profile(bad)
 
+    def test_native_layout_experiments_single_level_provider_selection(self):
+        """Native layout keeps Auto/Fallback and direct nodes on one level."""
+        node = {"name": "Experiment Node", "type": "ss",
+                "server": "198.51.100.7", "port": 443,
+                "cipher": "aes-128-gcm", "password": "example-only"}
+        source_modes = (
+            ("providers", {"providers": PROVIDERS}, []),
+            ("local", {"nodes": [node]}, ["Experiment Node"]),
+            ("use-url", {"subscription_urls": ["https://example.org/sub"]}, []),
+        )
+        for profile_name in PROFILE_FILES.values():
+            original = yaml.safe_load((ROOT / profile_name).read_text(encoding="utf-8"))
+            for mode, inputs, names in source_modes:
+                with self.subTest(profile=profile_name, mode=mode):
+                    result = build_loon_selection(original, layout="native", **inputs)
+                    validate_profile(result)
+                    self.assertEqual(result["rules"], original["rules"])
+                    self.assertEqual(result["dns"], original["dns"])
+                    self.assertEqual(result["rule-providers"], original["rule-providers"])
+                    groups = {g["name"]: g for g in result["proxy-groups"]}
+                    self.assertEqual(len(groups), 39)
+                    self.assertNotIn("ALL", groups)
+                    self.assertEqual(groups["Proxy"]["proxies"],
+                                     ["Auto", "Fallback"] + names + ["REJECT"])
+                    self.assertEqual(groups["ChatGPT"]["proxies"],
+                                     ["Proxy", "Auto", "Fallback"] + names)
+                    self.assertEqual(groups["Auto"]["proxies"], names + ["REJECT"])
+                    self.assertEqual(groups["Fallback"]["proxies"], names + ["REJECT"])
+                    for group in groups.values():
+                        self.assertNotIn("include-all", group)
+                        self.assertNotIn("filter", group)
+                        self.assertNotIn("ALL", group.get("proxies", []))
+                        dynamic = group["name"] not in {"AdBlock", "Final"}
+                        if mode == "providers" and dynamic:
+                            self.assertEqual(group["use"], list(PROVIDERS))
+                            self.assertNotIn("use-url", group)
+                        elif mode == "use-url" and dynamic:
+                            self.assertEqual(group["use-url"], inputs["subscription_urls"])
+                            self.assertNotIn("use", group)
+                        else:
+                            self.assertNotIn("use", group)
+                            self.assertNotIn("use-url", group)
+                    for name in ("Apple", "Microsoft", "Bilibili",
+                                 "Line", "Speedtest"):
+                        self.assertEqual(groups[name]["proxies"][0], "DIRECT")
+                    self.assertEqual(groups["Steam"]["proxies"][0], "Proxy")
+                    self.assertIn("DIRECT", groups["Steam"]["proxies"])
+                    self.assertNotIn("DIRECT", groups["Proxy"]["proxies"])
+                    for name in ("ChatGPT", "Gemini", "Claude", "AI"):
+                        self.assertNotIn("DIRECT", groups[name]["proxies"])
+
+    def test_native_provider_preview_matches_generator(self):
+        preview = yaml.safe_load((ROOT / "StashKit-Native-Preview.yaml")
+                                 .read_text(encoding="utf-8"))
+        original = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        expected = build_loon_selection(original,
+                                        providers={"personal": PROVIDERS["personal"]},
+                                        layout="native")
+        self.assertNotIn("proxy-providers", preview)
+        self.assertEqual(preview["proxy-groups"], expected["proxy-groups"])
+        for key in ("dns", "rules", "rule-providers", "mode", "log-level"):
+            self.assertEqual(preview[key], expected[key])
+        preview["proxy-providers"] = {"personal": PROVIDERS["personal"]}
+        validate_profile(preview)
+
+    def test_native_layout_rejects_invalid_mode(self):
+        source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        with self.assertRaisesRegex(ValueError, "layout"):
+            build_loon_selection(source, providers=PROVIDERS, layout="unknown")
+
     def test_private_output_folder_is_gitignored(self):
         ignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
         self.assertIn("dist/", ignore)
