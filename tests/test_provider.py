@@ -17,13 +17,14 @@ class ProviderTests(unittest.TestCase):
         for group in profile["proxy-groups"]:
             with self.subTest(group=group["name"]):
                 self.assertNotIn("url", group)
-        # LoonKit node filters include dynamic nodes in all applicable groups.
+        # Stash's nested design isolates dynamic nodes in these three pools.
         for group in profile["proxy-groups"]:
-            if group["name"] in {"AdBlock", "Final"}:
-                self.assertNotIn("include-all", group)
-            else:
+            if group["name"] in {"Auto", "Fallback", "ALL"}:
                 self.assertIs(group["include-all"], True)
                 self.assertEqual(group["filter"], ".*")
+            else:
+                self.assertNotIn("include-all", group)
+                self.assertNotIn("filter", group)
 
 
 if __name__ == "__main__":
