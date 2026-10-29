@@ -349,8 +349,8 @@ proxy-groups:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - "ALL"
       - "DIRECT"
+      - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Steam.png
   - name: "Paypal"
     type: select
