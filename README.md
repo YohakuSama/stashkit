@@ -14,11 +14,17 @@
 
 **订阅更新** — 输入 Provider 时保留名称、URL、刷新间隔、认证头、过滤条件与缓存路径；节点增删由 Stash 更新，不需要重新运行生成器。只有 URL 时可用 `--subscription-file`，通过 Stash 的 use-url 自动管理；需要自定义刷新间隔时使用具名 Provider。只有静态 proxies 的输入仍为静态节点。
 
-**首次绑定自己的节点来源** — 三份公开 YAML 是无私人节点的 **39 组模板**，`use: []` 表示尚未绑定，不能作为完整个人配置直接启用。先用生成器绑定自己的订阅或 Provider，再从文件导入完整结果。模板不引用虚构的 personal 文件；任意 Provider 名称均可，另一个独立配置中的订阅不会自动合入。
+**手机端远程订阅（推荐）** — 不需要 Python、编辑器或将私人订阅地址写入仓库。在 Stash 中从 URL 导入机场 Clash/Stash 配置，再[一键安装 StashKit 远程覆写](https://link.stash.ws/install-override/raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.stoverride)。39 个策略组中的节点相关组使用 `include-all` 动态读取当前订阅的节点；机场配置负责远程更新。[安装与限制](./docs/REMOTE_SUBSCRIPTION.md)。
+
+**独立配置模板（进阶）** — 三份公开 YAML 仍是不含私人节点的 **39 组模板**，`use: []` 表示尚未绑定，不能单独当作完整个人配置直接启用。若需要 StashKit 作为独立主配置文件，可使用生成器绑定自己的订阅或 Provider。不同配置的节点不会跨文件自动合并。
 
 **网络保护** — 使用 Stash Fake-IP、AliDNS 加密 DNS 和前置 STUN/常见 TURN 端口拦截规则。WebRTC 防护仅适用于被 Stash Tunnel 接管的连接。
 
 ## 快速开始
+
+**手机端无需编辑器（推荐）：** 在 Stash 的「设置 → 配置文件」中从 URL 导入并启用自己的 Clash/Stash 机场订阅，然后点击[安装 StashKit 远程覆写](https://link.stash.ws/install-override/raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.stoverride)。安装并启用覆写后，刷新订阅即可动态同步 Proxy、Auto、Fallback 和业务组的节点。详见[远程订阅指南](./docs/REMOTE_SUBSCRIPTION.md)。
+
+**需要输出独立个人 YAML 的进阶方式：**
 
 1. 备份现有配置，将包含 `proxy-providers` 的 Clash/Stash YAML 保存为 Git 忽略的 `dist/source.yaml`；或者将 HTTPS 订阅逐行保存为 `dist/subscriptions.txt`。
 2. 执行 `python scripts/build_loon_selection.py --nodes-from dist/source.yaml --output dist/StashKit-Personal.yaml`；只有 URL 时将 `--nodes-from dist/source.yaml` 替换为 `--subscription-file dist/subscriptions.txt`。默认 native 保留动态更新。
@@ -51,8 +57,9 @@
 
 | 目录 | 内容 |
 | --- | --- |
-| `StashKit.yaml` | 39 组主模板，首次使用需绑定私有节点来源 |
+| `StashKit.yaml` | 39 组独立主模板，使用它时需绑定私有节点来源 |
 | `StashKit-Privacy.yaml`、`StashKit-Local.yaml` | 由主配置确定性生成 |
+| [`StashKit.stoverride`](./StashKit.stoverride) | **推荐手机端**：为机场远程订阅套用 39 组策略和 StashKit 规则，不覆盖节点来源 |
 | `rules/` | 54 份固定版本的 Stash 原生规则文件 |
 | `build/` | 上游 SHA、来源锁、人工审查的规则调整记录 |
 | `scripts/` | 规则生成、配置派生、校验与运行时审计 |
