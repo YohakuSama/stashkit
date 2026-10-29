@@ -2,32 +2,33 @@
 
 面向 [Stash](https://stash.wiki/) 的规则分流配置。国内常用服务直连，AI、开发平台、流媒体与社交服务可独立选路。规则基于 [LoonKit v7.0.10 固定版本](https://github.com/YohakuSama/loonkit/tree/5f272104fc1207612c1cbd18f3e19d861d459ed9) 转换，产物由本仓库托管。
 
-当前配置：**v0.1.10** · [发布说明](./docs/RELEASE_NOTES_v0.1.10.md) · [变更记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
+当前配置：**v0.1.11** · [发布说明](./docs/RELEASE_NOTES_v0.1.11.md) · [变更记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
 
 ## 功能概览
 
-**服务分流** — 39 个与 LoonKit 一致的业务与策略组，覆盖 AI、流媒体、社交、开发平台和国内常用服务。广告由 `AdBlock` 处理。
+**服务分流** — 39 个与 LoonKit 对应的业务与策略组；公开配置额外提供 1 个 `ALL` 节点入口，覆盖 AI、流媒体、社交、开发平台和国内常用服务。广告由 `AdBlock` 处理。
 
 **服务直连** — Apple、Microsoft、Bilibili、Line、Speedtest 可以默认选 `DIRECT`，Steam 可手动选 `DIRECT`；国内核心、国内 AI、SteamCN CDN 仍由规则直连。国际 AI 服务不自动增加直连。
 
-**原生节点选路（正式版）** — `StashKit.yaml` 现在采用 Stash 原生 `proxy-providers` + `use`，**没有 `ALL` 策略组**。`Proxy` 明确含 `Auto` / `Fallback` / `REJECT`，并直接引用名为 `personal` 的节点 Provider；业务组也直接引用相同 Provider。目标是同层显示节点及自动策略，仍须在 Stash iOS 验证。
+**公开配置选路** — `Proxy` 保留 `Auto / Fallback / ALL / REJECT`，业务组保留 LoonKit 的默认策略和 DIRECT 选项；只有 `Auto / Fallback / ALL` 使用 `include-all` 收集当前配置中的节点和 Provider。无需固定的 Provider 名称或 `personal.yaml` 文件。节点池不再混入 `REJECT`。
 
-**私人订阅设置（必须）** — 仓库不含订阅地址。默认配置使用 Stash 官方支持的本地 Provider：`proxy-providers.personal.path: ./providers/personal.yaml`；使用前须提供该文件，或将 `personal` 覆写为自己的真实 HTTPS 订阅，否则可能没有节点或落入 `DIRECT`。推荐通过[本地生成器](./docs/NATIVE_PROVIDER_TRIAL.md)创建包含真实订阅的完整私有配置，不要上传订阅密钥。
+**Loon 同层选节点（推荐）** — [本地生成器](./docs/NATIVE_PROVIDER_TRIAL.md)现在默认使用 `flat`：从本地节点文件或 HTTPS 订阅读取真实节点，生成 **39 个组**，让 `Proxy` 和业务组同时明确列出自动策略与具体节点，无 `ALL`，也不依赖动态混合显示。空订阅、过滤后无节点、重名冲突或下载失败时停止生成，保留旧输出。订阅节点变化后须重新运行生成器。
 
-**回退方案** — 如 Stash iOS 无法同时显示 Auto/Fallback 和 Provider 节点，可以随时使用保留的 [StashKit-ALL.yaml](./StashKit-ALL.yaml) 兼容配置（Privacy / Local 也有对应备份）。见[策略组说明](./docs/LOON_POLICY_GROUPS.md)。
+**节点来源** — 仓库不含私人节点。公开 YAML 须在**同一份生效配置**中加入自己的 `proxies` 或 `proxy-providers`，可使用任意 Provider 名称；另一个独立配置里的订阅不会因此自动合入。最直接的方式是本地生成包含真实节点的完整配置。订阅 URL 和节点密码只在自己的电脑上处理，不上传 GitHub。
 
 **网络保护** — 使用 Stash Fake-IP、AliDNS 加密 DNS 和前置 STUN/常见 TURN 端口拦截规则。WebRTC 防护仅适用于被 Stash Tunnel 接管的连接。
 
 ## 快速开始
 
-1. **备份**现有 Stash 配置和节点订阅；切换到原生配置前准备好 `personal` 节点来源。
-2. 在 Stash 中通过 URL 导入[主配置](https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml)。
-3. 先将 `personal` Provider 连接到自己的有效订阅：本地生成完整配置（推荐），或添加 `./providers/personal.yaml` 文件/修改[订阅覆写示例](./overrides/provider.stoverride.example)。
-4. 更新配置后，检查 `Proxy` 是否同层显示 `Auto`、`Fallback` 和真实节点。若没有，使用 `StashKit-ALL.yaml` 回退。
-5. 启动 Stash VPN/Tunnel，在请求记录中检查分流与实际出口。
+1. 备份现有配置，将自己的 Clash/Stash 节点 YAML 保存为 Git 忽略的 `dist/source.yaml`。
+2. 按[生成说明](./docs/NATIVE_PROVIDER_TRIAL.md)执行 `python scripts/build_loon_selection.py --nodes-from dist/source.yaml --output dist/StashKit-Personal.yaml`；只有订阅 URL 时使用 `--subscription-file`。
+3. 在 Stash 中从文件导入生成结果，确认 `Proxy` 同时显示 `Auto`、`Fallback` 和真实节点，Apple 等直连组保留 DIRECT。
+4. 启用 Tunnel，在请求记录核对业务分流和真实出口；旧配置升级时已保存的策略选择可能保留。
+
+如果需要 Provider 自动更新，可导入[公开主配置](https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml)，并在当前配置中加入自己的 Provider。此布局通过 `Proxy → ALL → 节点` 手动选路。`StashKit-ALL.yaml` 等旧链接与当前兼容布局同步生成。
 
 > [!IMPORTANT]
-> **重要：** 未配置 `personal` 时，此公开配置没有可用的代理节点；Stash 官方指出空 Provider 可能按 `DIRECT` 处理。`REJECT` 候选不能代替真机验证。请先通过[本地生成器](./docs/NATIVE_PROVIDER_TRIAL.md)输出完整个人配置或正确配置本地 Provider，再启用 VPN。
+> Stash 官方说明空节点组或空 Provider 可能按 DIRECT 处理。公开 YAML 本身不提供节点；启用前确认真实节点已加载。`REJECT` 手动选项不能保证空订阅自动阻断。[运行时审计](./docs/VALIDATION.md)会检查各组成员、节点池及真实选择。
 
 ## 配置版本
 
@@ -36,7 +37,7 @@
 | [StashKit.yaml](./StashKit.yaml) | 默认分流；公共 DNS 使用 AliDNS DoH，`follow-rule: false` |
 | [StashKit-Privacy.yaml](./StashKit-Privacy.yaml) | 公共 DoH 请求跟随路由并优先走 `Proxy`；须先选择可用节点 |
 | [StashKit-Local.yaml](./StashKit-Local.yaml) | 离线规则版；须先把 54 份文件规则放入 Stash 资源目录 |
-| [StashKit-ALL.yaml](./StashKit-ALL.yaml) | 旧版兼容布局，Proxy → ALL → 具体节点；其他两个变体也有 -ALL 备份 |
+| [StashKit-ALL.yaml](./StashKit-ALL.yaml) | 主配置的兼容链接；Privacy / Local 也有同步的 -ALL 链接 |
 
 离线文件包可从 [CI 产物](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) 获取。ZIP 不会自动安装到 Stash 的规则目录；详见[安装及验收说明](./docs/VALIDATION.md)。
 
@@ -73,7 +74,7 @@ python -m unittest discover -s tests -v
 python scripts/verify.py
 ```
 
-修改主 YAML 后用 `python scripts/build_profiles.py --write` 同步两份派生配置，再运行 `--check`。规则源修改通过 [build/adjustments.json](./build/adjustments.json) 审查，并需按固定源快照流程发布；不要直接修改生成文件。
+修改主 YAML 后用 `python scripts/build_profiles.py --write` 同步派生配置、兼容链接和参考预览，再运行 `--check`。规则源修改通过 [build/adjustments.json](./build/adjustments.json) 审查，并需按固定源快照流程发布；不要直接修改生成文件。
 
 ## 文档导航
 

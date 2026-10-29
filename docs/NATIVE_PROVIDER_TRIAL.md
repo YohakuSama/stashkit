@@ -1,82 +1,61 @@
-# Stash 原生 Provider 同层选路实验
+# 生成 Loon 同层选路的 Stash 私有配置
 
-> **正式版使用原生 Provider。** Stash 文档支持 `proxy-groups.proxies`、`proxy-groups.use` 和 `proxy-providers`，但它没有保证每个 iOS 版本都将策略组和远程节点同时显示在同一层。此前 `include-all` 混用方案已经在用户截图中出现显示缺失。正式版通过明确的具名 Provider 引用节点；iOS 同层显示仍需验证。
+正式生成器默认使用 `flat`：在本机读取或下载真实节点，把它们明确写入 Proxy、Auto、Fallback 和业务组，输出 39 个组，无 ALL、无固定 Provider 名称。下载只发生在自己的电脑与订阅源之间，不使用第三方订阅转换服务。
 
-## 目标结构（不使用 ALL）
+## 准备
 
-```text
-Proxy
-├── Auto
-├── Fallback
-├── 订阅节点 A
-└── 订阅节点 B
-```
-
-当前正式版 `StashKit.yaml` 已采用原生方案；`StashKit-Native-Preview.yaml` 是不含 Provider 声明的原生参考配置，**不是不需配置订阅的直装版**。所有业务规则、DNS、广告拦截、图标与默认版一致，且不包含个人节点或订阅密钥。预览里要求你在 Stash 中提供一个确实存在的 `personal` Provider；没有该 Provider 时可能直接提示无效或无法加载节点。不要把试验版当成公开的即用订阅链接。
-
-## 本地生成可导入的完整配置（推荐）
-
-在你自己的电脑上克隆仓库，并把下面路径都放在 Git 忽略的 `dist/` 下。**不要把订阅 URL、用户名、密码上传到 GitHub。**
-
-### A. 原生具名 Provider（`use`，正式版推荐）
-
-从 Stash/机场导出一个包含 `proxy-providers` 的 Clash/Stash YAML，保存为 `dist/source.yaml`：
+在自己的电脑上克隆仓库并安装依赖：
 
 ```sh
+git clone https://github.com/YohakuSama/stashkit.git
+cd stashkit
+python -m pip install -r requirements-dev.txt
 mkdir -p dist
+```
+
+`dist/` 已被 Git 忽略。输入和生成结果都可能含节点密码、订阅 token 或认证头，不要上传到 GitHub。
+
+## A. 已有 Clash/Stash YAML
+
+将机场或 Stash 导出的 YAML 保存为 `dist/source.yaml`，其中应含 `proxies` 或 `proxy-providers`：
+
+```sh
 python scripts/build_loon_selection.py \
-  --layout native \
   --nodes-from dist/source.yaml \
-  --output dist/StashKit-Native-Personal.yaml
+  --output dist/StashKit-Personal.yaml
 ```
 
-生成器会自动读取真实 Provider 名称，并将它们作为 `use` 加入 `Proxy`、`Auto`、`Fallback` 和各业务选择组。输出是完整配置，可直接在 Stash **从文件导入**。
+生成器读取实际节点名称与 Provider 名称，忽略来源里的业务组、DNS 和规则，使用 StashKit 的分流设置。Provider 有 URL 时获取最新节点；仅含 `path` 时相对输入 YAML 所在目录读取本地节点文件。常见 Provider 名称过滤及测速参数会应用到展开后的节点。多个来源按声明顺序合并，内容相同的同名节点去重，内容不同的同名节点需先在本地重命名。
 
-若手头只有远程 Provider URL，可参考 [覆写示例](../overrides/provider.stoverride.example) 在本地写入 `dist/provider.stoverride`，把 `personal.url` 换成真实的 Clash/Stash YAML 节点集，再运行：
+## B. 只有订阅 URL
+
+将一个或多个 HTTPS 订阅写入 `dist/subscriptions.txt`，每行一个；返回内容必须是带顶层 `proxies` 列表的 Clash/Stash YAML，URI 列表和 Base64 订阅需先由订阅服务提供对应 YAML 格式。
 
 ```sh
 python scripts/build_loon_selection.py \
-  --layout native \
-  --provider-override dist/provider.stoverride \
-  --output dist/StashKit-Native-Personal.yaml
-```
-
-### B. 无需填写 Provider 名称（`use-url`）
-
-把一个或多个 **HTTPS** 节点订阅 URL 写入 `dist/subscriptions.txt`，每行一个，且返回的 YAML 顶层必须包含 `proxies`。本地执行：
-
-```sh
-python scripts/build_loon_selection.py \
-  --layout native \
   --subscription-file dist/subscriptions.txt \
-  --output dist/StashKit-Native-Personal.yaml
+  --output dist/StashKit-Personal.yaml
 ```
 
-这也能测试同层动态节点选择，但相较具名 Provider，Stash 的 `use-url` 不能为 Provider 单独设置名称或刷新频率。
+也可把真实 Provider 写入本地 `dist/provider.stoverride`，按[示例](../overrides/provider.stoverride.example)添加 headers、filter 等配置，然后使用 `--provider-override dist/provider.stoverride`。无需固定叫 personal。
 
-### C. 本地节点列表
+## 导入与更新
 
-如果手头只有包含具体节点的 `proxies` YAML，也可用 `--nodes-from` 生成；节点会被明确写进各组而非由 `use` 更新。这能绕过 Stash 动态合并 UI 的问题，**但订阅节点变化后需要重新生成文件**。
+1. 在 Stash 中从文件导入生成的 `dist/StashKit-Personal.yaml`。
+2. 检查 Proxy 是否明确列出 Auto、Fallback 和真实节点，再核对 ChatGPT 与 Apple 的选项。
+3. 打开 Tunnel，在请求记录确认命中与出口，测试首选节点断开后的 Fallback 切换。
+4. 订阅新增、删除或更名节点后，重新执行相同命令并重新导入；flat 文件不自动刷新订阅。现有节点的自动测速和故障切换仍可用。
 
-## 两种布局的区别
+生成器拒绝空订阅、过滤后无节点、无效节点、下载失败和策略名称冲突，不会覆盖旧结果；私有输出以仅本人可读写的权限原子保存。失败信息不打印私人 URL、节点名或凭据。
 
-| 项目 | 旧版 ALL 兼容布局 | 正式原生布局 |
-| --- | --- | --- |
-| 手动节点 | `Proxy → ALL → 节点` | 尝试 `Proxy → 节点` |
-| `Auto` / `Fallback` | 引用策略组 | 引用策略组 |
-| Provider | 只附加给 `Auto` / `Fallback` / `ALL` | 附加给 `Proxy`、`Auto`、`Fallback` 与业务组 |
-| 国内直连和服务 DIRECT | 保留 | 保留 |
-| 自动更新订阅 | Provider / use-url 模式可用 | Provider / use-url 模式可用 |
-| Stash iOS 同层显示 | 不依赖混合动态选项 | **正式版，尚待真机验收** |
+使用 `--profile privacy` 或 `--profile local` 可生成对应变体；Local 仍需按[离线安装说明](./VALIDATION.md)准备规则资源。
 
-## 验收与风险
+## 需要动态订阅自动更新时
 
-1. 在 Stash 中导入生成的 `dist/StashKit-Native-Personal.yaml` 并确认启用的是此配置；先**备份原配置**。
-2. 检查 `Proxy` 是否同时列出 `Auto`、`Fallback` 和真实订阅节点；再检查 ChatGPT 与 Apple 服务组。
-3. 确认 Apple、Microsoft、Bilibili、Line、Speedtest 首选 `DIRECT`，Steam 保留 `DIRECT` 选项，ChatGPT/Gemini/Claude 没有被自动设置为 DIRECT。
-4. 测试订阅更新、断开首选节点、所有节点不可用、DNS、实际连接出口，而不只是检查 YAML 能加载。
-5. **Stash 官方说明空远程代理集会被当作 `DIRECT`**：即使配置里另有 `REJECT` 选项，也不能假定空订阅一定不会走直连。运行验证前必须确认 Provider 已成功加载真实节点。
+公开[主配置](../StashKit.yaml)使用兼容布局：Proxy 明确列出 Auto/Fallback/ALL，只有三个节点池动态收集当前配置的节点。将自己的 Provider 加入同一份配置即可，不要求特定名称；通过 ALL 手动选节点。空 Provider 仍可能按 DIRECT 处理，启用前应确认已加载真实节点。
 
-如果 Stash iOS 仍然隐藏 `Auto` / `Fallback`，请回退到 `StashKit-ALL.yaml`，或基于具名节点的静态扁平生成方案；这不影响规则层的国内直连。
+生成器的 `--layout nested` 会保留这个布局并绑定输入里的真实 Provider；`--layout native` 则把动态 Provider / use-url 直接附到 Proxy 和业务组，作为高级兼容试验。native 的动态节点与自动策略是否同层显示仍需真机检查；如遇选项缺失，使用默认 flat 或公开兼容布局。
 
-参考：[Stash 远程代理集](https://stash.wiki/proxy-protocols/proxy-providers) · [Stash 策略组](https://stash.wiki/proxy-protocols/proxy-groups)。
+`StashKit-Loon-Preview.yaml` 和 `StashKit-Native-Preview.yaml` 仅是需要自行声明 personal Provider 的参考片段，不是可直接使用的个人订阅。
+
+官方语法与测速边界见[策略组适配说明](./LOON_POLICY_GROUPS.md)。

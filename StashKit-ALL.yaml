@@ -1,4 +1,4 @@
-# StashKit v0.1.10
+# StashKit v0.1.11
 mode: rule
 log-level: warning
 
@@ -31,6 +31,7 @@ dns:
     - 'xbox.*.*.microsoft.com'
     - '*.*.xboxlive.com'
 
+# Add your nodes/providers locally; ALL imports the available node sources.
 proxy-groups:
   - name: "Proxy"
     type: select
@@ -38,13 +39,13 @@ proxy-groups:
       - Auto
       - Fallback
       - ALL
+      - REJECT
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Proxy.png
   - name: "Auto"
     type: url-test
     include-all: true
     filter: '.*'
-    proxies:
-      - REJECT
+    proxies: []
     interval: 600
     tolerance: 60
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Auto.png
@@ -52,16 +53,14 @@ proxy-groups:
     type: fallback
     include-all: true
     filter: '.*'
-    proxies:
-      - REJECT
+    proxies: []
     interval: 900
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Fallback.png
   - name: "ALL"
     type: select
     include-all: true
     filter: '.*'
-    proxies:
-      - REJECT
+    proxies: []
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Proxy.png
   - name: "AdBlock"
     type: select

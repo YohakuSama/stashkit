@@ -71,6 +71,8 @@ def resolve_policy(name, proxies):
         if "now" in spec:
             if not isinstance(spec["now"], str) or not spec["now"]:
                 raise ValueError("Policy selection is missing")
+            if "all" in spec and spec["now"] not in spec["all"]:
+                raise ValueError("Policy selection is not a member of its group")
             name = spec["now"]
         elif "all" in spec or kind in {"selector", "select", "urltest", "fallback", "loadbalance", "relay"}:
             raise ValueError("Policy group has no verifiable current selection")
@@ -79,6 +81,51 @@ def resolve_policy(name, proxies):
         else:
             raise ValueError("Selected node has no verifiable type")
     return name
+
+
+def inspect_strategy_groups(profile, proxies):
+    """Check the loaded selectors, including unused Auto/Fallback pools."""
+    failures = []
+    kinds = {"select": {"select", "selector"}, "url-test": {"urltest"},
+             "fallback": {"fallback"}}
+    pool_members = []
+    for expected in profile["proxy-groups"]:
+        name = expected["name"]
+        actual = proxies.get(name, {})
+        kind = str(actual.get("type", "")).lower().replace("-", "")
+        members = actual.get("all")
+        if kind not in kinds.get(expected["type"], set()):
+            failures.append(f"Strategy group is missing or has the wrong type: {name}")
+            continue
+        if (not isinstance(members, list) or not members
+                or any(not isinstance(child, str) for child in members)
+                or len(members) != len(set(members))):
+            failures.append(f"Strategy group has no verifiable member list: {name}")
+            continue
+        if not set(expected.get("proxies", [])) <= set(members):
+            failures.append(f"Strategy group is missing configured choices: {name}")
+        if (not any(expected.get(key) for key in ("include-all", "use", "use-url"))
+                and set(members) != set(expected.get("proxies", []))):
+            failures.append(f"Strategy group has unexpected choices from another configuration: {name}")
+        try:
+            resolve_policy(name, proxies)
+        except ValueError:
+            failures.append(f"Strategy group has an invalid current selection: {name}")
+        if name in {"Auto", "Fallback", "ALL"}:
+            pool_members.append(set(members))
+            try:
+                # Dynamic empty providers may inject DIRECT. Nested groups,
+                # including a group selecting a real node, are not raw nodes.
+                for child in members:
+                    spec = proxies.get(child, {})
+                    if (child in BUILTINS or "all" in spec or "now" in spec
+                            or resolve_policy(child, proxies) in BUILTINS):
+                        raise ValueError("Non-node pool member")
+            except ValueError:
+                failures.append(f"Node pool contains an empty-provider substitute or a policy: {name}")
+    if pool_members and any(members != pool_members[0] for members in pool_members[1:]):
+        failures.append("Auto, Fallback and manual selection do not share the same nodes")
+    return failures
 
 
 def expected_counts(profile, root=ROOT):
@@ -114,6 +161,7 @@ def inspect(base, token, getter=get_json, profile=None):
     if not isinstance(config, dict) or config.get("mode") != "rule":
         failures.append("Stash is not in rule mode")
     proxies = named_objects(getter(base, token, "/proxies"), "proxies")
+    failures.extend(inspect_strategy_groups(profile, proxies))
     try:
         if resolve_policy("Proxy", proxies) in BUILTINS:
             failures.append("Proxy must resolve to a configured node before service acceptance")
