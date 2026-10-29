@@ -1,4 +1,4 @@
-# StashKit v0.1.5
+# StashKit v0.1.6
 mode: rule
 log-level: warning
 
@@ -34,6 +34,7 @@ dns:
 proxy-groups:
   - name: "Proxy"
     type: select
+    include-all: true
     # Initial selection is REJECT until a node is configured.
     proxies:
       - REJECT
