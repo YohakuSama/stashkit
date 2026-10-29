@@ -86,8 +86,8 @@ def main():
     source = yaml.safe_load((ROOT / PROFILE_FILES[args.profile]).read_text(encoding="utf-8"))
     output = build_loon_selection(source, providers)
     output_file = args.output.resolve()
-    if output_file in {ROOT / name for name in PROFILE_FILES.values()}:
-        raise ValueError("Refusing to overwrite a canonical tracked profile")
+    if ROOT in output_file.parents and ROOT / "dist" not in output_file.parents:
+        raise ValueError("Write private profiles only under dist/ or outside the repository")
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text(yaml.safe_dump(output, sort_keys=False, allow_unicode=True),
                            encoding="utf-8")
