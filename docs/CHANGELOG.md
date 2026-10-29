@@ -1,5 +1,12 @@
 # 变更记录
 
+## v0.1.9 — 2026-10-29
+
+- 修复 `Proxy` 无法直接选择 `Auto` / `Fallback` 的可用性问题：`Proxy` 使用明确的 `REJECT`、`Auto`、`Fallback`、`Manual` 选项，不再混用 `include-all`。
+- 新增隐藏的 `Manual` 节点池自动收集现有订阅，避免强制设置具名 Provider；手动选节点需进入 `Manual` 一层。保留 39 个可见服务/策略组，隐藏辅助组不构成公开的重复 `ALL` 组。
+- 重新验证组引用、图标复用、三套配置派生以及使用显式节点的 LoonKit 个人配置生成器。DNS、WebRTC、路由、规则快照不变。参见[发布说明](./RELEASE_NOTES_v0.1.9.md)。
+- 这是兼容 Stash 当前 UI 的结构性折中，不等于 LoonKit 在同一选择列表中同时显示自动策略与全部节点的完全一致体验；真机仍需确认。
+
 ## v0.1.8 — 2026-10-29
 
 - 修复 Stash 实际界面中服务策略组只显示订阅节点、无法选择 `Auto`/`Fallback` 的问题；`ChatGPT` 等服务组改为明确显示 `Proxy`、`Auto`、`Fallback` 候选。
