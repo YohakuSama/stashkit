@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """StashKit static compatibility checks against the LoonKit production baseline."""
 import hashlib
+import json
 import ipaddress
 import re
 import sys
@@ -87,10 +88,25 @@ def main():
     assert by_name["AdBlock"]["proxies"][0] == "REJECT"
     assert by_name["Final"]["proxies"][0] == "Proxy"
     assert by_name["Microsoft"]["proxies"][0] == "DIRECT"
+    icon_lock = json.loads((KIT / "build/icon-lock.json").read_text(encoding="utf-8"))
+    icon_ref = icon_lock["icons_commit"]
+    assert len(icon_ref) == 40 and all(c in "0123456789abcdef" for c in icon_ref)
+    assert set(icon_lock["group_icons"]) == set(names)
+    assert len(icon_lock["asset_git_blob_shas"]) == 39
+    for filename, expected_sha in icon_lock["asset_git_blob_shas"].items():
+        asset_path = KIT / "icons" / filename
+        assert asset_path.is_file(), f"Missing self-hosted strategy icon: {filename}"
+        blob = asset_path.read_bytes()
+        assert blob.startswith(bytes.fromhex("89504e470d0a1a0a")), f"Invalid PNG: {filename}"
+        calculated_sha = hashlib.sha1(b"blob " + str(len(blob)).encode("ascii") + bytes([0]) + blob).hexdigest()
+        assert calculated_sha == expected_sha, f"Icon changed: {filename}"
     for group in groups:
         for child in group["proxies"]:
             assert child in names or child in ("DIRECT", "REJECT"), (group["name"], child)
-        assert "icon" not in group, "Remote LoonKit icon dependency was removed"
+        expected_icon = icon_lock["group_icons"][group["name"]]
+        assert group["icon"] == (f"https://raw.githubusercontent.com/YohakuSama/stashkit/"
+                                 f"{icon_ref}/icons/{expected_icon}"), f"Wrong icon URL: {group['name']}"
+        assert expected_icon in icon_lock["asset_git_blob_shas"]
     release_lock = __import__("json").loads((KIT / "build/release-lock.json").read_text(encoding="utf-8"))
     assert release_lock == {"version": "v0.1.3", "source_ref": "d63fa06b915d403e2cebc782a8f1551d32b6c927"}, "Immutable release lock changed"
     assert SOURCE_URL == f"https://raw.githubusercontent.com/YohakuSama/stashkit/{release_lock['source_ref']}/rules/"
