@@ -5,6 +5,7 @@
 按 [README](../README.md) 安装固定依赖和上游基准，然后运行前先将 Proxy 从 REJECT 切换到有效节点；停留在 REJECT 会使服务验收失败。使用 `--profile StashKit-Privacy.yaml` 或 `--profile StashKit-Local.yaml` 可指定正在验收的版本。运行：
 
 ```sh
+python scripts/build_profiles.py --check
 python -m unittest discover -s tests -v
 python scripts/verify.py
 python scripts/build_rules.py --check
@@ -49,10 +50,10 @@ curl --get 'http://127.0.0.1:9090/rules/match' \
 ## WebRTC / 公网 IPv4+IPv6 真机验收（不能由 CI 代替）
 
 - 分别导入普通、Privacy 和 Local 配置，确认规则顺序：隐私版首条为 AliDNS DoH Proxy，之后所有配置先匹配 `PROTOCOL,STUN,REJECT` 和常见 STUN/TURN `DST-PORT`，再执行 LAN/国内直连。
-- 打开 Stash Tunnel/VPN。对 IPv6 可用的 Wi-Fi/蜂窝网络，**在 Stash 网络设置中启用 Tunnel IPv6 路由**并核对 IPv6 流量确实进入 Stash；只设置 DNS 的 IPv6 开关不能替代 Tunnel 接管。
+- 打开 Stash Tunnel/VPN。在有 IPv6 的 Wi-Fi、蜂窝网络分别检查实际出口；IPv6 Tunnel 路由的 `Auto` 已通过测试时可保持，不需要强制切换到 Always。仅修改 DNS 的 IPv6 设置不能代替 Tunnel 接管。
 - 使用 Stash 官方 `/rules/match` API 检查 `target=stun.l.google.com&network=udp&port=19302`、`target=1.1.1.1&network=udp&port=3478`、`target=[2606:4700:4700::1111]&network=udp&port=3478`（IPv6 `target` 语法以本机实际 API 为准），预期命中 REJECT 端口规则。再发真实 UDP STUN 探测到**非标准端口**，在连接日志确认 PROTOCOL STUN 拦截；静态 API 无法验证协议嗅探。
 - 对照直连真实运营商 IPv4/IPv6、代理 HTTP 出口、[BrowserLeaks WebRTC](https://browserleaks.com/webrtc) 的 ICE `host/srflx/relay` 候选。目标是不暴露真实公网地址；若是 `host` 全局 IPv6，需额外通过浏览器隐私策略或禁用 WebRTC 修复，不能归功于 Stash 规则。重测 Wi-Fi/蜂窝、浏览器重启和系统休眠恢复。
-- 验收受影响的音视频通话、屏幕共享、游戏语音和视频会议。此防护会拦截部分 STUN/TURN 以及对应端口的其他 TCP/UDP 业务；需要实时通信时可以回退配置/自行定制，并接受由此带来的泄漏风险。
+- 验收受影响的原生 App 语音、视频通话、游戏联机及视频会议；此防护可能拦截 STUN/TURN 及同端口 TCP/UDP 业务。浏览器检测只是一种泄露测试手段，不代表全部原生应用的连接行为。
 
 上面仅是人工验收计划，本仓库的 GitHub Actions 无法启动 Stash 系统 Tunnel 或获取浏览器 ICE 候选，CI 全绿不代表已经修复每台设备。
 
