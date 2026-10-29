@@ -56,3 +56,7 @@ CI 检查 GitHub Raw 的 54 个 URL 均返回 200，并与本仓库文件逐字�
 ## v0.1.4 复审修正
 
 Google 广告与统计域名已补入广告集；Copilot 遥测的前置 AI 例外已移除。私网名单固定源并内嵌三套配置，不再依赖首次下载 GeoSite。运行时审计会断言 provider 名称和条目数、规则总量、嵌套策略最终选择和路由哨兵；空规则、意外 DIRECT、循环选择及错误路由均有失败测试。共享服务域名仍按原有已验证策略处理，具体范围见路由文档。
+
+## A8 — 高：WebRTC ICE 与原生 IPv4/IPv6 旁路（缓解，仍待真机验证）
+
+当前三套配置加入前置 `PROTOCOL,STUN,REJECT` 和 3478/3479、5349/5350、19302–19309 端口 REJECT，并撤销 STUN 域名的 Fake-IP 例外。规则仅能匹配经过 Stash 的流量：浏览器直接提供 `host` 全局 IPv6 地址、原生 IPv6 未进入 Tunnel、TURN/TLS 或浏览器其他代理旁路都可能继续暴露用户真实 IP。Stash Tunnel 默认不完整接管 IPv6，需在网络设置打开 Tunnel IPv6 路由并用真机测试。可按浏览器策略禁用非代理 WebRTC UDP 或禁用 WebRTC（功能会受影响）；新增规则也会影响常规实时通信。完整验收矩阵参见 [VALIDATION.md](./VALIDATION.md)。
