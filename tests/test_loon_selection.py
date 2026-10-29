@@ -10,7 +10,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from build_loon_selection import (NODE_POOLS, PROFILE_FILES, build_loon_selection,
-                                  read_provider_override, read_node_sources)
+                                  read_provider_override, read_node_sources, read_subscription_urls)
 from validate_config import validate_profile
 
 PROVIDERS = {
@@ -161,6 +161,79 @@ class LoonSelectionTests(unittest.TestCase):
             path.write_text(yaml.safe_dump({"proxies": [{"type": "snell"}]}), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "nonempty name"):
                 read_node_sources(path)
+
+    def test_native_use_url_has_same_level_policy_and_dynamic_nodes_without_names(self):
+        # Two synthetic HTTPS provider endpoints. Credentials never go into public profiles.
+        urls = [
+            "https://example.org/clash/sub?token=redacted-1",
+            "https://example.org/clash/backup?token=redacted-2",
+        ]
+        for filename in PROFILE_FILES.values():
+            with self.subTest(profile=filename):
+                original = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
+                snapshot = copy.deepcopy(original)
+                output = build_loon_selection(original, subscription_urls=urls)
+                validate_profile(output)
+                self.assertEqual(original, snapshot)
+                self.assertEqual(len(output["proxy-groups"]), 39)
+                groups = {g["name"]: g for g in output["proxy-groups"]}
+                self.assertNotIn("Manual", groups)
+                self.assertNotIn("ALL", groups)
+                self.assertEqual(groups["Proxy"]["proxies"],
+                                 ["REJECT", "Auto", "Fallback"])
+                self.assertEqual(groups["ChatGPT"]["proxies"],
+                                 ["Proxy", "Auto", "Fallback"])
+                for name, group in groups.items():
+                    self.assertNotIn("include-all", group)
+                    self.assertNotIn("filter", group)
+                    self.assertNotIn("use", group)
+                    if name in {"AdBlock", "Final"}:
+                        self.assertNotIn("use-url", group)
+                    else:
+                        self.assertEqual(group["use-url"], urls)
+                self.assertEqual(groups["Auto"]["proxies"], ["REJECT"])
+                self.assertEqual(groups["Fallback"]["proxies"], ["REJECT"])
+                self.assertNotIn("proxy-providers", output)
+                self.assertNotIn("proxies", output)
+                for key in ("rules", "rule-providers", "dns", "mode", "log-level"):
+                    self.assertEqual(output[key], original[key])
+
+    def test_subscription_file_validation_and_no_url_in_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "private-url.txt"
+            urls = ["https://example.org/sub?token=SECRET-ONE",
+                    "https://example.org/sub2?token=SECRET-TWO"]
+            path.write_text("\\n".join(urls) + "\\n", encoding="utf-8")
+            self.assertEqual(read_subscription_urls(path), urls)
+            for contents in (
+                "http://example.org/sub?token=SECRET-TWO",
+                "https://example.invalid/REPLACE-WITH-YOUR-SUBSCRIPTION",
+                "https://example.org/sub?token=SECRET-TWO\\nhttps://example.org/sub?token=SECRET-TWO",
+                "https://example.org:wrong/sub?token=SECRET-TWO",
+                "\\n",
+            ):
+                with self.subTest(contents=contents[:12]):
+                    path.write_text(contents, encoding="utf-8")
+                    with self.assertRaises(ValueError) as raised:
+                        read_subscription_urls(path)
+                    self.assertNotIn("SECRET", str(raised.exception))
+
+    def test_use_url_validator_rejects_malformed_and_mixed_node_sources(self):
+        source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        with self.assertRaisesRegex(ValueError, "cannot be mixed"):
+            build_loon_selection(source, {"private": PROVIDERS["personal"]},
+                                 subscription_urls=["https://example.org/sub"])
+        for bad in ("http://example.org/sub", "file:///private/node.yaml"):
+            result = build_loon_selection(source,
+                                          subscription_urls=["https://example.org/sub"])
+            result["proxy-groups"][0]["use-url"] = [bad]
+            with self.assertRaises(ValueError):
+                validate_profile(result)
+        bad = build_loon_selection(source,
+                                   subscription_urls=["https://example.org/sub"])
+        bad["proxy-groups"][0]["include-all"] = True
+        with self.assertRaisesRegex(ValueError, "cannot mix"):
+            validate_profile(bad)
 
     def test_private_output_folder_is_gitignored(self):
         ignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
