@@ -42,7 +42,9 @@ class ConfigTests(unittest.TestCase):
         by_name = {group["name"]: group for group in self.profile["proxy-groups"]}
         self.assertEqual(by_name["Proxy"]["proxies"][0], "REJECT")
         self.assertTrue(by_name["Proxy"]["include-all"])
-        self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT", "Auto", "Fallback"])
+        self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT"])
+        self.assertEqual(by_name["ChatGPT"]["proxies"], ["Proxy", "Auto", "Fallback"])
+        self.assertFalse(by_name["ChatGPT"].get("include-all", False))
         self.assertEqual(len(by_name), 39)
         self.assertNotIn("ALL", by_name)
         self.assertEqual(by_name["Final"]["proxies"][0], "Proxy")
