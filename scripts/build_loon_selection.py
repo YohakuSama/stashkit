@@ -122,7 +122,10 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
         group.pop("include-all", None)
         group.pop("filter", None)
         if name == "Proxy":
-            group["proxies"] = ["REJECT", "Auto", "Fallback"] + local_names
+            # Match LoonKit: Auto is the first usable choice. REJECT remains a
+            # manual fail-closed option rather than blocking new installations.
+            # Auto/Fallback themselves retain REJECT for an empty node pool.
+            group["proxies"] = ["Auto", "Fallback"] + local_names + ["REJECT"]
         elif name in {"Auto", "Fallback"}:
             # Keep REJECT if all nodes/providers disappear; otherwise prefer real nodes.
             group["proxies"] = local_names + ["REJECT"]
