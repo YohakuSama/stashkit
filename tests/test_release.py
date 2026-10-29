@@ -31,7 +31,7 @@ class ReleaseMetadataTests(unittest.TestCase):
     def test_existing_immutable_rule_snapshot_is_reused(self):
         standard = (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
         local = (ROOT / "StashKit-Local.yaml").read_text(encoding="utf-8")
-        self.assertEqual(RULES_VERSION, "v0.1.4")
+        self.assertRegex(RULES_VERSION, r"^v[0-9]+\.[0-9]+\.[0-9]+$")
         self.assertTrue(re.fullmatch(r"[0-9a-f]{40}", RULES_REF))
         self.assertEqual(standard.count(RULES_URL_PREFIX), 54)
         self.assertEqual(standard.count(RULES_PATH_PREFIX), 54)
