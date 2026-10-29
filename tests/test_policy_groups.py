@@ -1,4 +1,4 @@
-"""Validate policy choices against the Stash UI and the pinned LoonKit group list."""
+"""Compare published Stash policy groups with the pinned LoonKit selectors."""
 import sys
 import unittest
 from pathlib import Path
@@ -12,25 +12,21 @@ from validate_config import validate_profile
 
 
 def expected_groups():
-    profile = UPSTREAM.read_text(encoding="utf-8")
-    source = profile.split("[Proxy Group]", 1)[1].split("[Remote Rule]", 1)[0]
-    groups = []
-    for line in source.splitlines():
-        if " = " not in line:
+    upstream = UPSTREAM.read_text(encoding="utf-8")
+    section = upstream.split("[Proxy Group]", 1)[1].split("[Remote Rule]", 1)[0]
+    results = []
+    for row in section.splitlines():
+        if " = " not in row:
             continue
-        name, body = line.split("=", 1)
-        items = [item.strip() for item in body.split(",img-url", 1)[0].split(",")]
-        kind = items[0]
-        filters = {"ALL_Filter", "Auto_Filter", "Fallback_Filter"}
-        children = [item for item in items[1:]
-                    if item not in filters and "=" not in item]
-        uses_node_pool = name.strip() in {"Auto", "Fallback"}
-        if name.strip() == "Proxy":
-            children = ["REJECT", "Auto", "Fallback", "Manual"]
-        elif uses_node_pool:
-            children = ["REJECT"]
-        groups.append((name.strip(), kind, children, uses_node_pool))
-    return groups
+        name, body = row.split("=", 1)
+        parts = [x.strip() for x in body.split(",img-url", 1)[0].split(",")]
+        node_filters = {"ALL_Filter", "Auto_Filter", "Fallback_Filter"}
+        has_nodes = any(x in node_filters for x in parts[1:])
+        choices = [x for x in parts[1:] if x not in node_filters and "=" not in x]
+        if name.strip() in {"Auto", "Fallback"}:
+            choices = ["REJECT"]  # Empty dynamic node pool fallback
+        results.append((name.strip(), parts[0], choices, has_nodes))
+    return results
 
 
 class PolicyGroupParityTests(unittest.TestCase):
@@ -39,62 +35,41 @@ class PolicyGroupParityTests(unittest.TestCase):
         cls.expected = expected_groups()
         assert len(cls.expected) == 39
 
-    def test_all_profiles_match_upstream_group_semantics(self):
+    def test_all_profiles_match_upstream_policy_choices(self):
         for filename in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
             with self.subTest(profile=filename):
                 profile = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
                 validate_profile(profile)
                 groups = profile["proxy-groups"]
-                self.assertEqual(len(groups), 40)
-                manual = next(group for group in groups if group["name"] == "Manual")
-                self.assertTrue(manual["hidden"])
-                self.assertTrue(manual["include-all"])
-                self.assertEqual(manual["proxies"], ["REJECT"])
-                groups = [group for group in groups if group["name"] != "Manual"]
-                self.assertEqual([group["name"] for group in groups],
+                self.assertEqual(len(groups), 39)
+                self.assertEqual([g["name"] for g in groups],
                                  [row[0] for row in self.expected])
-                self.assertNotIn("ALL", {group["name"] for group in groups})
-                for group, (name, kind, children, include_all) in zip(groups, self.expected):
-                    with self.subTest(profile=filename, group=name):
+                self.assertFalse({"ALL", "Manual"} & {g["name"] for g in groups})
+                for group, (name, kind, choices, has_nodes) in zip(groups, self.expected):
+                    with self.subTest(group=name):
                         self.assertEqual(group["type"], kind)
-                        self.assertEqual(group["proxies"], children)
-                        self.assertEqual(group.get("include-all", False), include_all)
+                        self.assertEqual(group["proxies"], choices)
+                        self.assertEqual(group.get("include-all", False), has_nodes)
+                        if has_nodes:
+                            self.assertEqual(group.get("filter"), ".*")
+                        else:
+                            self.assertNotIn("filter", group)
 
-    def test_service_groups_expose_named_strategies_without_node_only_mode(self):
+    def test_proxy_and_services_mix_named_policies_with_dynamic_nodes(self):
         profile = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
-        by_name = {group["name"]: group for group in profile["proxy-groups"]}
-        self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT", "Auto", "Fallback", "Manual"])
-        self.assertNotIn("include-all", by_name["Proxy"])
-        self.assertTrue(by_name["Manual"]["include-all"])
-        self.assertTrue(by_name["Manual"]["hidden"])
+        groups = {g["name"]: g for g in profile["proxy-groups"]}
+        self.assertEqual(groups["Proxy"]["proxies"], ["Auto", "Fallback"])
+        self.assertTrue(groups["Proxy"]["include-all"])
+        self.assertEqual(groups["Proxy"]["filter"], ".*")
         for name in ("AI", "ChatGPT", "Gemini", "GitHub", "YouTube", "Netflix", "Steam"):
             with self.subTest(group=name):
-                group = by_name[name]
-                self.assertNotIn("include-all", group)
-                self.assertEqual(group["proxies"][:3], ["Proxy", "Auto", "Fallback"])
-                self.assertNotIn("ALL", group["proxies"])
+                group = groups[name]
+                self.assertEqual(group["filter"], ".*")
+                self.assertTrue(group["include-all"])
+                self.assertTrue({"Proxy", "Auto", "Fallback"} <= set(group["proxies"]))
+        self.assertEqual(groups["ChatGPT"]["proxies"], ["Proxy", "Auto", "Fallback"])
         for name in ("AdBlock", "Final"):
-            self.assertNotIn("include-all", by_name[name])
-
-
-    def test_every_profile_can_show_auto_and_fallback_for_services(self):
-        for filename in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
-            with self.subTest(profile=filename):
-                profile = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
-                groups = {group["name"]: group for group in profile["proxy-groups"]}
-                for name, group in groups.items():
-                    if name in {"Manual", "Auto", "Fallback"}:
-                        self.assertTrue(group.get("include-all"))
-                        self.assertFalse(set(group["proxies"]) & set(groups))
-                    else:
-                        self.assertNotIn("include-all", group)
-                        if name not in {"AdBlock", "Final"}:
-                            self.assertIn("Auto", group["proxies"])
-                            self.assertIn("Fallback", group["proxies"])
-                            if name != "Proxy":
-                                self.assertIn("Proxy", group["proxies"])
-                self.assertEqual(groups["ChatGPT"]["proxies"],
-                                 ["Proxy", "Auto", "Fallback"])
+            self.assertNotIn("include-all", groups[name])
 
 
 if __name__ == "__main__":

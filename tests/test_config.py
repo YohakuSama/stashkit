@@ -38,31 +38,30 @@ class ConfigTests(unittest.TestCase):
             self.assertIn("icon", group)
             self.assertIn("/icons/", group["icon"])
 
-    def test_default_proxy_chain_is_reject_until_opt_in(self):
+    def test_proxy_offers_auto_fallback_and_subscribed_nodes_directly(self):
         by_name = {group["name"]: group for group in self.profile["proxy-groups"]}
-        self.assertEqual(by_name["Proxy"]["proxies"][0], "REJECT")
-        self.assertNotIn("include-all", by_name["Proxy"])
-        self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT", "Auto", "Fallback", "Manual"])
-        self.assertTrue(by_name["Manual"]["hidden"])
-        self.assertTrue(by_name["Manual"]["include-all"])
+        self.assertEqual(by_name["Proxy"]["proxies"], ["Auto", "Fallback"])
+        self.assertTrue(by_name["Proxy"]["include-all"])
+        self.assertEqual(by_name["Proxy"]["filter"], ".*")
         self.assertEqual(by_name["ChatGPT"]["proxies"], ["Proxy", "Auto", "Fallback"])
-        self.assertFalse(by_name["ChatGPT"].get("include-all", False))
-        self.assertEqual(len(by_name), 40)
+        self.assertTrue(by_name["ChatGPT"]["include-all"])
+        self.assertEqual(by_name["ChatGPT"]["filter"], ".*")
+        self.assertEqual(len(by_name), 39)
         self.assertNotIn("ALL", by_name)
         self.assertEqual(by_name["Final"]["proxies"][0], "Proxy")
         self.assertEqual(by_name["ChatGPT"]["proxies"][0], "Proxy")
         self.assertEqual(by_name["AI"]["proxies"][0], "Proxy")
         self.assertEqual(by_name["AdBlock"]["proxies"][0], "REJECT")
-        # Even with no node providers and Stash's empty-provider DIRECT
-        # substitution, default global/service proxy selection is REJECT.
+        # Without nodes, Auto and Fallback retain a REJECT fallback.
+        # Empty pool behavior must still be checked on Stash iOS.
         self.assertEqual(len(self.profile.get("proxy-providers", {})), 0)
 
     def test_self_hosted_original_icons_are_pinned(self):
         import hashlib
         import json
         lock = json.loads((ROOT / "build/icon-lock.json").read_text())
-        self.assertEqual(len(lock["group_icons"]), 40)
-        self.assertEqual(lock["group_icons"]["Manual"], "Proxy.png")
+        self.assertEqual(len(lock["group_icons"]), 39)
+        self.assertNotIn("Manual", lock["group_icons"])
         self.assertEqual(len(lock["asset_git_blob_shas"]), 39)
         self.assertNotIn("ALL", lock["group_icons"])
         for name, filename in lock["group_icons"].items():

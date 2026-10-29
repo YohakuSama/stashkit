@@ -96,6 +96,7 @@ def build_loon_selection(source, providers=None, nodes=None):
         if group["type"] not in {"select", "url-test", "fallback"}:
             raise ValueError(f"Unexpected group type: {name}")
         group.pop("include-all", None)
+        group.pop("filter", None)
         if name == "Proxy":
             group["proxies"] = ["REJECT", "Auto", "Fallback"] + local_names
         elif name in {"Auto", "Fallback"}:

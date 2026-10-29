@@ -17,12 +17,13 @@ class ProviderTests(unittest.TestCase):
         for group in profile["proxy-groups"]:
             with self.subTest(group=group["name"]):
                 self.assertNotIn("url", group)
-        # Only node pools include every provider. Service groups present policy choices.
+        # LoonKit node filters include dynamic nodes in all applicable groups.
         for group in profile["proxy-groups"]:
-            if group["name"] in {"Manual", "Auto", "Fallback"}:
-                self.assertIs(group["include-all"], True)
-            else:
+            if group["name"] in {"AdBlock", "Final"}:
                 self.assertNotIn("include-all", group)
+            else:
+                self.assertIs(group["include-all"], True)
+                self.assertEqual(group["filter"], ".*")
 
 
 if __name__ == "__main__":
