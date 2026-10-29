@@ -81,11 +81,19 @@ def read_subscription_urls(path):
     return urls
 
 
-def build_loon_selection(source, providers=None, nodes=None, subscription_urls=None):
-    """Render stable nested selectors with a dedicated ALL node pool."""
+def build_loon_selection(source, providers=None, nodes=None, subscription_urls=None,
+                         layout="nested"):
+    """Build either the safe nested layout or an experimental flat native layout.
+
+    In native layout, Stash must merge named policy children and dynamic
+    provider nodes in its iOS selector. Syntax validation cannot prove that UI
+    behavior; use the native variant only for an explicit device experiment.
+    """
     providers = copy.deepcopy(providers or {})
     nodes = copy.deepcopy(nodes or [])
     subscription_urls = list(subscription_urls or [])
+    if layout not in {"nested", "native"}:
+        raise ValueError("layout must be nested or native")
     if not providers and not nodes and not subscription_urls:
         raise ValueError("Named nodes or providers or subscription URLs are required")
     if subscription_urls and (providers or nodes):
@@ -115,6 +123,11 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
     if set(providers) & set(names):
         raise ValueError("Provider names conflict with strategy group names")
 
+    if layout == "native":
+        # The single-level experiment does not need ALL. Remove every ALL
+        # reference, then attach the source directly to user-facing selectors.
+        groups[:] = [group for group in groups if group["name"] != "ALL"]
+
     for group in groups:
         name = group["name"]
         if group["type"] not in {"select", "url-test", "fallback"}:
@@ -122,21 +135,27 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
         group.pop("include-all", None)
         group.pop("filter", None)
         if name == "Proxy":
-            # Match LoonKit: Auto is the first usable choice. REJECT remains a
-            # manual fail-closed option rather than blocking new installations.
-            # Auto/Fallback themselves retain REJECT for an empty node pool.
-            group["proxies"] = ["Auto", "Fallback", "ALL", "REJECT"]
+            # Keep REJECT explicit: Stash documents that an empty provider
+            # can resolve to DIRECT, so never silently use DIRECT as a policy.
+            group["proxies"] = (["Auto", "Fallback"] + local_names + ["REJECT"]
+                                if layout == "native"
+                                else ["Auto", "Fallback", "ALL", "REJECT"])
         elif name in {"Auto", "Fallback", "ALL"}:
-            # Keep a fail-closed choice when the dynamic node pool is empty.
             group["proxies"] = local_names + ["REJECT"]
-        # Use dynamic sources only in the three node pools. Service selectors
-        # point to ALL and must not mix provider members with named policies.
-        dynamic_pool = name in {"Auto", "Fallback", "ALL"}
-        if dynamic_pool and providers:
+        elif layout == "native" and name not in SERVICE_EXCEPTIONS:
+            group["proxies"] = [child for child in group["proxies"]
+                                if child != "ALL"] + local_names
+
+        # The normal layout only lets the three node pools import providers.
+        # The native experiment tests Stash's documented 'proxies' + 'use'.
+        dynamic_group = (name not in SERVICE_EXCEPTIONS
+                         if layout == "native"
+                         else name in {"Auto", "Fallback", "ALL"})
+        if dynamic_group and providers:
             group["use"] = list(providers)
         else:
             group.pop("use", None)
-        if dynamic_pool and subscription_urls:
+        if dynamic_group and subscription_urls:
             group["use-url"] = subscription_urls
         else:
             group.pop("use-url", None)
@@ -151,6 +170,8 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--profile", choices=PROFILE_FILES, default="default")
+    parser.add_argument("--layout", choices=("nested", "native"), default="nested",
+                        help="native tests a single-level provider selector on Stash iOS")
     origin = parser.add_mutually_exclusive_group(required=True)
     origin.add_argument("--nodes-from", type=Path,
                         help="Existing local Clash/Stash YAML: auto-discovers proxy names and providers")
@@ -170,7 +191,7 @@ def main():
     else:
         nodes, providers = [], read_provider_override(args.provider_override)
     source = yaml.safe_load((ROOT / PROFILE_FILES[args.profile]).read_text(encoding="utf-8"))
-    output = build_loon_selection(source, providers, nodes, urls)
+    output = build_loon_selection(source, providers, nodes, urls, layout=args.layout)
     output_file = args.output.resolve()
     if ROOT in output_file.parents and ROOT / "dist" not in output_file.parents:
         raise ValueError("Write private profiles only under dist/ or outside the repository")
