@@ -52,9 +52,38 @@ def local_profile(config=None):
     return parts[0] + "\nrule-providers:\n" + providers + "\nrules:\n" + sections[1]
 
 
+
+def subscription_profile(config=None):
+    """Render an editable YAML profile with one explicit remote provider."""
+    content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
+    content = replace_once(
+        content,
+        "# Template: bind private sources with build_loon_selection.py before importing.\n",
+        "# Edit the subscription URL locally; never publish private subscription credentials.\n",
+        "subscription profile header",
+    )
+    content = replace_once(
+        content,
+        "proxy-groups:\n",
+        "proxy-providers:\n"
+        "  Airport:\n"
+        "    # Replace this URL with your private Clash/Stash YAML subscription.\n"
+        "    url: 'https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION'\n"
+        "    path: ./providers/stashkit-airport.yaml\n"
+        "    interval: 3600\n"
+        "\nproxy-groups:\n",
+        "subscription provider section",
+    )
+    placeholder = "    use: []\n"
+    if content.count(placeholder) != 37:
+        raise ValueError("Expected 37 node-aware groups")
+    return content.replace(placeholder, "    use:\n      - Airport\n")
+
+
 def derived_profiles(config):
     outputs = {
         "StashKit-Privacy.yaml": privacy_profile(config),
+        "StashKit-Subscription.yaml": subscription_profile(config),
         "StashKit-Local.yaml": local_profile(config),
     }
     # ALL remains an explicit compatibility variant, never a default alias.

@@ -18,7 +18,16 @@
 
 **网络保护** — 使用 Stash Fake-IP、AliDNS 加密 DNS 和前置 STUN/常见 TURN 端口拦截规则。WebRTC 防护仅适用于被 Stash Tunnel 接管的连接。
 
-## 快速开始
+## 直接填写订阅（推荐）
+
+先下载 [StashKit-Subscription.yaml](./StashKit-Subscription.yaml) 到**本地**，将文件里的 `proxy-providers → Airport → url` 从 `https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION` 改为自己的 HTTPS **Clash/Stash YAML 节点订阅地址**（保留单引号），然后在 Stash **从文件导入**并启用。不要导入还带占位 URL 的公开模板。
+
+该文件将 `Proxy` 中的 **Auto、Fallback、REJECT 和真实节点**放在同一层；`Auto`、`Fallback` 和其他 35 个节点策略组通过 `use: [Airport]` 引用同一个 Provider。节点每 3600 秒自动更新，39 个原有策略组、分流规则及默认顺序不变，无需可视化编辑或 Python。机场返回的必须是含 `proxies` 的 Clash/Stash YAML；如果返回 URI/Base64 文本，需先切换为 YAML 格式。
+
+**请勿将带 Token 的私人订阅 URL 提交到公开 GitHub 仓库。** 填写订阅后先确认 Stash 确实加载了实际节点；空远程代理集可能被当作 DIRECT。
+
+## 高级用法：生成器
+
 
 1. 备份现有配置，将包含 `proxy-providers` 的 Clash/Stash YAML 保存为 Git 忽略的 `dist/source.yaml`；或者将 HTTPS 订阅逐行保存为 `dist/subscriptions.txt`。
 2. 执行 `python scripts/build_loon_selection.py --nodes-from dist/source.yaml --output dist/StashKit-Personal.yaml`；只有 URL 时将 `--nodes-from dist/source.yaml` 替换为 `--subscription-file dist/subscriptions.txt`。默认 native 保留动态更新。
@@ -34,7 +43,8 @@
 
 | 配置 | 用途 |
 | --- | --- |
-| [StashKit.yaml](./StashKit.yaml) | 默认分流；公共 DNS 使用 AliDNS DoH，`follow-rule: false` |
+| [StashKit.yaml](./StashKit.yaml) | 不含订阅的生成器主模板；公共 DNS 使用 AliDNS DoH，`follow-rule: false` |
+| [StashKit-Subscription.yaml](./StashKit-Subscription.yaml) | 单文件版：本地填写一处订阅 URL，无需生成器 |
 | [StashKit-Privacy.yaml](./StashKit-Privacy.yaml) | 公共 DoH 请求跟随路由并优先走 `Proxy`；须先选择可用节点 |
 | [StashKit-Local.yaml](./StashKit-Local.yaml) | 离线规则版；须先把 54 份文件规则放入 Stash 资源目录 |
 | [StashKit-ALL.yaml](./StashKit-ALL.yaml) | 可选的旧版 ALL 兼容布局；不属于默认 39 组方案 |
@@ -51,7 +61,8 @@
 
 | 目录 | 内容 |
 | --- | --- |
-| `StashKit.yaml` | 39 组主模板，首次使用需绑定私有节点来源 |
+| `StashKit.yaml` | 39 组主模板，生成器绑定私有节点来源 |
+| `StashKit-Subscription.yaml` | 从主模板确定性生成的直接订阅版本 |
 | `StashKit-Privacy.yaml`、`StashKit-Local.yaml` | 由主配置确定性生成 |
 | `rules/` | 54 份固定版本的 Stash 原生规则文件 |
 | `build/` | 上游 SHA、来源锁、人工审查的规则调整记录 |

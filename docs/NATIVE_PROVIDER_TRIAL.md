@@ -2,6 +2,14 @@
 
 默认 `native` 输出 39 个与 LoonKit 对应的策略组。Proxy 和业务组直接引用节点 Provider，保留 Auto/Fallback 和原有 DIRECT 选项。真实节点由 Stash 的 `use` 或 `use-url` 加载，订阅更新后不需要重新生成节点列表。
 
+## 无需生成器：直接编辑 YAML
+
+如果只想在配置文件填写订阅链接，下载 [StashKit-Subscription.yaml](../StashKit-Subscription.yaml) 到本地，把 `proxy-providers.Airport.url` 的 `example.invalid` URL 改成 HTTPS Clash/Stash YAML 节点订阅，再在 Stash 从文件导入。无需可视化编辑或 Python。
+
+所有 37 个需要节点的组显式使用 `use: [Airport]`，保留 `Proxy` 内的 `Auto`、`Fallback` 和 `REJECT`，每 3600 秒自动更新 Provider。若添加多个机场，请增加 `proxy-providers` 条目，并将名称加入需要节点的策略组 `use`。私人订阅可能含 Token，**切勿推送到公开 GitHub**。导入后要确认节点非空并检查实际策略选择。
+
+下文的生成器方法继续适合复杂、多机场和高级绑定需求。
+
 ## 首次准备
 
 公开 `StashKit.yaml`、Privacy、Local 是不含私人订阅的模板。`use: []` 表示尚未绑定来源，不是可直接启用的完整个人配置；模板不要求 personal 名称，也不引用不存在的 personal.yaml。先在自己的电脑上完成一次绑定：
