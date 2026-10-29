@@ -10,7 +10,7 @@
 
 **节点选路** — `Proxy` 明确包含 `Auto` / `Fallback`，并通过 `include-all` 和 `filter: '.*'` 收集订阅节点。ChatGPT 等服务组同时明确列出 `Proxy` / `Auto` / `Fallback` 和动态节点；没有 `ALL`、`Manual` 或具名 Provider 要求。项目不包含节点或个人订阅。
 
-**LoonKit 选路兼容性** — 若要在同一服务组中直接选择节点、`Auto` 和 `Fallback`，可用[本地节点自动识别生成器](./docs/LOON_POLICY_GROUPS.md)，从现有 Clash/Stash 配置自动提取节点及 Provider 名称，无需手动指定订阅名称。生成结果需在 iOS 真机验收，暂不替换默认正式版。
+**LoonKit 选路兼容性** — 除公共配置的 `include-all` 外，还支持基于 Stash 原生 `use-url` 的[私有订阅生成方案](./docs/LOON_POLICY_GROUPS.md)：只需在本地提供已有 HTTPS 节点订阅 URL，不必指定 Provider 名称或列举节点，`Proxy` 与服务组明确列出 `Auto` / `Fallback`，并引用相同的动态订阅。无需 `ALL` / `Manual` 中转组；生成的私有文件含订阅凭据，不能提交到公开仓库。iOS 实际显示仍需验收。
 
 **网络保护** — 使用 Stash Fake-IP、AliDNS 加密 DNS 和前置 STUN/常见 TURN 端口拦截规则。WebRTC 防护仅适用于被 Stash Tunnel 接管的连接。
 
