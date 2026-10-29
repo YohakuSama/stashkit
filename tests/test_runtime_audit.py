@@ -192,8 +192,13 @@ class RuntimeAuditTests(unittest.TestCase):
         self.responses['/proxies']['proxies']['Netflix']['all'].remove('private-node-name')
         self.assertFalse(self.run_audit())
 
-    def test_unbound_template_is_not_an_accepted_private_configuration(self):
+    def test_unreplaced_public_provider_is_not_an_accepted_private_configuration(self):
         self.profile = self.template
+        self.assertFalse(self.run_audit())
+
+    def test_placeholder_is_rejected_even_when_controller_reports_working_nodes(self):
+        self.profile["proxy-providers"]["Airport"]["url"] = (
+            "https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION")
         self.assertFalse(self.run_audit())
 
     def test_extra_helper_in_native_runtime_fails(self):
