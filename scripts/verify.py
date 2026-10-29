@@ -85,30 +85,30 @@ def main():
     group_names = [row.split("=", 1)[0].strip() for row in source_groups.splitlines() if " = " in row]
     groups = profile["proxy-groups"]
     names = [group["name"] for group in groups]
-    assert len(group_names) == 39 and len(names) == len(set(names)) == 40
-    assert names == group_names[:3] + ["Manual"] + group_names[3:], "Group order changed"
+    assert len(group_names) == len(names) == len(set(names)) == 39
+    assert names == group_names, "Stash group order must match LoonKit exactly"
     by_name = {group["name"]: group for group in groups}
     assert "ALL" not in by_name, "Redundant ALL strategy group must not return"
     assert by_name["Auto"]["type"] == "url-test" and by_name["Auto"]["interval"] == 600
     assert by_name["Auto"]["tolerance"] == 60
     assert by_name["Fallback"]["type"] == "fallback" and by_name["Fallback"]["interval"] == 900
-    assert by_name["Proxy"]["proxies"] == ["REJECT", "Auto", "Fallback", "Manual"]
-    assert not by_name["Proxy"].get("include-all"), "Proxy must display selectable named strategies"
-    assert by_name["Manual"]["hidden"] is True
-    assert by_name["Manual"]["include-all"] is True
-    assert by_name["Manual"]["proxies"] == ["REJECT"]
+    assert by_name["Proxy"]["proxies"] == ["Auto", "Fallback"]
+    assert by_name["Proxy"]["include-all"] is True
+    assert by_name["Proxy"]["filter"] == ".*"
     for name in ("Auto", "Fallback"):
         assert by_name[name]["include-all"] is True
         assert by_name[name]["proxies"] == ["REJECT"]
     for name in ("ChatGPT", "Gemini", "Netflix", "GitHub"):
         assert by_name[name]["proxies"][:3] == ["Proxy", "Auto", "Fallback"]
-        assert not by_name[name].get("include-all"), f"{name} must display strategy choices"
+        assert by_name[name]["include-all"] is True
+        assert by_name[name]["filter"] == ".*"
     for group in groups:
-        if group.get("include-all"):
-            assert group["name"] in {"Manual", "Auto", "Fallback"}, (
-                "include-all hides named groups in Stash: " + group["name"])
-            assert not any(child in names for child in group.get("proxies", [])), (
-                "Node-only groups must not contain hidden nested policies")
+        dynamic = group["name"] not in {"AdBlock", "Final"}
+        assert group.get("include-all", False) is dynamic, group["name"]
+        if dynamic:
+            assert group["filter"] == ".*", f"Node filter missing: {group['name']}"
+        else:
+            assert not group.get("filter"), f"Unexpected filter: {group['name']}"
     for row in source_groups.splitlines():
         if " = " not in row:
             continue
@@ -117,21 +117,15 @@ def main():
         options = [part.strip() for part in specification.split(",img-url", 1)[0].split(",")]
         filter_names = {"ALL_Filter", "Auto_Filter", "Fallback_Filter"}
         has_node_filter = any(part in filter_names for part in options)
-        expected_dynamic = name.strip() in {"Auto", "Fallback"}
+        expected_dynamic = has_node_filter
         assert group.get("include-all", False) is expected_dynamic, (
-            f"Group must expose usable Stash selectors: {name}")
+            f"Dynamic node filter mismatches LoonKit: {name}")
         expected_children = [part for part in options[1:]
                              if part not in filter_names and "=" not in part]
-        if expected_dynamic:
-            assert has_node_filter, f"Missing upstream node filter: {name}"
+        if name.strip() in {"Auto", "Fallback"}:
             expected_children = ["REJECT"]
-        elif name.strip() == "Proxy":
-            assert has_node_filter, "LoonKit Proxy must support manual nodes"
-            expected_children = ["REJECT"] + expected_children + ["Manual"]
-        else:
-            if has_node_filter:
-                assert {"Proxy", "Auto", "Fallback"} <= set(expected_children), (
-                    f"Missing usable strategy choices: {name}")
+        if name.strip() not in {"Proxy", "Auto", "Fallback", "Final", "AdBlock"}:
+            assert {"Proxy", "Auto", "Fallback"} <= set(expected_children), name
         assert group["proxies"] == expected_children, f"Group option order differs: {name}"
     assert by_name["AdBlock"]["proxies"][0] == "REJECT"
     assert by_name["Final"]["proxies"][0] == "Proxy"
