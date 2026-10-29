@@ -41,6 +41,8 @@ class ConfigTests(unittest.TestCase):
     def test_default_proxy_chain_is_reject_until_opt_in(self):
         by_name = {group["name"]: group for group in self.profile["proxy-groups"]}
         self.assertEqual(by_name["Proxy"]["proxies"][0], "REJECT")
+        self.assertTrue(by_name["Proxy"]["include-all"])
+        self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT", "Auto", "Fallback", "ALL"])
         self.assertEqual(by_name["Final"]["proxies"][0], "Proxy")
         self.assertEqual(by_name["ChatGPT"]["proxies"][0], "Proxy")
         self.assertEqual(by_name["AI"]["proxies"][0], "Proxy")
