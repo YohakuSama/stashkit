@@ -1,5 +1,12 @@
 # 变更记录
 
+## v0.1.13 — 正式 YAML 直接填写机场订阅
+
+- `StashKit.yaml`、Privacy 与 Local 正式配置统一声明 `proxy-providers.Airport`，通过单个 YAML URL 填入私人 Clash/Stash 订阅，无需可视化编辑或 Python。
+- 所有 37 个需节点的策略组均显式使用 `use: [Airport]`，保留原有 39 个策略组、Auto/Fallback、业务 DIRECT 顺序、DNS、规则与固定图标。
+- `StashKit-Subscription.yaml` 保留为正式版的兼容别名；高级生成器自动剔除公开的无效示例 Provider，再绑定真实多来源节点。
+- 公开仓库仅含无效的 `example.invalid` 占位 URL；实际订阅可能含 Token，应仅保存在本地，不要推送到 GitHub。Stash 真机加载与断线行为仍需设备检查。
+
 ## v0.1.12 — 默认无 ALL，保留订阅自动更新
 
 - 三份正式模板恢复 Loon 对应的 39 个组，去除 ALL/Manual 中间入口；不再依赖固定 personal 名称或不存在的本地文件。
