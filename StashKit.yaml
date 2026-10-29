@@ -1,23 +1,16 @@
-# StashKit v0.1.4 — immutable 54-file snapshot + embedded private rules with explicit cache paths; fail-closed Proxy
-# Requires Stash iOS/tvOS 3.6+ or macOS 4.3+ for encrypted DNS bootstrap.
-# No nodes or private subscription URLs are bundled. Apply your own proxy-provider via an Override.
-# Routing assets are generated Stash-native snapshots in this repository.
+# StashKit v0.1.4
 mode: rule
 log-level: warning
 
 dns:
-  # Bootstrap the DoH hostname through encrypted DNS; direct encrypted DNS is not VPN tunneling.
-  # Use an IP-literal endpoint to avoid a DNS-bootstrap cycle.
+  # IP-literal DoH avoids a bootstrap DNS lookup.
   default-nameserver:
     - https://223.5.5.5/dns-query
-  # App/host DNS is handled by Stash Fake-IP. The resolver itself is direct,
-  # not automatically tunneled through a proxy; see README privacy notes.
   nameserver:
     - https://dns.alidns.com/dns-query
-  # Resolve proxy-server hostnames independently, avoiding proxy/DNS recursion.
+  # Resolve proxy hostnames independently of outbound DNS policy.
   proxy-server-nameserver:
     - https://223.5.5.5/dns-query
-  # Private names need the LAN/system resolver; public names still use DoH.
   nameserver-policy:
     'rule-set:Private-local': system
     '+.local': system
@@ -41,8 +34,7 @@ dns:
 proxy-groups:
   - name: "Proxy"
     type: select
-    # Fail closed until the user explicitly selects a valid node pool.
-    # Empty remote providers may be substituted with DIRECT by Stash.
+    # Initial selection is REJECT until a node is configured.
     proxies:
       - REJECT
       - Auto
@@ -364,7 +356,7 @@ proxy-groups:
       - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Paypal.png
 rule-providers:
-  # Pinned private names, embedded for DNS and routing without GeoSite downloads.
+  # Shared by private DNS lookup and LAN routing.
   Private-local:
     type: inline
     behavior: classical
@@ -828,8 +820,8 @@ rule-providers:
     interval: 86400
 
 rules:
-  # WebRTC leak mitigation: intercept tunneled STUN before LAN/CN/DIRECT routing.
-  # Port rules also block TURN when protocol sniffing is unavailable; they affect TCP and UDP.
+  # Block tunneled STUN before any direct route.
+  # Common STUN/TURN ports are blocked for TCP and UDP.
   - "PROTOCOL,STUN,REJECT"
   - "DST-PORT,3478,REJECT"
   - "DST-PORT,3479,REJECT"
@@ -843,7 +835,6 @@ rules:
   - "DST-PORT,19307,REJECT"
   - "DST-PORT,19308,REJECT"
   - "DST-PORT,19309,REJECT"
-  # Fake-IP exceptions alone do not make a connection DIRECT.
   - "DOMAIN,localhost,DIRECT"
   - "DOMAIN-SUFFIX,local,DIRECT"
   - "DOMAIN-SUFFIX,lan,DIRECT"

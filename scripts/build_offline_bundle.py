@@ -7,25 +7,12 @@ the Stash-managed provider resource directory (see official rule-set docs).
 import argparse
 import hashlib
 import io
-import re
 import zipfile
 from pathlib import Path
 
+from build_profiles import local_profile
+
 ROOT = Path(__file__).resolve().parents[1]
-URL_LINE = re.compile(r"^    url: https://raw\.githubusercontent\.com/YohakuSama/stashkit/[0-9a-f]{40}/rules/[A-Za-z0-9_.-]+\.txt\n", re.M)
-INTERVAL_LINE = re.compile(r"^    interval: 86400\n", re.M)
-
-
-def local_profile(config=None):
-    content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
-    content = re.sub(r"^# StashKit v0\.1\.4.*$", "# StashKit v0.1.4 — LOCAL/OFFLINE rule providers: place rules/ in Stash managed resource directory", content, count=1, flags=re.M)
-    content, urls = URL_LINE.subn("", content)
-    content, intervals = INTERVAL_LINE.subn("", content)
-    if (urls, intervals) != (54, 54):
-        raise ValueError(f"Expected 54 URL/interval replacements, got {urls}/{intervals}")
-    if len(re.findall(r"^    path: \./rules/v0\.1\.4/[\w.-]+\.txt$", content, re.M)) != 54:
-        raise ValueError("Expected 54 local rule provider paths")
-    return content
 
 
 def make_zip(root=ROOT):
