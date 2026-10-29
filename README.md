@@ -13,6 +13,8 @@
 **节点选路** — Stash iOS 实测在 `include-all` 与显式子策略混用时，`Proxy` 可能只显示节点、不显示 `Auto` / `Fallback`。为避免此问题，`Proxy` 现在明确列出 `Auto` / `Fallback` / `ALL`，`ALL` 是唯一用于手动展示全部订阅节点的选择组。ChatGPT 等服务组也保留 `Proxy` / `Auto` / `Fallback` / `ALL`，直连服务仍保留独立的 `DIRECT`。新增订阅节点无需改组名，手动挑节点需要进入 `ALL`。
 
 
+**原生 Provider 同层实验** — 新增可选的 [Native Preview](./StashKit-Native-Preview.yaml) 和 [使用说明](./docs/NATIVE_PROVIDER_TRIAL.md)。通过 `--layout native` 生成完整私人配置，尝试让 `Proxy` / `Auto` / `Fallback` 与订阅节点在同一层显示、不经过 `ALL`。须在本地配置真实 Provider；预览链接本身不能直接代替个人订阅。默认正式版仍保留 `ALL`，直到 Stash iOS 真机验证同层显示与故障时出口安全。
+
 **LoonKit 选路兼容性** — LoonKit 原来的 `ALL_Filter` 可以在同一层展开节点；Stash 采用额外的 `ALL` 分组兼容动态订阅，不保证与 Loon iOS UI 完全一致。私有订阅生成器支持 `use-url`、具名 Provider 或本地 YAML，并只把动态节点交给 `Auto` / `Fallback` / `ALL`，避免在业务选择组混用动态来源与子策略。见[节点组与直连说明](./docs/LOON_POLICY_GROUPS.md)。私人订阅地址和凭据不可上传公开仓库。
 
 **网络保护** — 使用 Stash Fake-IP、AliDNS 加密 DNS 和前置 STUN/常见 TURN 端口拦截规则。WebRTC 防护仅适用于被 Stash Tunnel 接管的连接。
