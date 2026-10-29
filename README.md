@@ -2,13 +2,13 @@
 
 面向 [Stash](https://stash.wiki/) 的规则分流配置。国内常用服务直连，AI、开发平台、流媒体与社交服务可独立选路。规则基于 [LoonKit v7.0.10 固定版本](https://github.com/YohakuSama/loonkit/tree/5f272104fc1207612c1cbd18f3e19d861d459ed9) 转换，产物由本仓库托管。
 
-当前配置：**v0.1.7** · [发布说明](./docs/RELEASE_NOTES_v0.1.7.md) · [变更记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
+当前配置：**v0.1.8** · [发布说明](./docs/RELEASE_NOTES_v0.1.8.md) · [变更记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
 
 ## 功能概览
 
 **服务分流** — 提供 39 个策略组，覆盖 AI、开发平台、流媒体、社交及国内常用服务；广告请求由 `AdBlock` 处理。
 
-**节点选路** — `Proxy` 和各服务策略组直接列出订阅节点，并可选择 `Auto` 自动测速或 `Fallback` 故障切换；无需额外的 `ALL` 策略组。项目不包含节点或个人订阅。
+**节点选路** — `Proxy` 直接手动选订阅节点；服务组提供 `Proxy`、`Auto` 和 `Fallback` 选项。选 `Proxy` 即跟随手动节点，选 `Auto` 或 `Fallback` 则分别使用自动测速或故障切换。项目不包含节点或个人订阅。
 
 **网络保护** — 使用 Stash Fake-IP、AliDNS 加密 DNS 和前置 STUN/常见 TURN 端口拦截规则。WebRTC 防护仅适用于被 Stash Tunnel 接管的连接。
 
@@ -17,11 +17,11 @@
 1. **备份**现有 Stash 配置和节点订阅。
 2. 在 Stash 中通过 URL 导入[主配置](https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml)。
 3. 添加自己的节点或使用[订阅覆写示例](./overrides/provider.stoverride.example)，将示例地址替换为有效订阅。
-4. 确认节点可用后，在策略页将 `Proxy` 从默认的 `REJECT` 改为实际节点、`Auto` 或 `Fallback`。
+4. 确认节点可用后，在 `Proxy` 组手动选择实际节点；如希望某项服务自动选路，进入其服务组，选择 `Auto` 或 `Fallback`。
 5. 启动 Stash VPN/Tunnel，在请求记录中检查分流与实际出口。
 
 > [!IMPORTANT]
-> `Proxy` 首次选择 `REJECT`，避免未配置节点时误直连。更新配置可能保留设备上已有的策略选择；空订阅或故障回退仍需检查实际出口。
+> `Proxy` 在配置中保留 `REJECT` 兜底，但 Stash 的 `include-all` 节点界面可能仅展示实际节点；不能凭静态 YAML 断言首次启动一定阻断。更新配置可能保留设备上已有的策略选择；空订阅和故障回退需检查实际出口。
 
 ## 配置版本
 
