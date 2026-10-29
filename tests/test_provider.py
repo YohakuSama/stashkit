@@ -17,9 +17,9 @@ class ProviderTests(unittest.TestCase):
         for group in profile["proxy-groups"]:
             with self.subTest(group=group["name"]):
                 self.assertNotIn("url", group)
-        # Override dictionaries merge, leaving include-all groups intact.
+        # Only node pools include every provider. Service groups present policy choices.
         for group in profile["proxy-groups"]:
-            if group["name"] not in {"AdBlock", "Final"}:
+            if group["name"] in {"Proxy", "Auto", "Fallback"}:
                 self.assertIs(group["include-all"], True)
             else:
                 self.assertNotIn("include-all", group)
