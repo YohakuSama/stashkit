@@ -1,5 +1,12 @@
 # 变更记录
 
+## v0.1.10 — 2026-10-29
+
+- 删除此前擅自增加的 `Manual` 隐藏策略组，正式配置严格恢复 LoonKit 的 39 个策略组及原始顺序；不需要命名或重配订阅。
+- `Proxy` 明确选择 `Auto` / `Fallback`，通过 Stash `include-all: true`、`filter: '.*'` 同时自动收集具体节点；34 个服务选择组也保留自身的明确策略选项并动态收集节点，按 LoonKit 的 `ALL_Filter` 思路直接实现。
+- 不新增验证工具或试验配置；仅调整既有一致性检查。三套配置的 DNS、前置 STUN、规则与 v0.1.4 快照保持不变。参见[发布说明](./RELEASE_NOTES_v0.1.10.md)。
+- **发布不等于 Stash iOS 界面验收**：此前 iOS 截图存在显示问题，本次以同层组合结构替换折中方案，效果仍须设备实际查看。
+
 ## v0.1.9 — 2026-10-29
 
 - 修复 `Proxy` 无法直接选择 `Auto` / `Fallback` 的可用性问题：`Proxy` 使用明确的 `REJECT`、`Auto`、`Fallback`、`Manual` 选项，不再混用 `include-all`。
