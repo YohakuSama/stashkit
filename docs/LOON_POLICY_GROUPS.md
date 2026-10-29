@@ -1,79 +1,53 @@
-# StashKit 策略组：LoonKit 兼容与直连服务
+# StashKit 策略组：原生 Provider 与兼容回退
 
-## 为什么采用 ALL 中转
+## 正式版：原生同层选路
 
-LoonKit 的 `ALL_Filter` 是动态节点筛选器，可以和 `Auto` / `Fallback` 在同一层显示。Stash 官方支持 `include-all: true`、静态 `proxies` 和策略组嵌套，但没有明确保证 iOS 将“显式的 Auto/Fallback + 动态节点”在混合字段下同时显示。已有用户截图显示：实际 `Proxy` 列表只出现订阅节点，没有 Auto/Fallback。
-
-因此公共 StashKit 采用明确且容易检查的二层选路：
-
-```text
-Proxy
-├── Auto        # url-test，自动选节点
-├── Fallback    # fallback，自动故障切换
-└── ALL         # select，显示所有节点
-    ├── 节点一
-    └── 节点二
-```
-
-`Proxy` **不使用** `include-all`；`ALL` 使用 `include-all: true` 和 `filter: '.*'`，不会要求你的 Provider 名称或节点名称。Auto 和 Fallback 保留各自的动态节点池。35 个业务选择组也不再混合 `include-all` 和子策略，而是引用 `ALL`。这是跨版本的保守兼容方案：比 Loon 多一次点入 ALL，但不需要维护每次更新的节点名称。
+默认 `StashKit.yaml` 的 `Proxy` 不再包含 `ALL`，改用 Stash 官方 `proxy-providers` + `use`：
 
 ```yaml
+proxy-providers:
+  personal:
+    path: ./providers/personal.yaml # 需要你自己提供有效节点文件
+
 proxy-groups:
   - name: Proxy
     type: select
-    proxies: [Auto, Fallback, ALL]
-  - name: ALL
-    type: select
-    include-all: true
-    filter: '.*'
-    proxies: [REJECT]
+    use: [personal]
+    proxies: [Auto, Fallback, REJECT]
   - name: Auto
     type: url-test
-    include-all: true
-    filter: '.*'
+    use: [personal]
     proxies: [REJECT]
   - name: Fallback
     type: fallback
-    include-all: true
-    filter: '.*'
+    use: [personal]
     proxies: [REJECT]
 ```
 
-`REJECT` 是避免空组意外直连的显式兜底选项，但 `include-all` 与 `proxies` 混用时的具体运行时表现仍须在 Stash iOS 检查。Stash 官方提示空策略组可能视作 `DIRECT`，不要把空订阅的安全性建立在静态 YAML 推断上。若升级前 Stash 已记住旧的选中值，更新后手动重新选择 Auto。
+**目标界面**是 `Proxy` 下同层列出 Auto、Fallback 和订阅的具体节点，但能否在当前 Stash iOS 上同时显示，仍须真机验证；GitHub CI 只能验证合法引用和配置结构。
 
-## 与 LoonKit 保持一致的 DIRECT 服务
+公开仓库无法读取你的个人订阅。默认 `personal` 是无 URL 的本地路径型 Provider；官方支持只含 `path` 的静态 Provider。必须先提供真实 `./providers/personal.yaml` 或覆盖 `personal.url` 为真实 HTTPS 节点集，才能正常使用。**空 Provider 官方可能转为 DIRECT，不能将其视为安全的拒绝回退。**
 
-| 服务组 | 默认 | 可手动选择 |
+若不想手动创建路径型 Provider，请按[原生订阅生成说明](./NATIVE_PROVIDER_TRIAL.md)本地生成一个含私人订阅的完整 YAML。任何个人订阅 URL、认证信息、节点密码均不应上传到公开 GitHub。
+
+## 直连服务不变
+
+| 服务组 | 默认选路 | 手动可选 |
 | --- | --- | --- |
-| Apple、Microsoft、Bilibili、Line、Speedtest | `DIRECT` | `Proxy` / `Auto` / `Fallback` / `ALL` |
-| Steam | `Proxy` | `Auto` / `Fallback` / `DIRECT` / `ALL` |
-| ChatGPT、Gemini、Claude 等国际服务 | `Proxy` | `Auto` / `Fallback` / `ALL` |
+| Apple、Microsoft、Bilibili、Line、Speedtest | DIRECT | Proxy、Auto、Fallback、Provider 节点 |
+| Steam | Proxy | DIRECT、Auto、Fallback、Provider 节点 |
+| ChatGPT、Gemini、Claude 等海外服务 | Proxy | Auto、Fallback、Provider 节点 |
 
-`DomesticCore`、`DomesticSupplement`、`DomesticAI` 和 `SteamCN` 由**规则直接路由** `DIRECT`，不依赖 `Proxy` 当前选项。`AdBlock` 与 `Final` 保持原有候选，所有域名遵循最先匹配的规则。不要在全局 `Proxy` 中增加 `DIRECT`，否则多个海外服务可能被一次操作同时放行。
+`DomesticCore`、`DomesticSupplement`、`DomesticAI`、`SteamCN` 等规则集继续高优先级直连，与服务组是否含 DIRECT 无关。保持广告拦截优先级与其他路由规则不变。
 
-## 私人订阅与生成器
+## 一键回退旧版 ALL
 
-公共仓库不保存个人节点或订阅密钥。若已有 Clash/Stash 格式的节点 YAML，可在本地运行：
+用户在 Stash iOS 上观察到 `include-all` + 明确策略组混用时不能保证同层显示。之前因此使用二层 `ALL` 兼容方案，现完整备份为：
 
-```sh
-mkdir -p dist
-python scripts/build_loon_selection.py \
-  --nodes-from dist/source.yaml \
-  --output dist/StashKit-Loon-Personal.yaml
-```
+- [默认兼容版](../StashKit-ALL.yaml)
+- [隐私兼容版](../StashKit-Privacy-ALL.yaml)
+- [本地规则兼容版](../StashKit-Local-ALL.yaml)
 
-若有返回 Clash/Stash YAML 的 HTTPS 订阅 URL，将 URL 写入不提交 Git 的 `dist/subscriptions.txt`（每行一个），运行：
+这些备份的 `Proxy` 为 `Auto → Fallback → ALL`，进入 `ALL` 再选具体节点。备份不需要指定 `personal` Provider，继续沿用 `include-all` 收集 Stash 已加载的节点。
 
-```sh
-python scripts/build_loon_selection.py \
-  --subscription-file dist/subscriptions.txt \
-  --output dist/StashKit-Loon-Private.yaml
-```
-
-生成器把节点或 Provider 仅配置到 `Auto`、`Fallback`、`ALL`；服务策略组通过 `ALL` 间接选择节点。生成文件包含真实订阅凭据时不能上传 GitHub。若来源本身支持 `proxy-providers`，也可继续使用 `--provider-override` 模式。`StashKit-Loon-Preview.yaml` 仍是要求存在名为 `personal` 的 Provider 的示例，不能直接当成普通公共配置安装。
-
-## 真机验收
-
-在 Stash 的策略界面确认 `Proxy` 有 Auto / Fallback / ALL，进入 `ALL` 可选择真实节点。核实 Apple / Microsoft 等组的 `DIRECT`，检查国内服务是否直接命中 `DIRECT`，同时确认 ChatGPT 等走预期的代理。CI 静态校验不能代替 iOS 的真实 UI、空订阅行为和出站连接记录。
-
-参考：[Stash 策略组](https://stash.wiki/proxy-protocols/proxy-groups) · [Stash 远程代理集](https://stash.wiki/proxy-protocols/proxy-providers)。
+官方文档：[Stash 策略组](https://stash.wiki/proxy-protocols/proxy-groups) · [远程代理集](https://stash.wiki/proxy-protocols/proxy-providers)。

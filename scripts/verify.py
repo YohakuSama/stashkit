@@ -85,34 +85,26 @@ def main():
     group_names = [row.split("=", 1)[0].strip() for row in source_groups.splitlines() if " = " in row]
     groups = profile["proxy-groups"]
     names = [group["name"] for group in groups]
-    assert len(group_names) == 39 and len(names) == len(set(names)) == 40
-    expected_order = group_names[:3] + ["ALL"] + group_names[3:]
-    assert names == expected_order, "Stash adds ALL after Fallback; remaining LoonKit groups retain order"
+    assert len(group_names) == len(names) == len(set(names)) == 39
+    assert names == group_names, "Native groups must preserve the pinned LoonKit order"
     by_name = {group["name"]: group for group in groups}
-    assert by_name["ALL"]["type"] == "select"
-    assert by_name["ALL"]["proxies"] == ["REJECT"]
-    assert by_name["ALL"]["include-all"] is True
-    assert by_name["ALL"]["filter"] == ".*"
+    assert "ALL" not in by_name
+    assert profile["proxy-providers"] == {"personal": {"path": "./providers/personal.yaml"}}
     assert by_name["Auto"]["type"] == "url-test" and by_name["Auto"]["interval"] == 600
     assert by_name["Auto"]["tolerance"] == 60
     assert by_name["Fallback"]["type"] == "fallback" and by_name["Fallback"]["interval"] == 900
-    assert by_name["Proxy"]["proxies"] == ["Auto", "Fallback", "ALL"]
-    assert "include-all" not in by_name["Proxy"]
-    assert "filter" not in by_name["Proxy"]
+    assert by_name["Proxy"]["proxies"] == ["Auto", "Fallback", "REJECT"]
     for name in ("Auto", "Fallback"):
-        assert by_name[name]["include-all"] is True
         assert by_name[name]["proxies"] == ["REJECT"]
     for name in ("ChatGPT", "Gemini", "Netflix", "GitHub"):
-        assert by_name[name]["proxies"] == ["Proxy", "Auto", "Fallback", "ALL"]
-        assert "include-all" not in by_name[name]
-        assert "filter" not in by_name[name]
+        assert by_name[name]["proxies"] == ["Proxy", "Auto", "Fallback"]
     for group in groups:
-        dynamic = group["name"] in {"Auto", "Fallback", "ALL"}
-        assert group.get("include-all", False) is dynamic, group["name"]
-        if dynamic:
-            assert group["filter"] == ".*", f"Node filter missing: {group['name']}"
+        assert not group.get("include-all"), group["name"]
+        assert not group.get("filter"), group["name"]
+        if group["name"] not in {"AdBlock", "Final"}:
+            assert group["use"] == ["personal"], group["name"]
         else:
-            assert not group.get("filter"), f"Unexpected filter: {group['name']}"
+            assert "use" not in group, group["name"]
     for row in source_groups.splitlines():
         if " = " not in row:
             continue
@@ -120,18 +112,14 @@ def main():
         group = by_name[name.strip()]
         options = [part.strip() for part in specification.split(",img-url", 1)[0].split(",")]
         filter_names = {"ALL_Filter", "Auto_Filter", "Fallback_Filter"}
-        has_node_filter = any(part in filter_names for part in options)
-        expected_dynamic = has_node_filter and name.strip() in {"Auto", "Fallback"}
-        assert group.get("include-all", False) is expected_dynamic, (
-            f"Dynamic node pool differs from Stash nested layout: {name}")
         expected_children = [part for part in options[1:]
                              if part not in filter_names and "=" not in part]
         if name.strip() in {"Auto", "Fallback"}:
             expected_children = ["REJECT"]
-        elif name.strip() not in {"AdBlock", "Final"}:
-            expected_children.append("ALL")
+        if name.strip() == "Proxy":
+            expected_children.append("REJECT")
         if name.strip() not in {"Proxy", "Auto", "Fallback", "Final", "AdBlock"}:
-            assert {"Proxy", "Auto", "Fallback", "ALL"} <= set(expected_children), name
+            assert {"Proxy", "Auto", "Fallback"} <= set(expected_children), name
         assert group["proxies"] == expected_children, f"Group option order differs: {name}"
     assert by_name["AdBlock"]["proxies"][0] == "REJECT"
     assert by_name["Final"]["proxies"][0] == "Proxy"

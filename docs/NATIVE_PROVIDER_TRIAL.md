@@ -1,6 +1,6 @@
 # Stash 原生 Provider 同层选路实验
 
-> **实验配置，不是默认正式版。** Stash 文档支持 `proxy-groups.proxies`、`proxy-groups.use` 和 `proxy-providers`，但它没有保证每个 iOS 版本都将策略组和远程节点同时显示在同一层。此前 `include-all` 混用方案已经在用户截图中出现显示缺失。这份实验通过明确的具名 Provider 来排查差异。
+> **正式版使用原生 Provider。** Stash 文档支持 `proxy-groups.proxies`、`proxy-groups.use` 和 `proxy-providers`，但它没有保证每个 iOS 版本都将策略组和远程节点同时显示在同一层。此前 `include-all` 混用方案已经在用户截图中出现显示缺失。正式版通过明确的具名 Provider 引用节点；iOS 同层显示仍需验证。
 
 ## 目标结构（不使用 ALL）
 
@@ -12,13 +12,13 @@ Proxy
 └── 订阅节点 B
 ```
 
-`StashKit-Native-Preview.yaml` 是用于覆写 Provider 的完整配置预览，**不是不需配置订阅的直装版**。所有业务规则、DNS、广告拦截、图标与默认版一致，且不包含个人节点或订阅密钥。预览里要求你在 Stash 中提供一个确实存在的 `personal` Provider；没有该 Provider 时可能直接提示无效或无法加载节点。不要把试验版当成公开的即用订阅链接。
+当前正式版 `StashKit.yaml` 已采用原生方案；`StashKit-Native-Preview.yaml` 是不含 Provider 声明的原生参考配置，**不是不需配置订阅的直装版**。所有业务规则、DNS、广告拦截、图标与默认版一致，且不包含个人节点或订阅密钥。预览里要求你在 Stash 中提供一个确实存在的 `personal` Provider；没有该 Provider 时可能直接提示无效或无法加载节点。不要把试验版当成公开的即用订阅链接。
 
 ## 本地生成可导入的完整配置（推荐）
 
 在你自己的电脑上克隆仓库，并把下面路径都放在 Git 忽略的 `dist/` 下。**不要把订阅 URL、用户名、密码上传到 GitHub。**
 
-### A. 原生具名 Provider（`use`）
+### A. 原生具名 Provider（`use`，正式版推荐）
 
 从 Stash/机场导出一个包含 `proxy-providers` 的 Clash/Stash YAML，保存为 `dist/source.yaml`：
 
@@ -60,14 +60,14 @@ python scripts/build_loon_selection.py \
 
 ## 两种布局的区别
 
-| 项目 | 正式默认布局 | 原生实验布局 |
+| 项目 | 旧版 ALL 兼容布局 | 正式原生布局 |
 | --- | --- | --- |
 | 手动节点 | `Proxy → ALL → 节点` | 尝试 `Proxy → 节点` |
 | `Auto` / `Fallback` | 引用策略组 | 引用策略组 |
 | Provider | 只附加给 `Auto` / `Fallback` / `ALL` | 附加给 `Proxy`、`Auto`、`Fallback` 与业务组 |
 | 国内直连和服务 DIRECT | 保留 | 保留 |
 | 自动更新订阅 | Provider / use-url 模式可用 | Provider / use-url 模式可用 |
-| Stash iOS 同层显示 | 不依赖混合动态选项 | **尚待真机验收** |
+| Stash iOS 同层显示 | 不依赖混合动态选项 | **正式版，尚待真机验收** |
 
 ## 验收与风险
 
@@ -77,6 +77,6 @@ python scripts/build_loon_selection.py \
 4. 测试订阅更新、断开首选节点、所有节点不可用、DNS、实际连接出口，而不只是检查 YAML 能加载。
 5. **Stash 官方说明空远程代理集会被当作 `DIRECT`**：即使配置里另有 `REJECT` 选项，也不能假定空订阅一定不会走直连。运行验证前必须确认 Provider 已成功加载真实节点。
 
-如果 Stash iOS 仍然隐藏 `Auto` / `Fallback`，不要将这个实验布局切到正式配置；继续使用 `ALL` 或基于具名节点的静态扁平生成方案。
+如果 Stash iOS 仍然隐藏 `Auto` / `Fallback`，请回退到 `StashKit-ALL.yaml`，或基于具名节点的静态扁平生成方案；这不影响规则层的国内直连。
 
 参考：[Stash 远程代理集](https://stash.wiki/proxy-protocols/proxy-providers) · [Stash 策略组](https://stash.wiki/proxy-protocols/proxy-groups)。

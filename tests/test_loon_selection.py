@@ -9,7 +9,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from build_loon_selection import (NODE_POOLS, PROFILE_FILES, build_loon_selection,
+from build_loon_selection import (NODE_POOLS, PROFILE_FILES, NATIVE_PROFILE_FILES, build_loon_selection,
                                   read_provider_override, read_node_sources, read_subscription_urls)
 from validate_config import validate_profile
 
@@ -91,7 +91,7 @@ class LoonSelectionTests(unittest.TestCase):
                         self.assertNotIn("DIRECT", groups[name]["proxies"])
 
     def test_missing_and_conflicting_providers_fail(self):
-        source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        source = yaml.safe_load((ROOT / "StashKit-ALL.yaml").read_text(encoding="utf-8"))
         with self.assertRaisesRegex(ValueError, "Named nodes or providers"):
             build_loon_selection(source, {})
         with self.assertRaisesRegex(ValueError, "conflict"):
@@ -125,7 +125,7 @@ class LoonSelectionTests(unittest.TestCase):
 
     def test_public_preview_requires_personal_provider_and_matches_generator(self):
         preview = yaml.safe_load((ROOT / "StashKit-Loon-Preview.yaml").read_text(encoding="utf-8"))
-        source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        source = yaml.safe_load((ROOT / "StashKit-ALL.yaml").read_text(encoding="utf-8"))
         expected = build_loon_selection(source, {"personal": PROVIDERS["personal"]})
         self.assertNotIn("proxy-providers", preview)
         self.assertEqual(preview["proxy-groups"], expected["proxy-groups"])
@@ -171,7 +171,7 @@ class LoonSelectionTests(unittest.TestCase):
                     self.assertEqual(original["rules"], result["rules"])
 
     def test_discover_names_of_multiple_providers_automatically(self):
-        source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        source = yaml.safe_load((ROOT / "StashKit-ALL.yaml").read_text(encoding="utf-8"))
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "providers.yaml"
             path.write_text(yaml.safe_dump({"proxy-providers": PROVIDERS}), encoding="utf-8")
@@ -185,7 +185,7 @@ class LoonSelectionTests(unittest.TestCase):
             self.assertEqual(groups["ALL"]["use"], list(providers))
 
     def test_unknown_or_conflicting_node_name_rejected(self):
-        source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        source = yaml.safe_load((ROOT / "StashKit-ALL.yaml").read_text(encoding="utf-8"))
         reserved = {"name": "Auto", "type": "snell"}
         with self.assertRaisesRegex(ValueError, "conflict"):
             build_loon_selection(source, {}, [reserved])
@@ -256,7 +256,7 @@ class LoonSelectionTests(unittest.TestCase):
                     self.assertNotIn("SECRET", str(raised.exception))
 
     def test_use_url_validator_rejects_malformed_and_mixed_node_sources(self):
-        source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        source = yaml.safe_load((ROOT / "StashKit-ALL.yaml").read_text(encoding="utf-8"))
         with self.assertRaisesRegex(ValueError, "cannot be mixed"):
             build_loon_selection(source, {"private": PROVIDERS["personal"]},
                                  subscription_urls=["https://example.org/sub"])
@@ -327,7 +327,7 @@ class LoonSelectionTests(unittest.TestCase):
     def test_native_provider_preview_matches_generator(self):
         preview = yaml.safe_load((ROOT / "StashKit-Native-Preview.yaml")
                                  .read_text(encoding="utf-8"))
-        original = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        original = yaml.safe_load((ROOT / "StashKit-ALL.yaml").read_text(encoding="utf-8"))
         expected = build_loon_selection(original,
                                         providers={"personal": PROVIDERS["personal"]},
                                         layout="native")
@@ -339,9 +339,28 @@ class LoonSelectionTests(unittest.TestCase):
         validate_profile(preview)
 
     def test_native_layout_rejects_invalid_mode(self):
-        source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        source = yaml.safe_load((ROOT / "StashKit-ALL.yaml").read_text(encoding="utf-8"))
         with self.assertRaisesRegex(ValueError, "layout"):
             build_loon_selection(source, providers=PROVIDERS, layout="unknown")
+
+    def test_published_native_profile_is_valid_and_usable_for_generation(self):
+        for filename in NATIVE_PROFILE_FILES.values():
+            source = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
+            validate_profile(source)
+            self.assertEqual(source["proxy-providers"],
+                             {"personal": {"path": "./providers/personal.yaml"}})
+            generated = build_loon_selection(source, providers=PROVIDERS,
+                                             layout="native")
+            validate_profile(generated)
+            self.assertEqual(generated["proxy-providers"], PROVIDERS)
+            groups = {g["name"]: g for g in generated["proxy-groups"]}
+            self.assertEqual(len(groups), 39)
+            self.assertNotIn("ALL", groups)
+            self.assertEqual(groups["Proxy"]["use"], list(PROVIDERS))
+            self.assertEqual(groups["Proxy"]["proxies"],
+                             ["Auto", "Fallback", "REJECT"])
+            self.assertEqual(source["rules"], generated["rules"])
+            self.assertEqual(source["dns"], generated["dns"])
 
     def test_private_output_folder_is_gitignored(self):
         ignore = (ROOT / ".gitignore").read_text(encoding="utf-8")

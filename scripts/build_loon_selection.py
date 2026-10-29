@@ -18,7 +18,13 @@ ROOT = Path(__file__).resolve().parents[1]
 NODE_POOLS = frozenset({"Proxy", "Auto", "Fallback", "ALL"})
 SERVICE_EXCEPTIONS = frozenset({"AdBlock", "Final"})
 EXPECTED_GROUP_COUNT = 40
+# Legacy nested layout remains available with a stable ALL backup.
 PROFILE_FILES = {
+    "default": "StashKit-ALL.yaml",
+    "privacy": "StashKit-Privacy-ALL.yaml",
+    "local": "StashKit-Local-ALL.yaml",
+}
+NATIVE_PROFILE_FILES = {
     "default": "StashKit.yaml",
     "privacy": "StashKit-Privacy.yaml",
     "local": "StashKit-Local.yaml",
@@ -110,11 +116,26 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
             raise ValueError("Unexpected manual node pool structure")
         groups[:] = [group for group in groups if group["name"] != "Manual"]
     names = [group["name"] for group in groups]
-    if (len(groups) != EXPECTED_GROUP_COUNT or len(set(names)) != len(groups)
-            or not NODE_POOLS.issubset(names) or "Manual" in names):
+    if len(set(names)) != len(groups) or "Manual" in names:
         raise ValueError("Unexpected canonical group structure")
-    if source.get("proxy-providers") or source.get("proxies"):
+    if layout == "nested":
+        if len(groups) != EXPECTED_GROUP_COUNT or not NODE_POOLS.issubset(names):
+            raise ValueError("Unexpected canonical group structure")
+    elif (not {"Proxy", "Auto", "Fallback"}.issubset(names) or
+          not ((len(groups) == EXPECTED_GROUP_COUNT - 1 and "ALL" not in names)
+               or (len(groups) == EXPECTED_GROUP_COUNT and
+                   NODE_POOLS.issubset(names)))):
+        # Native generation accepts either the old ALL backup or the
+        # published native profile, removing ALL only when present.
+        raise ValueError("Unexpected canonical group structure")
+    # Published native profiles declare only a local path-only Provider.
+    canonical_providers = source.get("proxy-providers") or {}
+    if (source.get("proxies") or
+        (canonical_providers and
+         not (layout == "native" and canonical_providers ==
+              {"personal": {"path": "./providers/personal.yaml"}}))):
         raise ValueError("Canonical profile must not bundle personal nodes/providers")
+    output.pop("proxy-providers", None)
     local_names = [node["name"] for node in nodes]
     if len(local_names) != len(set(local_names)):
         raise ValueError("Duplicate node names")
@@ -170,7 +191,7 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--profile", choices=PROFILE_FILES, default="default")
-    parser.add_argument("--layout", choices=("nested", "native"), default="nested",
+    parser.add_argument("--layout", choices=("nested", "native"), default="native",
                         help="native tests a single-level provider selector on Stash iOS")
     origin = parser.add_mutually_exclusive_group(required=True)
     origin.add_argument("--nodes-from", type=Path,
@@ -190,7 +211,8 @@ def main():
         urls = read_subscription_urls(args.subscription_file)
     else:
         nodes, providers = [], read_provider_override(args.provider_override)
-    source = yaml.safe_load((ROOT / PROFILE_FILES[args.profile]).read_text(encoding="utf-8"))
+    source_files = NATIVE_PROFILE_FILES if args.layout == "native" else PROFILE_FILES
+    source = yaml.safe_load((ROOT / source_files[args.profile]).read_text(encoding="utf-8"))
     output = build_loon_selection(source, providers, nodes, urls, layout=args.layout)
     output_file = args.output.resolve()
     if ROOT in output_file.parents and ROOT / "dist" not in output_file.parents:

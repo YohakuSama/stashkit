@@ -6,29 +6,28 @@
 
 ## 功能概览
 
-**服务分流** — 提供LoonKit 的 39 个服务/策略组及 1 个 Stash 专用 ALL 节点组，覆盖 AI、开发平台、流媒体、社交及国内常用服务；广告请求由 `AdBlock` 处理。
+**服务分流** — 39 个与 LoonKit 一致的业务与策略组，覆盖 AI、流媒体、社交、开发平台和国内常用服务。广告由 `AdBlock` 处理。
 
-**服务直连** — Apple、Microsoft、Bilibili、Line、Speedtest 默认可选直连（首选为 `DIRECT`），Steam 可手动直连但默认走代理；国内核心服务、国内 AI 和 SteamCN CDN 在规则层直连。海外 AI / 流媒体保留独立代理选择，不把 `DIRECT` 泛加到所有服务或 `Proxy`。详见[路由策略](./docs/ROUTING.md)。
+**服务直连** — Apple、Microsoft、Bilibili、Line、Speedtest 可以默认选 `DIRECT`，Steam 可手动选 `DIRECT`；国内核心、国内 AI、SteamCN CDN 仍由规则直连。国际 AI 服务不自动增加直连。
 
-**节点选路** — Stash iOS 实测在 `include-all` 与显式子策略混用时，`Proxy` 可能只显示节点、不显示 `Auto` / `Fallback`。为避免此问题，`Proxy` 现在明确列出 `Auto` / `Fallback` / `ALL`，`ALL` 是唯一用于手动展示全部订阅节点的选择组。ChatGPT 等服务组也保留 `Proxy` / `Auto` / `Fallback` / `ALL`，直连服务仍保留独立的 `DIRECT`。新增订阅节点无需改组名，手动挑节点需要进入 `ALL`。
+**原生节点选路（正式版）** — `StashKit.yaml` 现在采用 Stash 原生 `proxy-providers` + `use`，**没有 `ALL` 策略组**。`Proxy` 明确含 `Auto` / `Fallback` / `REJECT`，并直接引用名为 `personal` 的节点 Provider；业务组也直接引用相同 Provider。目标是同层显示节点及自动策略，仍须在 Stash iOS 验证。
 
+**私人订阅设置（必须）** — 仓库不含订阅地址。默认配置使用 Stash 官方支持的本地 Provider：`proxy-providers.personal.path: ./providers/personal.yaml`；使用前须提供该文件，或将 `personal` 覆写为自己的真实 HTTPS 订阅，否则可能没有节点或落入 `DIRECT`。推荐通过[本地生成器](./docs/NATIVE_PROVIDER_TRIAL.md)创建包含真实订阅的完整私有配置，不要上传订阅密钥。
 
-**原生 Provider 同层实验** — 新增可选的 [Native Preview](./StashKit-Native-Preview.yaml) 和 [使用说明](./docs/NATIVE_PROVIDER_TRIAL.md)。通过 `--layout native` 生成完整私人配置，尝试让 `Proxy` / `Auto` / `Fallback` 与订阅节点在同一层显示、不经过 `ALL`。须在本地配置真实 Provider；预览链接本身不能直接代替个人订阅。默认正式版仍保留 `ALL`，直到 Stash iOS 真机验证同层显示与故障时出口安全。
-
-**LoonKit 选路兼容性** — LoonKit 原来的 `ALL_Filter` 可以在同一层展开节点；Stash 采用额外的 `ALL` 分组兼容动态订阅，不保证与 Loon iOS UI 完全一致。私有订阅生成器支持 `use-url`、具名 Provider 或本地 YAML，并只把动态节点交给 `Auto` / `Fallback` / `ALL`，避免在业务选择组混用动态来源与子策略。见[节点组与直连说明](./docs/LOON_POLICY_GROUPS.md)。私人订阅地址和凭据不可上传公开仓库。
+**回退方案** — 如 Stash iOS 无法同时显示 Auto/Fallback 和 Provider 节点，可以随时使用保留的 [StashKit-ALL.yaml](./StashKit-ALL.yaml) 兼容配置（Privacy / Local 也有对应备份）。见[策略组说明](./docs/LOON_POLICY_GROUPS.md)。
 
 **网络保护** — 使用 Stash Fake-IP、AliDNS 加密 DNS 和前置 STUN/常见 TURN 端口拦截规则。WebRTC 防护仅适用于被 Stash Tunnel 接管的连接。
 
 ## 快速开始
 
-1. **备份**现有 Stash 配置和节点订阅。
+1. **备份**现有 Stash 配置和节点订阅；切换到原生配置前准备好 `personal` 节点来源。
 2. 在 Stash 中通过 URL 导入[主配置](https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml)。
-3. 添加自己的节点或使用[订阅覆写示例](./overrides/provider.stoverride.example)，将示例地址替换为有效订阅。
-4. 更新配置后，在 `Proxy` 或服务组中选择 `Auto`、`Fallback` 或 `ALL`；要手动指定节点，进入 `ALL`。检查每组的显示、规则命中和实际出口。
+3. 先将 `personal` Provider 连接到自己的有效订阅：本地生成完整配置（推荐），或添加 `./providers/personal.yaml` 文件/修改[订阅覆写示例](./overrides/provider.stoverride.example)。
+4. 更新配置后，检查 `Proxy` 是否同层显示 `Auto`、`Fallback` 和真实节点。若没有，使用 `StashKit-ALL.yaml` 回退。
 5. 启动 Stash VPN/Tunnel，在请求记录中检查分流与实际出口。
 
 > [!IMPORTANT]
-> `Auto` / `Fallback` 在无节点时仍保留 `REJECT` 兜底，但不代表空订阅时一定不会直连；必须在 Stash iOS 真实测试。更新配置可能保留设备上已有的策略选择；空订阅和故障回退需检查实际出口。
+> **重要：** 未配置 `personal` 时，此公开配置没有可用的代理节点；Stash 官方指出空 Provider 可能按 `DIRECT` 处理。`REJECT` 候选不能代替真机验证。请先通过[本地生成器](./docs/NATIVE_PROVIDER_TRIAL.md)输出完整个人配置或正确配置本地 Provider，再启用 VPN。
 
 ## 配置版本
 
@@ -37,6 +36,7 @@
 | [StashKit.yaml](./StashKit.yaml) | 默认分流；公共 DNS 使用 AliDNS DoH，`follow-rule: false` |
 | [StashKit-Privacy.yaml](./StashKit-Privacy.yaml) | 公共 DoH 请求跟随路由并优先走 `Proxy`；须先选择可用节点 |
 | [StashKit-Local.yaml](./StashKit-Local.yaml) | 离线规则版；须先把 54 份文件规则放入 Stash 资源目录 |
+| [StashKit-ALL.yaml](./StashKit-ALL.yaml) | 旧版兼容布局，Proxy → ALL → 具体节点；其他两个变体也有 -ALL 备份 |
 
 离线文件包可从 [CI 产物](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) 获取。ZIP 不会自动安装到 Stash 的规则目录；详见[安装及验收说明](./docs/VALIDATION.md)。
 
