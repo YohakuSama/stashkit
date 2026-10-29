@@ -4,17 +4,19 @@ import argparse
 import re
 from pathlib import Path
 
+from release_meta import PROFILE_VERSION, RULES_PATH_PREFIX
+
 ROOT = Path(__file__).resolve().parents[1]
-HEADER = "# StashKit v0.1.4\n"
-PRIVACY_HEADER = "# StashKit v0.1.4 — privacy DNS\n"
-LOCAL_HEADER = "# StashKit v0.1.4 — local rule providers\n"
+HEADER = f"# StashKit {PROFILE_VERSION}\n"
+PRIVACY_HEADER = f"# StashKit {PROFILE_VERSION} — privacy DNS\n"
+LOCAL_HEADER = f"# StashKit {PROFILE_VERSION} — local rule providers\n"
 PRIVACY_DNS_RULE = '  - "DOMAIN,dns.alidns.com,Proxy"\n'
 URL_LINE = re.compile(
     r"^    url: https://raw\.githubusercontent\.com/YohakuSama/stashkit/"
     r"[0-9a-f]{40}/rules/[A-Za-z0-9_.-]+\.txt\n", re.M
 )
 INTERVAL_LINE = re.compile(r"^    interval: 86400\n", re.M)
-LOCAL_PATH = re.compile(r"^    path: \./rules/v0\.1\.4/[\w.-]+\.txt$", re.M)
+LOCAL_PATH = re.compile(r"^    path: " + re.escape(RULES_PATH_PREFIX) + r"[\w.-]+\.txt$", re.M)
 
 
 def replace_once(content, old, new, context):

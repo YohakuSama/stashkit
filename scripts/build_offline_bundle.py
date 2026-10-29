@@ -11,6 +11,7 @@ import zipfile
 from pathlib import Path
 
 from build_profiles import local_profile
+from release_meta import PROFILE_VERSION, RULES_VERSION, archive_name
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -25,14 +26,14 @@ def make_zip(root=ROOT):
         raise ValueError(f"Expected 54 rule assets, got {len(assets)}")
     files = {"StashKit-Local.yaml": profile}
     for path in assets:
-        files["rules/v0.1.4/" + path.name] = path.read_bytes()
+        files[f"rules/{RULES_VERSION}/" + path.name] = path.read_bytes()
     manifest = "\n".join(hashlib.sha256(data).hexdigest() + "  " + name
                          for name, data in sorted(files.items())) + "\n"
     files["SHA256SUMS.txt"] = manifest.encode()
     files["README-OFFLINE.txt"] = (
-        "StashKit v0.1.4 — offline provider bundle\n"
+        f"StashKit {PROFILE_VERSION} — offline provider bundle\n"
         "1) StashKit-Local.yaml uses 54 path-only file providers plus 1 embedded private provider.\n"
-        "2) Copy rules/v0.1.4/*.txt into the Stash-managed versioned resource directory.\n"
+        f"2) Copy rules/{RULES_VERSION}/*.txt into the Stash-managed versioned resource directory.\n"
         "3) Import StashKit-Local.yaml locally and apply your own proxy provider.\n"
         "4) Stash does NOT automatically install provider paths when importing a ZIP.\n"
         "5) Confirm all 55 providers load; otherwise do not use this as an active profile.\n"
@@ -50,7 +51,7 @@ def make_zip(root=ROOT):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", default="dist/StashKit-v0.1.4-offline.zip")
+    parser.add_argument("--output", default=f"dist/{archive_name()}")
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     result = make_zip()

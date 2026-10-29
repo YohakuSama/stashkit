@@ -10,6 +10,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from build_offline_bundle import make_zip, local_profile
+from release_meta import PROFILE_VERSION, RULES_VERSION, RULES_PATH_PREFIX
 from validate_config import validate_profile
 
 
@@ -18,7 +19,7 @@ class OfflineAndPrivacyTests(unittest.TestCase):
         binary = make_zip()
         with zipfile.ZipFile(io.BytesIO(binary)) as archive:
             names = archive.namelist()
-            self.assertEqual(len([n for n in names if n.startswith("rules/v0.1.4/")]), 54)
+            self.assertEqual(len([n for n in names if n.startswith(f"rules/{RULES_VERSION}/")]), 54)
             self.assertEqual(len(names), 57)
             self.assertEqual(archive.read("StashKit-Local.yaml"),
                              (ROOT / "StashKit-Local.yaml").read_bytes())
@@ -30,7 +31,7 @@ class OfflineAndPrivacyTests(unittest.TestCase):
                 if provider.get("type") == "inline":
                     self.assertNotIn("path", provider)
                     continue
-                self.assertTrue(provider["path"].startswith("./rules/v0.1.4/"))
+                self.assertTrue(provider["path"].startswith(RULES_PATH_PREFIX))
             validate_profile(profile)
 
     def test_bundle_is_byte_reproducible(self):
