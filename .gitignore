@@ -4,3 +4,5 @@ __pycache__/
 upstream/
 # Personal provider overrides may contain subscription credentials.
 *.stoverride
+# Generated profiles may contain private subscription URLs.
+dist/

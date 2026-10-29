@@ -10,6 +10,8 @@
 
 **节点选路** — `Proxy` 直接手动选订阅节点；服务组提供 `Proxy`、`Auto` 和 `Fallback` 选项。选 `Proxy` 即跟随手动节点，选 `Auto` 或 `Fallback` 则分别使用自动测速或故障切换。项目不包含节点或个人订阅。
 
+**LoonKit 选路兼容性** — 若需要在同一个服务组中同时看到订阅节点和 `Auto` / `Fallback`，可使用[具名 Provider 的个人配置生成器](./docs/LOON_POLICY_GROUPS.md)。此方案需要本地订阅定义和 iOS 真机验证，未作为默认正式版发布。
+
 **网络保护** — 使用 Stash Fake-IP、AliDNS 加密 DNS 和前置 STUN/常见 TURN 端口拦截规则。WebRTC 防护仅适用于被 Stash Tunnel 接管的连接。
 
 ## 快速开始
