@@ -10,7 +10,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from build_loon_selection import (NODE_POOLS, PROFILE_FILES, build_loon_selection,
-                                  read_provider_override)
+                                  read_provider_override, read_node_sources)
 from validate_config import validate_profile
 
 PROVIDERS = {
@@ -100,6 +100,67 @@ class LoonSelectionTests(unittest.TestCase):
             self.assertEqual(preview[key], source[key])
         preview["proxy-providers"] = {"personal": PROVIDERS["personal"]}
         validate_profile(preview)
+
+    def test_discover_local_nodes_without_provider_name(self):
+        nodes = [
+            {"name": "US-LAX | Snell v6", "type": "snell", "server": "198.51.100.10", "port": 443},
+            {"name": "US-LAX | HY2 Gecko", "type": "hysteria2", "server": "198.51.100.11", "port": 443},
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "existing-subscription.yaml"
+            path.write_text(yaml.safe_dump({"proxies": nodes, "proxy-groups": [
+                {"name": "Provider-specific", "type": "select",
+                 "proxies": [node["name"] for node in nodes]},
+            ]}), encoding="utf-8")
+            discovered_nodes, discovered_providers = read_node_sources(path)
+            self.assertEqual(discovered_nodes, nodes)
+            self.assertEqual(discovered_providers, {})
+            for name in PROFILE_FILES.values():
+                with self.subTest(profile=name):
+                    original = yaml.safe_load((ROOT / name).read_text(encoding="utf-8"))
+                    result = build_loon_selection(original, discovered_providers, discovered_nodes)
+                    validate_profile(result)
+                    groups = {group["name"]: group for group in result["proxy-groups"]}
+                    self.assertEqual(groups["Proxy"]["proxies"],
+                                     ["REJECT", "Auto", "Fallback"] + [node["name"] for node in nodes])
+                    self.assertEqual(groups["ChatGPT"]["proxies"],
+                                     ["Proxy", "Auto", "Fallback"] + [node["name"] for node in nodes])
+                    self.assertEqual(groups["Auto"]["proxies"],
+                                     [node["name"] for node in nodes] + ["REJECT"])
+                    self.assertEqual(groups["Fallback"]["proxies"],
+                                     [node["name"] for node in nodes] + ["REJECT"])
+                    self.assertNotIn("include-all", groups["ChatGPT"])
+                    self.assertNotIn("use", groups["ChatGPT"])
+                    self.assertEqual(result["proxies"], nodes)
+                    self.assertEqual(original["dns"], result["dns"])
+                    self.assertEqual(original["rules"], result["rules"])
+
+    def test_discover_names_of_multiple_providers_automatically(self):
+        source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "providers.yaml"
+            path.write_text(yaml.safe_dump({"proxy-providers": PROVIDERS}), encoding="utf-8")
+            nodes, providers = read_node_sources(path)
+            self.assertEqual(nodes, [])
+            self.assertEqual(providers, PROVIDERS)
+            built = build_loon_selection(source, providers, nodes)
+            groups = {row["name"]: row for row in built["proxy-groups"]}
+            self.assertEqual(groups["Proxy"]["use"], list(PROVIDERS))
+            self.assertEqual(groups["ChatGPT"]["use"], list(PROVIDERS))
+
+    def test_unknown_or_conflicting_node_name_rejected(self):
+        source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
+        reserved = {"name": "Auto", "type": "snell"}
+        with self.assertRaisesRegex(ValueError, "conflict"):
+            build_loon_selection(source, {}, [reserved])
+        identical = {"name": "Node", "type": "snell"}
+        with self.assertRaisesRegex(ValueError, "Duplicate"):
+            build_loon_selection(source, {}, [identical, identical])
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invalid.yaml"
+            path.write_text(yaml.safe_dump({"proxies": [{"type": "snell"}]}), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "nonempty name"):
+                read_node_sources(path)
 
     def test_private_output_folder_is_gitignored(self):
         ignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
