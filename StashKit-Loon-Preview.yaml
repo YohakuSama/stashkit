@@ -36,11 +36,11 @@ proxy-groups:
     type: select
     use:
       - personal
-    # Initial selection is REJECT until a node is configured.
+    # Auto is the first choice; REJECT remains an explicit fail-closed option.
     proxies:
-      - REJECT
       - Auto
       - Fallback
+      - REJECT
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Proxy.png
   - name: "Auto"
     type: url-test
