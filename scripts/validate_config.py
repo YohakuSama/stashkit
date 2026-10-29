@@ -164,7 +164,7 @@ def validate_proxy_providers(providers):
 
 
 def validate_profile(profile):
-    fields(profile, {"mode", "log-level", "dns", "proxy-groups", "rule-providers", "rules", "proxy-providers"},
+    fields(profile, {"mode", "log-level", "dns", "proxy-groups", "rule-providers", "rules", "proxy-providers", "proxies"},
            {"mode", "dns", "proxy-groups", "rule-providers", "rules"}, "profile")
     require(profile["mode"] in {"rule", "global", "direct"}, "mode: unsupported value")
     require(profile.get("log-level", "silent") in {"silent", "info", "warning", "error", "debug"},
@@ -172,6 +172,15 @@ def validate_profile(profile):
     validate_dns(profile["dns"])
     proxy_providers = profile.get("proxy-providers", {})
     validate_proxy_providers(proxy_providers)
+    local_proxies = profile.get("proxies", [])
+    require(isinstance(local_proxies, list), "proxies: expected list")
+    local_names = []
+    for node in local_proxies:
+        require(isinstance(node, dict), "proxies: expected proxy mappings")
+        text(node.get("name"), "proxies.name")
+        require(isinstance(node.get("type"), str) and bool(node["type"]), "proxies.type: required")
+        local_names.append(node["name"])
+    require(len(local_names) == len(set(local_names)), "proxies: duplicate node names")
     groups = profile["proxy-groups"]
     require(isinstance(groups, list) and bool(groups), "proxy-groups: expected nonempty list")
     names = []
@@ -202,10 +211,13 @@ def validate_profile(profile):
             text(group["filter"], f"{group['name']}.filter")
     require(len(names) == len(set(names)), "proxy-groups: duplicate names")
     require(not (set(names) & BUILTINS), "proxy-groups: names conflict with built-in policies")
+    require(not (set(local_names) & (set(names) | BUILTINS)),
+            "proxies: names conflict with policy groups or built-in policies")
     graph = {}
     for group in groups:
         children = group.get("proxies", [])
-        require(set(children) <= set(names) | BUILTINS, f"{group['name']}: unknown policy reference")
+        require(set(children) <= set(names) | BUILTINS | set(local_names),
+                f"{group['name']}: unknown policy reference")
         require(set(group.get("use", [])) <= set(proxy_providers), f"{group['name']}: unknown provider reference")
         graph[group["name"]] = [name for name in children if name in names]
     visiting, visited = set(), set()
