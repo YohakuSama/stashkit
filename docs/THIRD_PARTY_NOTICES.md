@@ -30,7 +30,7 @@ StashKit 的原创配置、脚本和本地修正采用 [GPL-2.0-only](../LICENSE
 
 ## 图标与品牌
 
-运行时 PNG 图标来自 LoonKit 固定资源提交 d82214d057b27a68d6b9c07c61fb126a69adc903。[图标说明](https://github.com/YohakuSama/loonkit/blob/5f272104fc1207612c1cbd18f3e19d861d459ed9/icons/README.md)与[App Store 来源清单](https://github.com/YohakuSama/loonkit/blob/5f272104fc1207612c1cbd18f3e19d861d459ed9/icons/appstore_sources.json)提供原有素材登记。本仓库在 icons/ 保留 39 张当前策略组使用的 PNG，配置引用固定图标提交；摘要由 icon-lock.json 验证。
+运行时 PNG 图标来自 LoonKit 固定资源提交 d82214d057b27a68d6b9c07c61fb126a69adc903。[图标说明](https://github.com/YohakuSama/loonkit/blob/5f272104fc1207612c1cbd18f3e19d861d459ed9/icons/README.md)与[App Store 来源清单](https://github.com/YohakuSama/loonkit/blob/5f272104fc1207612c1cbd18f3e19d861d459ed9/icons/appstore_sources.json)提供原有素材登记。本仓库在 icons/ 保留 39 张 PNG 供 40 个策略组（含隐藏的 Manual）复用，配置引用固定图标提交；摘要由 icon-lock.json 验证。
 
 品牌名称、商标和应用图标用于识别相应服务，权利归各自权利人；这不代表相关平台认可或赞助。
 
