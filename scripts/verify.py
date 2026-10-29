@@ -85,17 +85,31 @@ def main():
     group_names = [row.split("=", 1)[0].strip() for row in source_groups.splitlines() if " = " in row]
     groups = profile["proxy-groups"]
     names = [group["name"] for group in groups]
-    assert len(group_names) == 39 and len(names) == len(set(names)) == 40
-    assert names == group_names[:3] + ["ALL"] + group_names[3:], "Group order changed"
+    assert len(group_names) == len(names) == len(set(names)) == 39
+    assert names == group_names, "Stash group order must follow LoonKit"
     by_name = {group["name"]: group for group in groups}
+    assert "ALL" not in by_name, "Redundant ALL strategy group must not return"
     assert by_name["Auto"]["type"] == "url-test" and by_name["Auto"]["interval"] == 600
     assert by_name["Auto"]["tolerance"] == 60
     assert by_name["Fallback"]["type"] == "fallback" and by_name["Fallback"]["interval"] == 900
-    assert by_name["ALL"]["type"] == "select"
-    for group in (by_name["Auto"], by_name["Fallback"], by_name["ALL"]):
-        assert group["include-all"] and group["proxies"] == ["REJECT"], "Missing unconfigured-pool REJECT placeholder"
-    assert by_name["Proxy"]["proxies"] == ["REJECT", "Auto", "Fallback", "ALL"], "Default Proxy must fail closed"
-    assert by_name["Proxy"]["include-all"] is True, "Proxy must expose all subscribed nodes directly"
+    assert by_name["Proxy"]["proxies"] == ["REJECT", "Auto", "Fallback"], "Proxy must fail closed"
+    assert by_name["Proxy"]["include-all"] is True, "Proxy must expose subscribed nodes directly"
+    for row in source_groups.splitlines():
+        if " = " not in row:
+            continue
+        name, specification = row.split("=", 1)
+        group = by_name[name.strip()]
+        options = [part.strip() for part in specification.split(",img-url", 1)[0].split(",")]
+        filter_names = {"ALL_Filter", "Auto_Filter", "Fallback_Filter"}
+        direct_nodes = any(part in filter_names for part in options)
+        assert group.get("include-all", False) is direct_nodes, f"Incorrect node pool for {name}"
+        expected_children = [part for part in options[1:]
+                             if part not in filter_names and "=" not in part]
+        if name.strip() == "Proxy":
+            expected_children.insert(0, "REJECT")
+        elif name.strip() in {"Auto", "Fallback"}:
+            expected_children = ["REJECT"]
+        assert group["proxies"] == expected_children, f"Group diverges from LoonKit: {name}"
     assert by_name["AdBlock"]["proxies"][0] == "REJECT"
     assert by_name["Final"]["proxies"][0] == "Proxy"
     assert by_name["Microsoft"]["proxies"][0] == "DIRECT"
@@ -103,7 +117,7 @@ def main():
     icon_ref = icon_lock["icons_commit"]
     assert len(icon_ref) == 40 and all(c in "0123456789abcdef" for c in icon_ref)
     assert set(icon_lock["group_icons"]) == set(names)
-    assert len(icon_lock["asset_git_blob_shas"]) == 40
+    assert len(icon_lock["asset_git_blob_shas"]) == 39
     for filename, expected_sha in icon_lock["asset_git_blob_shas"].items():
         asset_path = KIT / "icons" / filename
         assert asset_path.is_file(), f"Missing self-hosted strategy icon: {filename}"
