@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from verify import UniqueKeysLoader
 from validate_config import validate_profile, validate_override
+from release_meta import RULES_REF, RULES_PATH_PREFIX
 
 
 class ConfigTests(unittest.TestCase):
@@ -25,14 +26,14 @@ class ConfigTests(unittest.TestCase):
         validate_profile(merged)
 
     def test_all_rules_use_immutable_refs_and_explicit_cache_paths(self):
-        pin = "f4feec81dfc9bde9824d297b6959fa977d5dc39b"
+        pin = RULES_REF
         for name, provider in self.profile["rule-providers"].items():
             with self.subTest(provider=name):
                 if provider.get("type") == "inline":
                     self.assertEqual(name, "Private-local")
                     continue
                 self.assertIn("/" + pin + "/rules/", provider["url"])
-                self.assertEqual(provider["path"], "./rules/v0.1.4/" + provider["url"].rsplit("/", 1)[1])
+                self.assertEqual(provider["path"], RULES_PATH_PREFIX + provider["url"].rsplit("/", 1)[1])
         for group in self.profile["proxy-groups"]:
             self.assertIn("icon", group)
             self.assertIn("/icons/", group["icon"])
