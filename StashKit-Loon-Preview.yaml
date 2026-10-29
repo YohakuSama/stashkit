@@ -1,4 +1,4 @@
-# StashKit v0.1.12 — provider reference only
+# StashKit v0.1.13 — provider reference only
 # Define a real personal provider before importing this reference.
 mode: rule
 log-level: warning
