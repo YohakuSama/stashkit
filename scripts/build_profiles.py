@@ -68,28 +68,28 @@ def remote_subscription_override(config=None):
                                 if group["name"] not in {"AdBlock", "Final"}):
         raise ValueError("Unexpected source strategy groups for remote override")
     expected_dynamic = sum(group["name"] not in {"AdBlock", "Final"} for group in groups)
-    if content.count("    use: []\\n") != expected_dynamic:
+    if content.count("    use: []\n") != expected_dynamic:
         raise ValueError("Expected one empty provider binding per node-aware group")
 
     content = replace_once(
         content, HEADER,
-        f"# StashKit {PROFILE_VERSION} — remote subscription override\\n",
+        f"# StashKit {PROFILE_VERSION} — remote subscription override\n",
         "remote override header",
     )
     content = replace_once(
         content,
-        "# Template: bind private sources with build_loon_selection.py before importing.\\n",
-        "# Uses nodes/providers from the active remote subscription profile.\\n",
+        "# Template: bind private sources with build_loon_selection.py before importing.\n",
+        "# Uses nodes/providers from the active remote subscription profile.\n",
         "remote override node source",
     )
-    content = content.replace("    use: []\\n", "    include-all: true\\n")
+    content = content.replace("    use: []\n", "    include-all: true\n")
     # Never allow the airport's own groups or MATCH to remain after merging.
     # Preserve the provider's proxies / proxy-providers by not mentioning them.
     for section in ("dns", "proxy-groups", "rule-providers", "rules"):
-        content = replace_once(content, f"{section}:\\n", f"{section}: #!replace\\n",
+        content = replace_once(content, f"{section}:\n", f"{section}: #!replace\n",
                                f"remote override {section}")
-    return ("name: StashKit Remote Subscription\\n"
-            "desc: Use StashKit routing with nodes from the active remote profile.\\n"
+    return ("name: StashKit Remote Subscription\n"
+            "desc: Use StashKit routing with nodes from the active remote profile.\n"
             + content)
 
 
