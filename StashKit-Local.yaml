@@ -1,4 +1,4 @@
-# StashKit v0.1.8 — local rule providers
+# StashKit v0.1.9 — local rule providers
 mode: rule
 log-level: warning
 
@@ -34,10 +34,12 @@ dns:
 proxy-groups:
   - name: "Proxy"
     type: select
-    include-all: true
     # Initial selection is REJECT until a node is configured.
     proxies:
       - REJECT
+      - Auto
+      - Fallback
+      - Manual
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Proxy.png
   - name: "Auto"
     type: url-test
@@ -54,6 +56,13 @@ proxy-groups:
       - REJECT
     interval: 900
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Fallback.png
+  - name: "Manual"
+    type: select
+    hidden: true
+    include-all: true
+    proxies:
+      - REJECT
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Proxy.png
   - name: "AdBlock"
     type: select
     proxies:

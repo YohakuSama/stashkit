@@ -19,7 +19,7 @@ class ProviderTests(unittest.TestCase):
                 self.assertNotIn("url", group)
         # Only node pools include every provider. Service groups present policy choices.
         for group in profile["proxy-groups"]:
-            if group["name"] in {"Proxy", "Auto", "Fallback"}:
+            if group["name"] in {"Manual", "Auto", "Fallback"}:
                 self.assertIs(group["include-all"], True)
             else:
                 self.assertNotIn("include-all", group)

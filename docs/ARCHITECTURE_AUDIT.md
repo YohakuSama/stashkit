@@ -20,7 +20,7 @@
 
 - 54 个文件规则 provider（43 domain、7 ipcidr、4 classical ASN），另有 1 个内嵌 `Private-local` provider。
 - 原上游 43 份输入经人工审查的 [adjustments.json](../build/adjustments.json) 转换。规则资源固定到 [release-lock.json](../build/release-lock.json) 指向的不可变提交，不跟随远程 `main`。
-- 39 个策略组，与固定 LoonKit 基准一致。`Proxy` 使用 `include-all` 直接显示订阅节点；服务策略组使用显式 `Proxy` / `Auto` / `Fallback` 候选，确保 Stash 中可点击选择自动策略，不创建重复 `ALL` 组。`Proxy` 配置中保留 `REJECT`，但空订阅时不能据此推断运行时绝对不会直连。直接路由和广告覆盖依赖规则顺序，详见 [路由决策](./ROUTING.md)。
+- 39 个可见策略组沿用固定 LoonKit 的名称与顺序，另外有 1 个隐藏的 Stash 专用 `Manual` 动态节点池。`Proxy` 显式列出 `Auto`、`Fallback`、`Manual`，避免混用 `include-all` 时隐藏嵌套策略；需要手动选择节点时进入 `Manual`。服务组仍提供 `Proxy` / `Auto` / `Fallback`。`Proxy` 保留 `REJECT`，但空订阅时不能据此推断运行时绝对不会直连。直接路由和广告覆盖依赖规则顺序，详见 [路由决策](./ROUTING.md)。
 - STUN 和常用 TURN 端口拦截位于 LAN/CN 直连之前，所有三套配置保持一致。此次架构调整**不修改**这些网络规则。
 
 ## 测试与已知边界

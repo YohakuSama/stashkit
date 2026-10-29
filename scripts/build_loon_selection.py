@@ -70,6 +70,13 @@ def build_loon_selection(source, providers=None, nodes=None):
         raise ValueError("Named nodes or providers are required")
     output = copy.deepcopy(source)
     groups = output["proxy-groups"]
+    # Private profiles explicitly enumerate nodes/providers and need no helper pool.
+    manual = [group for group in groups if group["name"] == "Manual"]
+    if manual:
+        if (len(manual) != 1 or not manual[0].get("hidden")
+                or not manual[0].get("include-all")):
+            raise ValueError("Unexpected manual node pool structure")
+        groups[:] = [group for group in groups if group["name"] != "Manual"]
     names = [group["name"] for group in groups]
     if (len(groups) != EXPECTED_GROUP_COUNT or len(set(names)) != len(groups)
             or not NODE_POOLS.issubset(names) or "ALL" in names):
