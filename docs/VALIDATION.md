@@ -30,7 +30,7 @@ python scripts/build_offline_bundle.py --check
 | 广告 | control.kochava.com、Google Ads / DoubleClick / Analytics 与 Copilot 遥测端点 → AdBlock；改选 DIRECT 为终止匹配后直连 |
 | DNS | 查看应答服务器：公共真实解析使用 DoH，私有域名使用系统 DNS；独立检查其他 App 内置 DNS 和 VPN 接管范围 |
 | 测速 | 检查 provider 的 benchmark-url 生效、节点失效后 Auto/Fallback 的实际选择；测速不证明服务地区解锁 |
-| 默认安全出口 | 初次导入检查 Proxy 是否选中 REJECT；确认订阅有真实可用节点后，主动改选 Auto/Fallback 或具体节点，再检查 ChatGPT 等服务最终出口；旧配置升级时策略选择可能被保留 |
+| 默认安全出口 | 初次导入检查实际出口，不能仅根据 Proxy 的 REJECT 配置保证故障阻断；添加节点后在 Proxy 手动选节点，在 ChatGPT 等服务组选择 Proxy/Auto/Fallback 并检查连接记录；旧配置升级时策略选择可能被保留 |
 | 空订阅 | 分别测试合法但 proxies 为空、过滤后为空、首次下载失败、有旧缓存时下载失败；观察 Auto/Fallback 和手动节点的真实出口，不能由 REJECT 占位推断绝对阻断 |
 | 网络变化 | Wi-Fi/蜂窝切换、IPv4/IPv6、断网重连；检查节点域名解析与规则缓存 |
 | 性能与播放 | 检查内存和请求记录，实际播放对应流媒体；离线路由测试不能证明播放或地区解锁 |
@@ -59,7 +59,7 @@ curl --get 'http://127.0.0.1:9090/rules/match' \
 
 ## 离线资源快照与 DNS 隐私验收
 
-- **在线**：检查各规则 URL 含同一固定 40 位 Git commit、provider 缓存路径使用 `build/release-lock.json` 的 `rules_version`（当前 `v0.1.4`，与配置版本 `v0.1.7` 不同）；第一次联网加载成功后切断网络再重启，确认 54 个缓存是否能继续使用（要注意代理本身也可能无法连通）。
+- **在线**：检查各规则 URL 含同一固定 40 位 Git commit、provider 缓存路径使用 `build/release-lock.json` 的 `rules_version`（当前 `v0.1.4`，与配置版本 `v0.1.8` 不同）；第一次联网加载成功后切断网络再重启，确认 54 个缓存是否能继续使用（要注意代理本身也可能无法连通）。
 - **离线**：从主分支 CI 下载 ZIP，验 SHA256SUMS，按 Stash 受管资源目录的版本路径部署 54 份文件，再加载 `StashKit-Local.yaml`。单独导入 YAML 而不部署文件**应失败**，不能标记为正常配置。GitHub Actions 的 ZIP 是备份/安装材料，不是 App 一键导入包。
 - **隐私**：先通过个人订阅加载节点，手动切换 Proxy，再导入 `StashKit-Privacy.yaml`（或对普通配置启用 `dns-privacy.stoverride`，不要重复启用）；查看 AliDNS 主机的最终代理链及 DNS 记录。观察 Apple CDN、Wi-Fi/蜂窝切换、节点域名解析。若 DNS 不可用，先禁用覆写，不能断言绝对防泄漏。
 - **图标**：39 张原始 PNG 已迁入 StashKit 自有仓库，39 个策略组均指向 StashKit 固定提交；联网更新配置后应看到专用图标。如仍显示默认图标，请重新导入或更新配置，并检查手机是否能访问 StashKit 的图标 PNG URL。
