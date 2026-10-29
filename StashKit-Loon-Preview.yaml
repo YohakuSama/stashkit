@@ -34,8 +34,6 @@ dns:
 proxy-groups:
   - name: "Proxy"
     type: select
-    use:
-      - personal
     # Auto is the first choice; REJECT remains an explicit fail-closed option.
     proxies:
       - Auto
