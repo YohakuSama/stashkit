@@ -19,7 +19,7 @@ class ProviderTests(unittest.TestCase):
                 self.assertNotIn("url", group)
         # Override dictionaries merge, leaving include-all groups intact.
         for group in profile["proxy-groups"]:
-            if group["name"] in {"Proxy", "Auto", "Fallback"} or group["name"] not in {"AdBlock", "Final"}:
+            if group["name"] not in {"AdBlock", "Final"}:
                 self.assertIs(group["include-all"], True)
             else:
                 self.assertNotIn("include-all", group)
