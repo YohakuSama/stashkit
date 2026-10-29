@@ -1,4 +1,4 @@
-# StashKit v0.1.11 — provider reference only
+# StashKit v0.1.12 — provider reference only
 # Define a real personal provider before importing this reference.
 mode: rule
 log-level: warning
@@ -31,28 +31,28 @@ dns:
 proxy-groups:
 - name: Proxy
   type: select
+  use:
+  - personal
   proxies:
   - Auto
   - Fallback
   - REJECT
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Proxy.png
-  use:
-  - personal
 - name: Auto
   type: url-test
+  use:
+  - personal
   proxies: []
   interval: 600
   tolerance: 60
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Auto.png
-  use:
-  - personal
 - name: Fallback
   type: fallback
+  use:
+  - personal
   proxies: []
   interval: 900
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Fallback.png
-  use:
-  - personal
 - name: AdBlock
   type: select
   proxies:
@@ -70,316 +70,316 @@ proxy-groups:
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Final.png
 - name: AI
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/AI.png
-  use:
-  - personal
 - name: ChatGPT
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/ChatGPT.png
-  use:
-  - personal
 - name: Gemini
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Gemini.png
-  use:
-  - personal
 - name: Claude
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Claude.png
-  use:
-  - personal
 - name: GitHub
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/GitHub.png
-  use:
-  - personal
 - name: Google
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Google.png
-  use:
-  - personal
 - name: Microsoft
   type: select
+  use:
+  - personal
   proxies:
   - DIRECT
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Microsoft.png
-  use:
-  - personal
 - name: Apple
   type: select
+  use:
+  - personal
   proxies:
   - DIRECT
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Apple.png
-  use:
-  - personal
 - name: Cloudflare
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Cloudflare.png
-  use:
-  - personal
 - name: Speedtest
   type: select
+  use:
+  - personal
   proxies:
   - DIRECT
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Speedtest.png
-  use:
-  - personal
 - name: YouTube
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/YouTube.png
-  use:
-  - personal
 - name: Netflix
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Netflix.png
-  use:
-  - personal
 - name: Disney
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Disney.png
-  use:
-  - personal
 - name: PrimeVideo
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/PrimeVideo.png
-  use:
-  - personal
 - name: Spotify
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Spotify.png
-  use:
-  - personal
 - name: TikTok
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/TikTok.png
-  use:
-  - personal
 - name: Twitch
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Twitch.png
-  use:
-  - personal
 - name: HBO
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/HBO.png
-  use:
-  - personal
 - name: Abema
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Abema.png
-  use:
-  - personal
 - name: 動畫瘋
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/AnimeCrazy.png
-  use:
-  - personal
 - name: Dazn
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Dazn.png
-  use:
-  - personal
 - name: BBC
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/BBC.png
-  use:
-  - personal
 - name: Bilibili
   type: select
+  use:
+  - personal
   proxies:
   - DIRECT
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Bilibili.png
-  use:
-  - personal
 - name: Telegram
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Telegram.png
-  use:
-  - personal
 - name: Whatsapp
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Whatsapp.png
-  use:
-  - personal
 - name: Instagram
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Instagram.png
-  use:
-  - personal
 - name: Facebook
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Facebook.png
-  use:
-  - personal
 - name: Twitter
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Twitter.png
-  use:
-  - personal
 - name: Discord
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Discord.png
-  use:
-  - personal
 - name: Line
   type: select
+  use:
+  - personal
   proxies:
   - DIRECT
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Line.png
-  use:
-  - personal
 - name: Reddit
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Reddit.png
-  use:
-  - personal
 - name: Linkedin
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Linkedin.png
-  use:
-  - personal
 - name: Steam
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   - DIRECT
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Steam.png
-  use:
-  - personal
 - name: Paypal
   type: select
+  use:
+  - personal
   proxies:
   - Proxy
   - Auto
   - Fallback
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Paypal.png
-  use:
-  - personal
 rule-providers:
   Private-local:
     type: inline

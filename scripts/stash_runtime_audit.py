@@ -88,7 +88,15 @@ def inspect_strategy_groups(profile, proxies):
     failures = []
     kinds = {"select": {"select", "selector"}, "url-test": {"urltest"},
              "fallback": {"fallback"}}
-    pool_members = []
+    pool_members = {}
+    expected_groups = {group["name"]: group for group in profile["proxy-groups"]}
+    if (not profile.get("proxies") and not any(
+            group.get(key) for group in expected_groups.values()
+            for key in ("use", "use-url", "include-all"))):
+        return ["Unbound template: pass the generated private configuration with --profile"]
+    for helper in ("ALL", "Manual"):
+        if helper not in expected_groups and "all" in proxies.get(helper, {}):
+            failures.append("Unexpected helper group in a configuration that should have 39 groups")
     for expected in profile["proxy-groups"]:
         name = expected["name"]
         actual = proxies.get(name, {})
@@ -112,7 +120,7 @@ def inspect_strategy_groups(profile, proxies):
         except ValueError:
             failures.append(f"Strategy group has an invalid current selection: {name}")
         if name in {"Auto", "Fallback", "ALL"}:
-            pool_members.append(set(members))
+            pool_members[name] = set(members)
             try:
                 # Dynamic empty providers may inject DIRECT. Nested groups,
                 # including a group selecting a real node, are not raw nodes.
@@ -123,8 +131,23 @@ def inspect_strategy_groups(profile, proxies):
                         raise ValueError("Non-node pool member")
             except ValueError:
                 failures.append(f"Node pool contains an empty-provider substitute or a policy: {name}")
-    if pool_members and any(members != pool_members[0] for members in pool_members[1:]):
-        failures.append("Auto, Fallback and manual selection do not share the same nodes")
+    pools = list(pool_members.values())
+    if pools and any(members != pools[0] for members in pools[1:]):
+        failures.append("Node pools do not share the same nodes")
+    # A working Auto alone does not prove that Proxy/business selectors expose
+    # provider nodes. Check every selector after a Provider update as well.
+    auto = expected_groups.get("Auto", {})
+    for expected in expected_groups.values():
+        if expected["type"] != "select":
+            continue
+        same_source = any(expected.get(key) and expected.get(key) == auto.get(key)
+                          for key in ("use", "use-url"))
+        if same_source and "Auto" in pool_members:
+            wanted = set(expected.get("proxies", [])) | pool_members["Auto"]
+            actual = proxies.get(expected["name"], {}).get("all", [])
+            if (not isinstance(actual, list) or any(not isinstance(child, str) for child in actual)
+                    or set(actual) != wanted):
+                failures.append(f"Strategy group is missing current Provider nodes or has extra choices: {expected['name']}")
     return failures
 
 

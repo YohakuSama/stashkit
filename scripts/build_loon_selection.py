@@ -19,9 +19,10 @@ from validate_config import validate_profile
 ROOT = Path(__file__).resolve().parents[1]
 NODE_POOLS = frozenset({"Proxy", "Auto", "Fallback", "ALL"})
 SERVICE_EXCEPTIONS = frozenset({"AdBlock", "Final"})
-EXPECTED_GROUP_COUNT = 40
-# Public profiles use a dedicated dynamic node pool. Flat private output expands
-# real nodes instead of depending on Stash merging proxies with use/include-all.
+EXPECTED_GROUP_COUNT = 39
+DEFAULT_LAYOUT = "native"
+# Public templates contain the original 39 policies. Bind private sources once;
+# Stash then keeps the Provider/use-url node lists up to date itself.
 PROFILE_FILES = {
     "default": "StashKit.yaml",
     "privacy": "StashKit-Privacy.yaml",
@@ -84,12 +85,12 @@ def read_subscription_urls(path):
 
 
 def build_loon_selection(source, providers=None, nodes=None, subscription_urls=None,
-                         layout="nested"):
-    """Build either the safe nested layout or an experimental flat native layout.
+                         layout=DEFAULT_LAYOUT):
+    """Bind sources directly to the 39 original policies by default.
 
-    In native layout, Stash must merge named policy children and dynamic
-    provider nodes in its iOS selector. Syntax validation cannot prove that UI
-    behavior; use the native variant only for an explicit device experiment.
+    Provider definitions and use-url links remain dynamic. The optional nested
+    layout is retained only for old ALL clients. Actual iOS display still needs
+    device acceptance; the runtime audit detects missing policy/node choices.
     """
     providers = copy.deepcopy(providers or {})
     nodes = copy.deepcopy(nodes or [])
@@ -104,46 +105,30 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
         raise ValueError("Duplicate subscription URLs")
     output = copy.deepcopy(source)
     groups = output["proxy-groups"]
-    # Private profiles preserve the dedicated ALL node pool.
-    manual = [group for group in groups if group["name"] == "Manual"]
-    if manual:
-        if (len(manual) != 1 or not manual[0].get("hidden")
-                or not manual[0].get("include-all")):
-            raise ValueError("Unexpected manual node pool structure")
-        groups[:] = [group for group in groups if group["name"] != "Manual"]
     names = [group["name"] for group in groups]
-    if len(set(names)) != len(groups) or "Manual" in names:
+    if (len(set(names)) != len(groups) or "Manual" in names
+            or not {"Proxy", "Auto", "Fallback"}.issubset(names)
+            or not ((len(groups) == EXPECTED_GROUP_COUNT and "ALL" not in names)
+                    or (len(groups) == EXPECTED_GROUP_COUNT + 1 and "ALL" in names))):
         raise ValueError("Unexpected canonical group structure")
-    if layout == "nested":
-        if len(groups) != EXPECTED_GROUP_COUNT or not NODE_POOLS.issubset(names):
-            raise ValueError("Unexpected canonical group structure")
-    elif (not {"Proxy", "Auto", "Fallback"}.issubset(names) or
-          not ((len(groups) == EXPECTED_GROUP_COUNT - 1 and "ALL" not in names)
-               or (len(groups) == EXPECTED_GROUP_COUNT and
-                   NODE_POOLS.issubset(names)))):
-        # Native generation accepts either the old ALL backup or the
-        # published native profile, removing ALL only when present.
-        raise ValueError("Unexpected canonical group structure")
-    # Published native profiles declare only a local path-only Provider.
-    canonical_providers = source.get("proxy-providers") or {}
-    if (source.get("proxies") or
-        (canonical_providers and
-         not (layout == "native" and canonical_providers ==
-              {"personal": {"path": "./providers/personal.yaml"}}))):
+    if source.get("proxies") or source.get("proxy-providers"):
         raise ValueError("Canonical profile must not bundle personal nodes/providers")
     output.pop("proxy-providers", None)
     local_names = [node["name"] for node in nodes]
     if len(local_names) != len(set(local_names)):
         raise ValueError("Duplicate node names")
-    if set(local_names) & (set(names) | {"DIRECT", "REJECT", "REJECT-DROP"}):
+    if set(local_names) & (set(names) | {"ALL", "Manual", "DIRECT", "REJECT", "REJECT-DROP"}):
         raise ValueError("Node names conflict with strategy group names")
     if set(providers) & set(names):
         raise ValueError("Provider names conflict with strategy group names")
 
     if layout == "native":
-        # The single-level experiment does not need ALL. Remove every ALL
-        # reference, then attach the source directly to user-facing selectors.
         groups[:] = [group for group in groups if group["name"] != "ALL"]
+    elif "ALL" not in names:
+        proxy = next(group for group in groups if group["name"] == "Proxy")
+        fallback_index = next(i for i, group in enumerate(groups) if group["name"] == "Fallback")
+        groups.insert(fallback_index + 1, {"name": "ALL", "type": "select",
+                                          "proxies": [], "icon": proxy["icon"]})
 
     for group in groups:
         name = group["name"]
@@ -152,8 +137,7 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
         group.pop("include-all", None)
         group.pop("filter", None)
         if name == "Proxy":
-            # Keep REJECT explicit: Stash documents that an empty provider
-            # can resolve to DIRECT, so never silently use DIRECT as a policy.
+            # REJECT remains a manual choice; it is not an empty-pool guarantee.
             group["proxies"] = (["Auto", "Fallback"] + local_names + ["REJECT"]
                                 if layout == "native"
                                 else ["Auto", "Fallback", "ALL", "REJECT"])
@@ -164,9 +148,12 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
         elif layout == "native" and name not in SERVICE_EXCEPTIONS:
             group["proxies"] = [child for child in group["proxies"]
                                 if child != "ALL"] + local_names
+        elif layout == "nested" and name not in SERVICE_EXCEPTIONS:
+            if "ALL" not in group["proxies"]:
+                group["proxies"].append("ALL")
 
-        # The normal layout only lets the three node pools import providers.
-        # The native experiment tests Stash's documented 'proxies' + 'use'.
+        # Every node-aware selector references the same source directly. There
+        # is no intermediate selector in the default layout.
         dynamic_group = (name not in SERVICE_EXCEPTIONS
                          if layout == "native"
                          else name in {"Auto", "Fallback", "ALL"})
@@ -213,8 +200,8 @@ def write_private_profile(output_file, output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--profile", choices=PROFILE_FILES, default="default")
-    parser.add_argument("--layout", choices=("flat", "nested", "native"), default="flat",
-                        help="flat (default) expands real nodes; native retains dynamic provider references")
+    parser.add_argument("--layout", choices=("native", "flat", "nested"), default=DEFAULT_LAYOUT,
+                        help="native (default) keeps Provider/use-url updates; flat snapshots nodes")
     origin = parser.add_mutually_exclusive_group(required=True)
     origin.add_argument("--nodes-from", type=Path,
                         help="Existing local Clash/Stash YAML: auto-discovers proxy names and providers")

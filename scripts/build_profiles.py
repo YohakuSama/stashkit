@@ -57,12 +57,20 @@ def derived_profiles(config):
         "StashKit-Privacy.yaml": privacy_profile(config),
         "StashKit-Local.yaml": local_profile(config),
     }
-    # Keep old public links working without maintaining a second policy model.
-    outputs.update({
-        "StashKit-ALL.yaml": config,
-        "StashKit-Privacy-ALL.yaml": outputs["StashKit-Privacy.yaml"],
-        "StashKit-Local-ALL.yaml": outputs["StashKit-Local.yaml"],
-    })
+    # ALL remains an explicit compatibility variant, never a default alias.
+    for filename, content in (("StashKit-ALL.yaml", config),
+                              ("StashKit-Privacy-ALL.yaml", outputs["StashKit-Privacy.yaml"]),
+                              ("StashKit-Local-ALL.yaml", outputs["StashKit-Local.yaml"])):
+        legacy = build_loon_selection(yaml.safe_load(content),
+                                      providers={"binding": {"path": "./unused.yaml"}},
+                                      layout="nested")
+        legacy.pop("proxy-providers")
+        for group in legacy["proxy-groups"]:
+            group.pop("use", None)
+            if group["name"] in {"Auto", "Fallback", "ALL"}:
+                group.update({"include-all": True, "filter": ".*"})
+        outputs[filename] = (content.splitlines()[0] + " — legacy ALL compatibility\n"
+                             + yaml.safe_dump(legacy, sort_keys=False, allow_unicode=True))
     source = yaml.safe_load(config)
     for filename, layout in (("StashKit-Loon-Preview.yaml", "nested"),
                              ("StashKit-Native-Preview.yaml", "native")):
@@ -89,11 +97,11 @@ def main():
                       if (ROOT / name).read_bytes() != value.encode("utf-8")]
         if mismatches:
             raise ValueError(f"Derived profiles differ from canonical source: {mismatches}")
-        print("PASS: derived profiles, compatibility aliases and references match canonical source")
+        print("PASS: 39-group defaults and explicit compatibility variants match canonical source")
     else:
         for name, value in outputs.items():
             (ROOT / name).write_text(value, encoding="utf-8")
-        print("Updated derived profiles, compatibility aliases and references from StashKit.yaml")
+        print("Updated derived profiles and explicit compatibility variants from StashKit.yaml")
 
 
 if __name__ == "__main__":

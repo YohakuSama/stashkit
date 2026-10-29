@@ -20,12 +20,12 @@ class ProviderTests(unittest.TestCase):
         # Public selectors do not require a hardcoded provider name or path.
         self.assertNotIn("proxy-providers", profile)
         for group in profile["proxy-groups"]:
-            if group["name"] in {"Auto", "Fallback", "ALL"}:
-                self.assertTrue(group["include-all"])
-                self.assertEqual(group["proxies"], [])
+            self.assertNotIn("include-all", group)
+            self.assertNotIn("filter", group)
+            if group["name"] not in {"AdBlock", "Final"}:
+                self.assertEqual(group["use"], [])
             else:
-                self.assertNotIn("include-all", group)
-            self.assertNotIn("use", group)
+                self.assertNotIn("use", group)
 
 
 if __name__ == "__main__":

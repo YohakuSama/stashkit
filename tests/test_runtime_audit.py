@@ -12,11 +12,14 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from stash_runtime_audit import SENTINELS, expected_counts, inspect
+from build_loon_selection import build_loon_selection
 
 
 class RuntimeAuditTests(unittest.TestCase):
     def setUp(self):
-        self.profile = yaml.safe_load((ROOT / "StashKit.yaml").read_text())
+        self.template = yaml.safe_load((ROOT / "StashKit.yaml").read_text())
+        self.profile = build_loon_selection(self.template, providers={
+            "runtime-provider": {"url": "https://example.org/nodes", "interval": 3600}})
         self.calls = []
         counts = expected_counts(self.profile)
         self.responses = {
@@ -38,8 +41,7 @@ class RuntimeAuditTests(unittest.TestCase):
         loaded = self.responses['/proxies']['proxies']
         for group in self.profile['proxy-groups']:
             kind = {'select': 'Selector', 'url-test': 'URLTest', 'fallback': 'Fallback'}[group['type']]
-            members = (['private-node-name'] if group['name'] in {'Auto', 'Fallback', 'ALL'}
-                       else group['proxies'][:])
+            members = group['proxies'][:] + (['private-node-name'] if group.get('use') else [])
             loaded[group['name']] = {'type': kind, 'all': members, 'now': members[0]}
         for target, kind, payload, policy in SENTINELS:
             self.responses[self.match_path(target)] = {
@@ -160,11 +162,43 @@ class RuntimeAuditTests(unittest.TestCase):
     def test_mismatched_node_pools_fail(self):
         groups = self.responses['/proxies']['proxies']
         groups['second-private-node'] = {'type': 'Shadowsocks'}
-        groups['ALL']['all'].append('second-private-node')
+        groups['Fallback']['all'].append('second-private-node')
         self.assertFalse(self.run_audit())
 
     def test_unexpected_direct_choice_in_overseas_service_fails(self):
         self.responses['/proxies']['proxies']['ChatGPT']['all'].append('DIRECT')
+        self.assertFalse(self.run_audit())
+
+    def test_business_selector_missing_provider_nodes_is_not_success(self):
+        self.responses['/proxies']['proxies']['ChatGPT']['all'].remove('private-node-name')
+        self.assertFalse(self.run_audit())
+
+    def test_provider_update_is_checked_without_regenerating_the_profile(self):
+        snapshot = copy.deepcopy(self.profile)
+        loaded = self.responses['/proxies']['proxies']
+        loaded['updated-private-node'] = {'type': 'Shadowsocks'}
+        for group in self.profile['proxy-groups']:
+            if group.get('use'):
+                loaded[group['name']]['all'].append('updated-private-node')
+        self.assertTrue(self.run_audit())
+        self.assertEqual(self.profile, snapshot)
+        loaded['Proxy']['all'].remove('updated-private-node')
+        self.assertFalse(self.run_audit())
+
+    def test_use_url_nodes_receive_the_same_runtime_checks(self):
+        self.profile = build_loon_selection(self.template,
+                                            subscription_urls=['https://example.org/nodes'])
+        self.assertTrue(self.run_audit())
+        self.responses['/proxies']['proxies']['Netflix']['all'].remove('private-node-name')
+        self.assertFalse(self.run_audit())
+
+    def test_unbound_template_is_not_an_accepted_private_configuration(self):
+        self.profile = self.template
+        self.assertFalse(self.run_audit())
+
+    def test_extra_helper_in_native_runtime_fails(self):
+        self.responses['/proxies']['proxies']['ALL'] = {
+            'type': 'Selector', 'all': ['private-node-name'], 'now': 'private-node-name'}
         self.assertFalse(self.run_audit())
 
 
