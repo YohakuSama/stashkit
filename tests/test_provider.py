@@ -17,13 +17,13 @@ class ProviderTests(unittest.TestCase):
         for group in profile["proxy-groups"]:
             with self.subTest(group=group["name"]):
                 self.assertNotIn("url", group)
-        # Public selectors do not require a hardcoded provider name or path.
-        self.assertNotIn("proxy-providers", profile)
+        # The official sample URL must be replaced locally.
+        self.assertIn("Airport", profile["proxy-providers"])
         for group in profile["proxy-groups"]:
             self.assertNotIn("include-all", group)
             self.assertNotIn("filter", group)
             if group["name"] not in {"AdBlock", "Final"}:
-                self.assertEqual(group["use"], [])
+                self.assertEqual(group["use"], ["Airport"])
             else:
                 self.assertNotIn("use", group)
 
