@@ -203,14 +203,14 @@ class LoonSelectionTests(unittest.TestCase):
             path = Path(directory) / "private-url.txt"
             urls = ["https://example.org/sub?token=SECRET-ONE",
                     "https://example.org/sub2?token=SECRET-TWO"]
-            path.write_text("\\n".join(urls) + "\\n", encoding="utf-8")
+            path.write_text("\n".join(urls) + "\n", encoding="utf-8")
             self.assertEqual(read_subscription_urls(path), urls)
             for contents in (
                 "http://example.org/sub?token=SECRET-TWO",
                 "https://example.invalid/REPLACE-WITH-YOUR-SUBSCRIPTION",
-                "https://example.org/sub?token=SECRET-TWO\\nhttps://example.org/sub?token=SECRET-TWO",
+                "https://example.org/sub?token=SECRET-TWO\nhttps://example.org/sub?token=SECRET-TWO",
                 "https://example.org:wrong/sub?token=SECRET-TWO",
-                "\\n",
+                "\n",
             ):
                 with self.subTest(contents=contents[:12]):
                     path.write_text(contents, encoding="utf-8")
