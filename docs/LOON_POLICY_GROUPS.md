@@ -2,6 +2,14 @@
 
 LoonKit 的 `ALL_Filter` 是节点筛选器，不是一个名为 `ALL` 的策略组。目标是让 `Proxy` 与 `ChatGPT` 等服务组都能直接选择订阅节点、`Auto` 和 `Fallback`。
 
+## 公共配置（v0.1.9）：无需指定订阅名称
+
+默认配置使用 `Proxy` 的显式 `Auto` / `Fallback` / `Manual` 选项；`Manual` 是 `hidden: true` 的 `include-all` 动态节点池。这样 Stash 可以把自动策略和直接选节点的入口分别展示，不需要用户配置 `use: [personal]`。
+
+选择 `Proxy → Auto` 后，所有跟随 `Proxy` 的服务组共同使用自动测速策略；选择 `Proxy → Manual` 后可进入 `Manual` 手动选实际节点。**此公共配置不具备 LoonKit 同层列出自动策略和全部节点的体验**，但保留了动态订阅自动更新。
+
+以下本地生成器用于需要所有选项直接出现在同一列表的个人配置。
+
 ## 已确认的行为与限制
 
 Stash 支持 `proxies`（具体节点名或策略组名）、`use`（具名远程节点 Provider）以及 `include-all`（收集全部节点）。官方文档分别描述了这些字段，但并未保证 iOS 在混用 `include-all` 和显式 `proxies` 时总能同时展示两类选项。用户提供的 iOS 截图中，动态节点显示正常，但 `Auto` 和 `Fallback` 不在同一个策略组的可选列表中。
@@ -41,6 +49,6 @@ python scripts/build_loon_selection.py \
 
 [StashKit-Loon-Preview.yaml](../StashKit-Loon-Preview.yaml) 仍是**具名 Provider 的示例**，引用 `personal`，不是免配置的通用订阅 URL。不要在没有相应 Provider 覆写时直接启用它。
 
-本地生成方案已经纳入回归测试，但**仍需在 Stash iOS 上确认实际节点、Auto、Fallback 三种选项同时出现且可以切换**。CI 成功只代表 YAML 结构正确，不代表 iOS 控件已通过真机验收。正式版 `StashKit.yaml` 保持现状，待实际测试通过再调整发布行为。
+本地生成方案已经纳入回归测试，但**仍需在 Stash iOS 上确认实际节点、Auto、Fallback 三种选项同时出现且可以切换**。CI 成功只代表 YAML 结构正确，不代表 iOS 控件已通过真机验收。公共版 v0.1.9 采用上面的隐藏 `Manual` 兼容方案；个人生成器仍是可选方式。
 
 参考：[Stash 策略组](https://stash.wiki/proxy-protocols/proxy-groups) · [Stash 远程代理集](https://stash.wiki/proxy-protocols/proxy-providers)。
