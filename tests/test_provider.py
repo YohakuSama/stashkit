@@ -17,14 +17,16 @@ class ProviderTests(unittest.TestCase):
         for group in profile["proxy-groups"]:
             with self.subTest(group=group["name"]):
                 self.assertNotIn("url", group)
-        # Stash's nested design isolates dynamic nodes in these three pools.
+        # All selectable native groups reference the same local provider.
+        self.assertEqual(profile["proxy-providers"]["personal"],
+                         {"path": "./providers/personal.yaml"})
         for group in profile["proxy-groups"]:
-            if group["name"] in {"Auto", "Fallback", "ALL"}:
-                self.assertIs(group["include-all"], True)
-                self.assertEqual(group["filter"], ".*")
+            self.assertNotIn("include-all", group)
+            self.assertNotIn("filter", group)
+            if group["name"] not in {"AdBlock", "Final"}:
+                self.assertEqual(group["use"], ["personal"])
             else:
-                self.assertNotIn("include-all", group)
-                self.assertNotIn("filter", group)
+                self.assertNotIn("use", group)
 
 
 if __name__ == "__main__":

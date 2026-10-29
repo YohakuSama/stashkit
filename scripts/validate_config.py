@@ -149,8 +149,11 @@ def validate_proxy_providers(providers):
         text(name, "proxy-providers name")
         where = f"proxy-providers.{name}"
         fields(spec, {"url", "path", "interval", "filter", "headers", "benchmark-url", "benchmark-timeout"},
-               {"url"}, where)
-        http_url(spec["url"], where + ".url")
+               set(), where)
+        require("url" in spec or "path" in spec,
+                f"{where}: url or local path required")
+        if "url" in spec:
+            http_url(spec["url"], where + ".url")
         if "benchmark-url" in spec:
             http_url(spec["benchmark-url"], where + ".benchmark-url")
         for key in ("interval", "benchmark-timeout"):
