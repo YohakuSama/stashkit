@@ -92,7 +92,7 @@ def main():
     icon_ref = icon_lock["icons_commit"]
     assert len(icon_ref) == 40 and all(c in "0123456789abcdef" for c in icon_ref)
     assert set(icon_lock["group_icons"]) == set(names)
-    assert len(icon_lock["asset_git_blob_shas"]) == 39
+    assert len(icon_lock["asset_git_blob_shas"]) == 40
     for filename, expected_sha in icon_lock["asset_git_blob_shas"].items():
         asset_path = KIT / "icons" / filename
         assert asset_path.is_file(), f"Missing self-hosted strategy icon: {filename}"

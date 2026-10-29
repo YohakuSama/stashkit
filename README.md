@@ -64,7 +64,7 @@ https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit-Privacy.yaml
 
 **DNS 隐私模式（覆写现有普通配置，可选）：** 配好真实节点、让 `Proxy` 组实际使用节点后，启用 [DNS 隐私覆写](./overrides/dns-privacy.stoverride.example)，另存为 `.stoverride`。它将 `dns.follow-rule` 设为 `true`，并将 `dns.alidns.com` 的 DoH 连接先于国内直连规则交给 `Proxy`。如果节点失效、尚未选节点或网络阻断，该模式可能导致**DNS 解析失败或变慢**；故不作为通用默认值。代理节点自身的加密 DNS bootstrap、节点域名解析仍走独立直连 DoH；内网 `system` DNS 仍会经局域网链路。此模式也不能保证设备上所有程序的 DNS 都被代理。
 
-**策略组图标（已恢复）：** 39 张原始 LoonKit PNG 已逐字节迁移至本仓库 [icons/](./icons/)，通过 StashKit 自己的固定提交 `bfbbf283967cb351a3ac4a60cc5c735c058b1419` 提供 HTTPS URL。40 个策略组均使用自托管图标；新增的 ALL 复用 Proxy 图标。普通、严格 DNS 和本地规则配置图标一致，无需访问旧 LoonKit 仓库。如 Stash 仍显示默认图标，请更新或重新导入配置。CI 会校验图标完整性与 URL；纯离线模式无网络时图片可能暂不出现（不影响规则）。
+**策略组图标（独立托管）：** [icons/](./icons/) 中保留 38 张原始 LoonKit PNG，更新 HBO 图标并为 ALL 新增独立图标，共 40 张。普通、严格 DNS 和本地规则配置均从 StashKit 固定提交 `3778671c7d4141ac49d734a8dfd45452a5147949` 加载图标；不依赖旧 LoonKit 仓库。若手机仍显示缓存图标，请更新或重新导入配置。CI 校验 PNG Git blob 与远程 URL 的字节一致性；离线状态下图标可能暂不显示（不影响规则）。
 
 ## 自动校验
 

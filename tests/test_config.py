@@ -50,8 +50,8 @@ class ConfigTests(unittest.TestCase):
         import json
         lock = json.loads((ROOT / "build/icon-lock.json").read_text())
         self.assertEqual(len(lock["group_icons"]), 40)
-        self.assertEqual(len(lock["asset_git_blob_shas"]), 39)
-        self.assertEqual(lock["group_icons"]["ALL"], "Proxy.png")
+        self.assertEqual(len(lock["asset_git_blob_shas"]), 40)
+        self.assertEqual(lock["group_icons"]["ALL"], "ALL.png")
         for name, filename in lock["group_icons"].items():
             group = next(g for g in self.profile["proxy-groups"] if g["name"] == name)
             self.assertEqual(group["icon"], (
