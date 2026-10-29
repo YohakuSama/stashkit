@@ -43,6 +43,8 @@ jobs:
         env:
           CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
         run: python scripts/check_remote.py --ref "$CANDIDATE_SHA"
+      - name: Verify self-hosted strategy icon URLs and exact PNG bytes
+        run: python scripts/check_icons.py
       - name: Verify all published remote rule URLs and bytes
         if: github.ref == 'refs/heads/main'
         run: python scripts/check_remote.py

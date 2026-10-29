@@ -31,7 +31,8 @@ class ConfigTests(unittest.TestCase):
                 self.assertIn("/" + pin + "/rules/", provider["url"])
                 self.assertEqual(provider["path"], "./rules/v0.1.3/" + provider["url"].rsplit("/", 1)[1])
         for group in self.profile["proxy-groups"]:
-            self.assertNotIn("icon", group)
+            self.assertIn("icon", group)
+            self.assertIn("/icons/", group["icon"])
 
     def test_default_proxy_chain_is_reject_until_opt_in(self):
         by_name = {group["name"]: group for group in self.profile["proxy-groups"]}
@@ -43,6 +44,25 @@ class ConfigTests(unittest.TestCase):
         # Even with no node providers and Stash's empty-provider DIRECT
         # substitution, default global/service proxy selection is REJECT.
         self.assertEqual(len(self.profile.get("proxy-providers", {})), 0)
+
+    def test_self_hosted_original_icons_are_pinned(self):
+        import hashlib
+        import json
+        lock = json.loads((ROOT / "build/icon-lock.json").read_text())
+        self.assertEqual(len(lock["group_icons"]), 40)
+        self.assertEqual(len(lock["asset_git_blob_shas"]), 39)
+        self.assertEqual(lock["group_icons"]["ALL"], "Proxy.png")
+        for name, filename in lock["group_icons"].items():
+            group = next(g for g in self.profile["proxy-groups"] if g["name"] == name)
+            self.assertEqual(group["icon"], (
+                f"https://raw.githubusercontent.com/YohakuSama/stashkit/{lock['icons_commit']}/icons/{filename}"))
+            self.assertNotIn("/loonkit/", group["icon"])
+        for filename, sha in lock["asset_git_blob_shas"].items():
+            with self.subTest(filename=filename):
+                raw = (ROOT / "icons" / filename).read_bytes()
+                self.assertTrue(raw.startswith(bytes.fromhex("89504e470d0a1a0a")))
+                self.assertEqual(hashlib.sha1(
+                    b"blob " + str(len(raw)).encode("ascii") + bytes([0]) + raw).hexdigest(), sha)
 
     def test_self_reference_rejected(self):
         self.profile["proxy-groups"][0]["proxies"] = ["Proxy"]
