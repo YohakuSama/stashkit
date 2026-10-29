@@ -15,9 +15,9 @@ import yaml
 from validate_config import validate_profile
 
 ROOT = Path(__file__).resolve().parents[1]
-NODE_POOLS = frozenset({"Proxy", "Auto", "Fallback"})
+NODE_POOLS = frozenset({"Proxy", "Auto", "Fallback", "ALL"})
 SERVICE_EXCEPTIONS = frozenset({"AdBlock", "Final"})
-EXPECTED_GROUP_COUNT = 39
+EXPECTED_GROUP_COUNT = 40
 PROFILE_FILES = {
     "default": "StashKit.yaml",
     "privacy": "StashKit-Privacy.yaml",
@@ -82,7 +82,7 @@ def read_subscription_urls(path):
 
 
 def build_loon_selection(source, providers=None, nodes=None, subscription_urls=None):
-    """Render standalone groups with both explicit strategies and discovered nodes."""
+    """Render stable nested selectors with a dedicated ALL node pool."""
     providers = copy.deepcopy(providers or {})
     nodes = copy.deepcopy(nodes or [])
     subscription_urls = list(subscription_urls or [])
@@ -94,7 +94,7 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
         raise ValueError("Duplicate subscription URLs")
     output = copy.deepcopy(source)
     groups = output["proxy-groups"]
-    # Private profiles explicitly enumerate nodes/providers and need no helper pool.
+    # Private profiles preserve the dedicated ALL node pool.
     manual = [group for group in groups if group["name"] == "Manual"]
     if manual:
         if (len(manual) != 1 or not manual[0].get("hidden")
@@ -103,7 +103,7 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
         groups[:] = [group for group in groups if group["name"] != "Manual"]
     names = [group["name"] for group in groups]
     if (len(groups) != EXPECTED_GROUP_COUNT or len(set(names)) != len(groups)
-            or not NODE_POOLS.issubset(names) or "ALL" in names):
+            or not NODE_POOLS.issubset(names) or "Manual" in names):
         raise ValueError("Unexpected canonical group structure")
     if source.get("proxy-providers") or source.get("proxies"):
         raise ValueError("Canonical profile must not bundle personal nodes/providers")
@@ -125,17 +125,18 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
             # Match LoonKit: Auto is the first usable choice. REJECT remains a
             # manual fail-closed option rather than blocking new installations.
             # Auto/Fallback themselves retain REJECT for an empty node pool.
-            group["proxies"] = ["Auto", "Fallback"] + local_names + ["REJECT"]
-        elif name in {"Auto", "Fallback"}:
-            # Keep REJECT if all nodes/providers disappear; otherwise prefer real nodes.
+            group["proxies"] = ["Auto", "Fallback", "ALL", "REJECT"]
+        elif name in {"Auto", "Fallback", "ALL"}:
+            # Keep a fail-closed choice when the dynamic node pool is empty.
             group["proxies"] = local_names + ["REJECT"]
-        elif name not in SERVICE_EXCEPTIONS:
-            group["proxies"].extend(local_names)
-        if name not in SERVICE_EXCEPTIONS and providers:
+        # Use dynamic sources only in the three node pools. Service selectors
+        # point to ALL and must not mix provider members with named policies.
+        dynamic_pool = name in {"Auto", "Fallback", "ALL"}
+        if dynamic_pool and providers:
             group["use"] = list(providers)
         else:
             group.pop("use", None)
-        if name not in SERVICE_EXCEPTIONS and subscription_urls:
+        if dynamic_pool and subscription_urls:
             group["use-url"] = subscription_urls
         else:
             group.pop("use-url", None)
