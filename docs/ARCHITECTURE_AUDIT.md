@@ -20,7 +20,7 @@
 
 - 54 个文件规则 provider（43 domain、7 ipcidr、4 classical ASN），另有 1 个内嵌 `Private-local` provider。
 - 原上游 43 份输入经人工审查的 [adjustments.json](../build/adjustments.json) 转换。规则资源固定到 [release-lock.json](../build/release-lock.json) 指向的不可变提交，不跟随远程 `main`。
-- StashKit 有 40 个策略组：原 LoonKit 的 39 个功能组，加 1 个 Stash 专用 `ALL` 动态节点组（位于 Fallback 之后）。`Proxy` 与 35 个业务选择组不再直接混用 `include-all` 和显式子策略；它们通过 `ALL` 引用全部节点，避免用户真机上的混合展示问题。Auto、Fallback、ALL 才有动态节点池。39 个图标资产保持不变，ALL 复用自托管 Proxy.png。规则顺序、DNS 与服务 DIRECT 选项不变。参见[路由决策](./ROUTING.md)与[策略组说明](./LOON_POLICY_GROUPS.md)。
+- StashKit 正式版为 39 个 LoonKit 对应策略组、0 个 `ALL`：通过声明的本地路径型 Provider `personal` 和策略组的 `use` 引用节点；订阅来源必须由用户本地提供，不保存在仓库中。旧版 `ALL` 兼容布局已备份为 `StashKit-ALL.yaml` 与两个变体。规则顺序、DNS、广告及服务直连没有改变。39 张策略图标资产保持固定版本。CI 不验证 Stash iOS 是否真正同层显示策略与 Provider 节点。详见[原生 Provider 说明](./NATIVE_PROVIDER_TRIAL.md)。
 - STUN 和常用 TURN 端口拦截位于 LAN/CN 直连之前，所有三套配置保持一致。此次架构调整**不修改**这些网络规则。
 
 ## 测试与已知边界
