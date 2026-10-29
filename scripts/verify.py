@@ -14,6 +14,11 @@ from rule_sources import (KIT, ROOT, valid_domain, lines_from, generate_source_s
                           load_adjustments, apply_adjustments, load_baseline, render_asset)
 
 SOURCE_URL = "https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/"
+WEBRTC_GUARDS = ["PROTOCOL,STUN,REJECT"] + [
+    f"DST-PORT,{port},REJECT"
+    for port in (3478, 3479, 5349, 5350, 19302, 19303, 19304, 19305,
+                 19306, 19307, 19308, 19309)
+]
 LOCAL_DIRECT_RULES = [
     "DOMAIN,localhost,DIRECT",
     "DOMAIN-SUFFIX,local,DIRECT",
@@ -67,6 +72,7 @@ def main():
     assert dns["nameserver-policy"]["rule-set:Private-local"] == "system"
     assert not any(value.startswith("geosite:") for value in filters | set(dns["nameserver-policy"]))
     assert "+.apple.com" not in filters and "+.icloud.com" not in filters
+    assert not any("stun" in entry.lower() for entry in filters), "STUN DNS Real-IP bypass reintroduced"
     assert "captive.apple.com" in filters
     assert all(not entry.startswith(("http://", "udp://", "tcp://")) and
                (entry.startswith("https://") or entry == "system")
@@ -170,7 +176,7 @@ def main():
     assert source_rules[0] == "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
     source_rules[0] = "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
     source_rules.remove("DOMAIN,copilot-telemetry.githubusercontent.com,AI")
-    expected_rules = LOCAL_DIRECT_RULES + source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
+    expected_rules = WEBRTC_GUARDS + LOCAL_DIRECT_RULES + source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
     assert profile["rules"] == expected_rules, "Rules changed order, policy, or local precedence"
     assert profile["rules"][-1] == "MATCH,Final"
     assert len(expected_routes) == 54
