@@ -40,22 +40,23 @@ class LoonSelectionTests(unittest.TestCase):
                     self.assertEqual(generated[key], original[key])
                 self.assertEqual(generated["proxy-providers"], PROVIDERS)
                 by_name = {row["name"]: row for row in generated["proxy-groups"]}
-                self.assertEqual(len(by_name), 39)
-                self.assertNotIn("ALL", by_name)
+                self.assertEqual(len(by_name), 40)
+                self.assertIn("ALL", by_name)
                 self.assertEqual(by_name["Proxy"]["proxies"],
-                                 ["Auto", "Fallback", "REJECT"])
+                                 ["Auto", "Fallback", "ALL", "REJECT"])
                 self.assertEqual(by_name["Auto"]["proxies"], ["REJECT"])
                 self.assertEqual(by_name["Fallback"]["proxies"], ["REJECT"])
+                self.assertEqual(by_name["ALL"]["proxies"], ["REJECT"])
                 for name, group in by_name.items():
                     self.assertNotIn("include-all", group)
-                    if name in {"AdBlock", "Final"}:
-                        self.assertNotIn("use", group)
-                    else:
+                    if name in {"Auto", "Fallback", "ALL"}:
                         self.assertEqual(group["use"], list(PROVIDERS))
+                    else:
+                        self.assertNotIn("use", group)
                     if name not in NODE_POOLS | {"AdBlock", "Final"}:
-                        self.assertTrue({"Proxy", "Auto", "Fallback"} <= set(group["proxies"]))
+                        self.assertTrue({"Proxy", "Auto", "Fallback", "ALL"} <= set(group["proxies"]))
                 self.assertEqual(by_name["ChatGPT"]["proxies"],
-                                 ["Proxy", "Auto", "Fallback"])
+                                 ["Proxy", "Auto", "Fallback", "ALL"])
 
     def test_direct_service_choices_survive_all_private_node_sources(self):
         # LoonKit intentionally allows DIRECT for selected services, not for
@@ -85,7 +86,7 @@ class LoonSelectionTests(unittest.TestCase):
                         self.assertEqual(groups[name]["proxies"][0:4],
                                          ["DIRECT", "Proxy", "Auto", "Fallback"])
                     self.assertEqual(groups[direct_optional]["proxies"][0:4],
-                                     ["Proxy", "Auto", "Fallback", "DIRECT"])
+                                     ["Proxy", "Auto", "Fallback", "ALL"])
                     for name in ("AI", "ChatGPT", "Gemini", "Claude", "Netflix"):
                         self.assertNotIn("DIRECT", groups[name]["proxies"])
 
@@ -154,12 +155,14 @@ class LoonSelectionTests(unittest.TestCase):
                     validate_profile(result)
                     groups = {group["name"]: group for group in result["proxy-groups"]}
                     self.assertEqual(groups["Proxy"]["proxies"],
-                                     ["Auto", "Fallback"] + [node["name"] for node in nodes] + ["REJECT"])
+                                     ["Auto", "Fallback", "ALL", "REJECT"])
                     self.assertEqual(groups["ChatGPT"]["proxies"],
-                                     ["Proxy", "Auto", "Fallback"] + [node["name"] for node in nodes])
+                                     ["Proxy", "Auto", "Fallback", "ALL"])
                     self.assertEqual(groups["Auto"]["proxies"],
                                      [node["name"] for node in nodes] + ["REJECT"])
                     self.assertEqual(groups["Fallback"]["proxies"],
+                                     [node["name"] for node in nodes] + ["REJECT"])
+                    self.assertEqual(groups["ALL"]["proxies"],
                                      [node["name"] for node in nodes] + ["REJECT"])
                     self.assertNotIn("include-all", groups["ChatGPT"])
                     self.assertNotIn("use", groups["ChatGPT"])
@@ -177,8 +180,9 @@ class LoonSelectionTests(unittest.TestCase):
             self.assertEqual(providers, PROVIDERS)
             built = build_loon_selection(source, providers, nodes)
             groups = {row["name"]: row for row in built["proxy-groups"]}
-            self.assertEqual(groups["Proxy"]["use"], list(providers))
-            self.assertEqual(groups["ChatGPT"]["use"], list(providers))
+            self.assertNotIn("use", groups["Proxy"])
+            self.assertNotIn("use", groups["ChatGPT"])
+            self.assertEqual(groups["ALL"]["use"], list(providers))
 
     def test_unknown_or_conflicting_node_name_rejected(self):
         source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
@@ -207,24 +211,25 @@ class LoonSelectionTests(unittest.TestCase):
                 output = build_loon_selection(original, subscription_urls=urls)
                 validate_profile(output)
                 self.assertEqual(original, snapshot)
-                self.assertEqual(len(output["proxy-groups"]), 39)
+                self.assertEqual(len(output["proxy-groups"]), 40)
                 groups = {g["name"]: g for g in output["proxy-groups"]}
                 self.assertNotIn("Manual", groups)
-                self.assertNotIn("ALL", groups)
+                self.assertIn("ALL", groups)
                 self.assertEqual(groups["Proxy"]["proxies"],
-                                 ["Auto", "Fallback", "REJECT"])
+                                 ["Auto", "Fallback", "ALL", "REJECT"])
                 self.assertEqual(groups["ChatGPT"]["proxies"],
-                                 ["Proxy", "Auto", "Fallback"])
+                                 ["Proxy", "Auto", "Fallback", "ALL"])
                 for name, group in groups.items():
                     self.assertNotIn("include-all", group)
                     self.assertNotIn("filter", group)
                     self.assertNotIn("use", group)
-                    if name in {"AdBlock", "Final"}:
-                        self.assertNotIn("use-url", group)
-                    else:
+                    if name in {"Auto", "Fallback", "ALL"}:
                         self.assertEqual(group["use-url"], urls)
+                    else:
+                        self.assertNotIn("use-url", group)
                 self.assertEqual(groups["Auto"]["proxies"], ["REJECT"])
                 self.assertEqual(groups["Fallback"]["proxies"], ["REJECT"])
+                self.assertEqual(groups["ALL"]["proxies"], ["REJECT"])
                 self.assertNotIn("proxy-providers", output)
                 self.assertNotIn("proxies", output)
                 for key in ("rules", "rule-providers", "dns", "mode", "log-level"):
