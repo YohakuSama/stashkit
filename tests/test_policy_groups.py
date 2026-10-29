@@ -57,7 +57,7 @@ class PolicyGroupParityTests(unittest.TestCase):
             groups = {g['name']: g for g in profile['proxy-groups']}
             self.assertEqual(list(groups), [row[0] for row in expected])
             self.assertEqual(len(groups), 39)
-            self.assertNotIn('proxy-providers', profile)
+            self.assertEqual(list(profile['proxy-providers']), ['Airport'])
             self.assertNotIn('proxies', profile)
             for name, kind, choices in expected:
                 with self.subTest(profile=filename, group=name):
@@ -70,7 +70,7 @@ class PolicyGroupParityTests(unittest.TestCase):
                     self.assertNotIn('include-all', groups[name])
                     self.assertNotIn('filter', groups[name])
                     if name not in {'AdBlock', 'Final'}:
-                        self.assertEqual(groups[name]['use'], [])
+                        self.assertEqual(groups[name]['use'], ['Airport'])
                     else:
                         self.assertNotIn('use', groups[name])
 
