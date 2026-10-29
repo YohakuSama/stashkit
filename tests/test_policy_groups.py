@@ -24,8 +24,10 @@ def expected_groups():
         filters = {"ALL_Filter", "Auto_Filter", "Fallback_Filter"}
         children = [item for item in items[1:]
                     if item not in filters and "=" not in item]
-        uses_node_pool = name.strip() in {"Proxy", "Auto", "Fallback"}
-        if uses_node_pool:
+        uses_node_pool = name.strip() in {"Auto", "Fallback"}
+        if name.strip() == "Proxy":
+            children = ["REJECT", "Auto", "Fallback", "Manual"]
+        elif uses_node_pool:
             children = ["REJECT"]
         groups.append((name.strip(), kind, children, uses_node_pool))
     return groups
@@ -43,6 +45,12 @@ class PolicyGroupParityTests(unittest.TestCase):
                 profile = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
                 validate_profile(profile)
                 groups = profile["proxy-groups"]
+                self.assertEqual(len(groups), 40)
+                manual = next(group for group in groups if group["name"] == "Manual")
+                self.assertTrue(manual["hidden"])
+                self.assertTrue(manual["include-all"])
+                self.assertEqual(manual["proxies"], ["REJECT"])
+                groups = [group for group in groups if group["name"] != "Manual"]
                 self.assertEqual([group["name"] for group in groups],
                                  [row[0] for row in self.expected])
                 self.assertNotIn("ALL", {group["name"] for group in groups})
@@ -55,8 +63,10 @@ class PolicyGroupParityTests(unittest.TestCase):
     def test_service_groups_expose_named_strategies_without_node_only_mode(self):
         profile = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
         by_name = {group["name"]: group for group in profile["proxy-groups"]}
-        self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT"])
-        self.assertTrue(by_name["Proxy"]["include-all"])
+        self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT", "Auto", "Fallback", "Manual"])
+        self.assertNotIn("include-all", by_name["Proxy"])
+        self.assertTrue(by_name["Manual"]["include-all"])
+        self.assertTrue(by_name["Manual"]["hidden"])
         for name in ("AI", "ChatGPT", "Gemini", "GitHub", "YouTube", "Netflix", "Steam"):
             with self.subTest(group=name):
                 group = by_name[name]
@@ -73,7 +83,7 @@ class PolicyGroupParityTests(unittest.TestCase):
                 profile = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
                 groups = {group["name"]: group for group in profile["proxy-groups"]}
                 for name, group in groups.items():
-                    if name in {"Proxy", "Auto", "Fallback"}:
+                    if name in {"Manual", "Auto", "Fallback"}:
                         self.assertTrue(group.get("include-all"))
                         self.assertFalse(set(group["proxies"]) & set(groups))
                     else:
@@ -81,7 +91,8 @@ class PolicyGroupParityTests(unittest.TestCase):
                         if name not in {"AdBlock", "Final"}:
                             self.assertIn("Auto", group["proxies"])
                             self.assertIn("Fallback", group["proxies"])
-                            self.assertIn("Proxy", group["proxies"])
+                            if name != "Proxy":
+                                self.assertIn("Proxy", group["proxies"])
                 self.assertEqual(groups["ChatGPT"]["proxies"],
                                  ["Proxy", "Auto", "Fallback"])
 
