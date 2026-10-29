@@ -10,10 +10,11 @@ from pathlib import Path
 import yaml
 from validate_config import validate_profile, validate_override
 from private_rules import NAME as PRIVATE_NAME, private_provider
+from release_meta import PROFILE_VERSION, RULES_PATH_PREFIX, RULES_URL_PREFIX, RULES_REF, load_lock
 from rule_sources import (KIT, ROOT, valid_domain, lines_from, generate_source_sets,
                           load_adjustments, apply_adjustments, load_baseline, render_asset)
 
-SOURCE_URL = "https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/"
+SOURCE_URL = RULES_URL_PREFIX
 WEBRTC_GUARDS = ["PROTOCOL,STUN,REJECT"] + [
     f"DST-PORT,{port},REJECT"
     for port in (3478, 3479, 5349, 5350, 19302, 19303, 19304, 19305,
@@ -116,9 +117,10 @@ def main():
         assert group["icon"] == (f"https://raw.githubusercontent.com/YohakuSama/stashkit/"
                                  f"{icon_ref}/icons/{expected_icon}"), f"Wrong icon URL: {group['name']}"
         assert expected_icon in icon_lock["asset_git_blob_shas"]
-    release_lock = __import__("json").loads((KIT / "build/release-lock.json").read_text(encoding="utf-8"))
-    assert release_lock == {"version": "v0.1.4", "source_ref": "f4feec81dfc9bde9824d297b6959fa977d5dc39b"}, "Immutable release lock changed"
-    assert SOURCE_URL == f"https://raw.githubusercontent.com/YohakuSama/stashkit/{release_lock['source_ref']}/rules/"
+    release_lock = load_lock()
+    assert release_lock["source_ref"] == RULES_REF
+    assert (KIT / "StashKit.yaml").read_text(encoding="utf-8").startswith(f"# StashKit {PROFILE_VERSION}\n")
+    assert SOURCE_URL == f"https://raw.githubusercontent.com/YohakuSama/stashkit/{RULES_REF}/rules/"
     expected_providers = {PRIVATE_NAME: private_provider()}
     expected_routes = []
     total = 0
@@ -160,7 +162,7 @@ def main():
                 "behavior": "classical" if behavior == "asn" else behavior,
                 "format": "text",
                 "url": SOURCE_URL + path.name,
-                "path": "./rules/v0.1.4/" + path.name,
+                "path": RULES_PATH_PREFIX + path.name,
                 "interval": 86400,
             }
             expected_routes.append("RULE-SET," + key + "," + src["policy"] + (
