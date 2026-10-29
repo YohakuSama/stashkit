@@ -1,4 +1,4 @@
-"""Ensure native Stash group selectors match LoonKit's node-filter semantics."""
+"""Validate policy choices against the Stash UI and the pinned LoonKit group list."""
 import sys
 import unittest
 from pathlib import Path
@@ -24,12 +24,10 @@ def expected_groups():
         filters = {"ALL_Filter", "Auto_Filter", "Fallback_Filter"}
         children = [item for item in items[1:]
                     if item not in filters and "=" not in item]
-        needs_all = any(item in filters for item in items)
-        if name.strip() == "Proxy":
-            children.insert(0, "REJECT")
-        elif name.strip() in {"Auto", "Fallback"}:
+        uses_node_pool = name.strip() in {"Proxy", "Auto", "Fallback"}
+        if uses_node_pool:
             children = ["REJECT"]
-        groups.append((name.strip(), kind, children, needs_all))
+        groups.append((name.strip(), kind, children, uses_node_pool))
     return groups
 
 
@@ -54,17 +52,38 @@ class PolicyGroupParityTests(unittest.TestCase):
                         self.assertEqual(group["proxies"], children)
                         self.assertEqual(group.get("include-all", False), include_all)
 
-    def test_proxy_and_service_groups_expose_nodes_without_intermediary(self):
+    def test_service_groups_expose_named_strategies_without_node_only_mode(self):
         profile = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
         by_name = {group["name"]: group for group in profile["proxy-groups"]}
-        self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT", "Auto", "Fallback"])
+        self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT"])
         self.assertTrue(by_name["Proxy"]["include-all"])
         for name in ("AI", "ChatGPT", "Gemini", "GitHub", "YouTube", "Netflix", "Steam"):
             with self.subTest(group=name):
-                self.assertTrue(by_name[name]["include-all"])
-                self.assertNotIn("ALL", by_name[name]["proxies"])
+                group = by_name[name]
+                self.assertNotIn("include-all", group)
+                self.assertEqual(group["proxies"][:3], ["Proxy", "Auto", "Fallback"])
+                self.assertNotIn("ALL", group["proxies"])
         for name in ("AdBlock", "Final"):
             self.assertNotIn("include-all", by_name[name])
+
+
+    def test_every_profile_can_show_auto_and_fallback_for_services(self):
+        for filename in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+            with self.subTest(profile=filename):
+                profile = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
+                groups = {group["name"]: group for group in profile["proxy-groups"]}
+                for name, group in groups.items():
+                    if name in {"Proxy", "Auto", "Fallback"}:
+                        self.assertTrue(group.get("include-all"))
+                        self.assertFalse(set(group["proxies"]) & set(groups))
+                    else:
+                        self.assertNotIn("include-all", group)
+                        if name not in {"AdBlock", "Final"}:
+                            self.assertIn("Auto", group["proxies"])
+                            self.assertIn("Fallback", group["proxies"])
+                            self.assertIn("Proxy", group["proxies"])
+                self.assertEqual(groups["ChatGPT"]["proxies"],
+                                 ["Proxy", "Auto", "Fallback"])
 
 
 if __name__ == "__main__":

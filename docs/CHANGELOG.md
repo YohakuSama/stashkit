@@ -1,5 +1,12 @@
 # 变更记录
 
+## v0.1.8 — 2026-10-29
+
+- 修复 Stash 实际界面中服务策略组只显示订阅节点、无法选择 `Auto`/`Fallback` 的问题；`ChatGPT` 等服务组改为明确显示 `Proxy`、`Auto`、`Fallback` 候选。
+- 只有 `Proxy`、`Auto`、`Fallback` 三个节点池启用 `include-all`。服务组不再重复列出节点，手动节点通过 `Proxy` 共享；保持 39 个策略组和原有服务分流顺序。
+- 补充防止混用动态节点池和嵌套策略组的回归约束；旧节点选项升级后应重新确认。
+- 未修改 DNS、WebRTC、图标、代理订阅、规则集及固定快照。详见[发布说明](./RELEASE_NOTES_v0.1.8.md)。
+
 ## v0.1.7 — 2026-10-29
 
 - 按固定 LoonKit 的 `ALL_Filter` 语义，将 `Proxy` 与 34 个服务策略组的节点选择直接映射为 Stash `include-all: true`，而不是创建独立 `ALL` 策略组。
