@@ -268,7 +268,8 @@ class LoonSelectionTests(unittest.TestCase):
                 validate_profile(result)
         bad = build_loon_selection(source,
                                    subscription_urls=["https://example.org/sub"])
-        bad["proxy-groups"][0]["include-all"] = True
+        # Inject into ALL, which actually owns use-url after the refactor.
+        next(g for g in bad["proxy-groups"] if g["name"] == "ALL")["include-all"] = True
         with self.assertRaisesRegex(ValueError, "cannot mix"):
             validate_profile(bad)
 
