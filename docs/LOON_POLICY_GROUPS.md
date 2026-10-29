@@ -14,6 +14,51 @@ Stash 支持 `proxies`（具体节点名或策略组名）、`use`（具名远�
 
 因此，不能再把 `include-all: true` 与 `proxies: [Proxy, Auto, Fallback]` 的静态组合当作完成验收。另一个方案 `use: [personal]` 则要求预先声明了相应 Provider，不能自动引用用户设备上的未知订阅。
 
+## 原生 use-url：不指定订阅名称、无需每次更新节点后重新生成
+
+Stash 官方文档的 `use-url` 可让策略组直接引用远程节点订阅 URL，不必声明或维护 `proxy-providers` 名称。与以前需要手动同步节点的 `--nodes-from` 不同，这种方式是**由 Stash 从 URL 获取节点**：当节点列表在订阅端变化时，不需要再次枚举节点名。
+
+**必要条件：** 你必须拥有一个返回 Clash/Stash YAML（顶层包含 `proxies`）的 **HTTPS 节点订阅 URL**；仅在手机上手动添加了节点、没有订阅地址的用户无法使用这种模式。它不具备读取 iPhone 上另一个配置内部节点数据库的权限。你仍需要在自己的电脑上输入一次原有订阅 URL；**不需要设置 Provider 名称，更不需要额外的 Manual / ALL 策略组**。
+
+把一个或多个订阅 URL 写到本地文件（每行一个），不要把私密 URL 作为终端命令参数或发送到公开仓库：
+
+```sh
+mkdir -p dist
+# 在电脑上用文本编辑器新建 dist/subscriptions.txt，
+# 填入原有 HTTPS 节点订阅 URL，每行一个。不要提交此文件。
+python scripts/build_loon_selection.py \
+  --subscription-file dist/subscriptions.txt \
+  --output dist/StashKit-Loon-Private.yaml
+```
+
+生成的个人配置使用如下结构（仅示意；URL 请使用你自己本地保存的真实订阅）：
+
+```yaml
+proxy-groups:
+  - name: Proxy
+    type: select
+    proxies:
+      - REJECT
+      - Auto
+      - Fallback
+    use-url:
+      - https://example.org/private-node-subscription
+  - name: ChatGPT
+    type: select
+    proxies:
+      - Proxy
+      - Auto
+      - Fallback
+    use-url:
+      - https://example.org/private-node-subscription
+```
+
+`Auto`、`Fallback` 也引用同样的 `use-url`，以便它们测速、故障切换的候选池与手动选择的节点一致；`AdBlock`、`Final` 沿用原始策略候选，不重复导入节点。
+
+这是 Stash **文档明确提供**的引用机制，而不是 `include-all` 与 `proxies` 混用时的未确认推断。CI 可以验证输出 YAML 结构、策略引用与保留的规则；依然必须在 iPhone 上检查订阅实际返回的格式、是否成功更新，以及节点和自动策略能否同时选择。
+
+**安全：** `dist/subscriptions.txt` 和 `dist/StashKit-Loon-Private.yaml` 都会包含订阅访问凭证；项目的 `dist/` 已被 Git 忽略。不要将生成文件上传 GitHub 或共享给他人，也不要在 Stash 中重复叠加同一订阅，以免出现重名节点。Stash 内订阅刷新行为及间隔由 Stash 自身控制，`use-url` 不能自定义其名称或刷新周期。
+
 ## 无需手动指定 Provider 名称的生成方式
 
 `scripts/build_loon_selection.py` 现在可以**读取已有的 Clash/Stash 节点 YAML**，自动提取其中的 `proxies` 节点名称和 `proxy-providers` Provider 名称。生成的完整配置中：
