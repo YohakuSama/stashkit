@@ -73,7 +73,7 @@ class PolicyGroupParityTests(unittest.TestCase):
             "Speedtest": ["DIRECT", "Proxy", "Auto", "Fallback", "ALL"],
             "Bilibili": ["DIRECT", "Proxy", "Auto", "Fallback", "ALL"],
             "Line": ["DIRECT", "Proxy", "Auto", "Fallback", "ALL"],
-            "Steam": ["Proxy", "Auto", "Fallback", "ALL", "DIRECT"],
+            "Steam": ["Proxy", "Auto", "Fallback", "DIRECT", "ALL"],
         }
         for filename in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
             profile = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
