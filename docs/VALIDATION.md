@@ -2,7 +2,7 @@
 
 ## 自动检查
 
-按 [README](../README.md) 安装固定依赖和上游基准，然后运行：
+按 [README](../README.md) 安装固定依赖和上游基准，然后运行前先将 Proxy 从 REJECT 切换到有效节点；停留在 REJECT 会使服务验收失败。使用 `--profile StashKit-Privacy.yaml` 或 `--profile StashKit-Local.yaml` 可指定正在验收的版本。运行：
 
 ```sh
 python -m unittest discover -s tests -v
@@ -14,11 +14,11 @@ python scripts/build_offline_bundle.py --check
 
 回归测试使用离线输入；真实 HTTPS DoH 探测单独运行，遇到证书错误、DNS 错误或不完整消息会失败，不跳过 TLS 身份检查。GitHub CI 的实测不等于每个用户网络都可用。
 
-合并前可运行 `python scripts/check_remote.py --ref 完整候选提交SHA`，逐字节检查该提交已发布的 54 个远程资产；省略参数则检查生产 main。测试 PR 配置时，其 rule-providers 默认仍指向 main；需要手动把测试副本的远程规则 URL 中 main 替换为候选提交 SHA，避免误用旧资产，不能把临时测试 URL 提交回生产配置。
+合并前可运行 `python scripts/check_remote.py --ref 完整候选提交SHA`，逐字节检查该提交的 54 个远程文件；省略参数则检查配置锁定的生产快照，始终不跟随 main。新的规则先在独立提交发布并完成字节校验，随后配置切换 pin 与缓存版本。内嵌 Private-local 由源文件、许可证摘要及三套配置一致性测试验证。
 
 ## Stash 真机验收
 
-使用 iOS/tvOS 3.6+ 或 macOS 4.3+，导入主配置和填好个人订阅地址的覆写，确认已加载 54 个规则集和实际节点。覆写需另存为 `.stoverride`；示例中的 example.invalid 有意不可用。
+使用 iOS/tvOS 3.6+ 或 macOS 4.3+，导入主配置和填好个人订阅地址的覆写，确认已加载 54 个文件规则集、1 个内嵌 Private-local 和实际节点。覆写需另存为 `.stoverride`；示例中的 example.invalid 有意不可用。
 
 | 项目 | 检查方法与预期 |
 | --- | --- |
@@ -26,7 +26,7 @@ python scripts/build_offline_bundle.py --check
 | 内网 | 路由器、NAS 和私有域名命中 DIRECT；自定义企业域名需额外指定内网 DNS |
 | 公共服务 | api.openai.com → ChatGPT，gemini.google.com → Gemini，raw.githubusercontent.com → GitHub |
 | CDN | 两个 gamer CDN → 動畫瘋；alibaba.cdn.steampipe.steamcontent.com → DIRECT；其他 steamcontent.com → Steam |
-| 广告 | control.kochava.com → AdBlock；测试改变 AdBlock 的选项是否符合预期 |
+| 广告 | control.kochava.com、Google Ads / DoubleClick / Analytics 与 Copilot 遥测端点 → AdBlock；改选 DIRECT 为终止匹配后直连 |
 | DNS | 查看应答服务器：公共真实解析使用 DoH，私有域名使用系统 DNS；独立检查其他 App 内置 DNS 和 VPN 接管范围 |
 | 测速 | 检查 provider 的 benchmark-url 生效、节点失效后 Auto/Fallback 的实际选择；测速不证明服务地区解锁 |
 | 默认安全出口 | 初次导入检查 Proxy 是否选中 REJECT；确认订阅有真实可用节点后，主动改选 Auto/Fallback/ALL，再检查 ChatGPT 等服务最终出口；旧配置升级时策略选择可能被保留 |
@@ -46,9 +46,9 @@ curl --get 'http://127.0.0.1:9090/rules/match' \
 
 验收记录应写明 Stash 版本、平台、网络和实际出口。当前仓库的 CI 不启动 Stash，因此真机项目不能标成已由 CI 验证。
 
-## v0.1.3 离线和隐私验收
+## v0.1.4 离线和隐私验收
 
-- **在线**：检查各规则 URL 含同一固定 40 位 Git commit、provider 缓存 path 含 `v0.1.3`；第一次联网加载成功后切断网络再重启，确认 54 个缓存是否能继续使用（要注意代理本身也可能无法连通）。
+- **在线**：检查各规则 URL 含同一固定 40 位 Git commit、provider 缓存 path 含 `v0.1.4`；第一次联网加载成功后切断网络再重启，确认 54 个缓存是否能继续使用（要注意代理本身也可能无法连通）。
 - **离线**：从主分支 CI 下载 ZIP，验 SHA256SUMS，按 Stash 受管资源目录的版本路径部署 54 份文件，再加载 `StashKit-Local.yaml`。单独导入 YAML 而不部署文件**应失败**，不能标记为正常配置。GitHub Actions 的 ZIP 是备份/安装材料，不是 App 一键导入包。
 - **隐私**：先通过个人订阅加载节点，手动切换 Proxy，再导入 `StashKit-Privacy.yaml`（或对普通配置启用 `dns-privacy.stoverride`，不要重复启用）；查看 AliDNS 主机的最终代理链及 DNS 记录。观察 Apple CDN、Wi-Fi/蜂窝切换、节点域名解析。若 DNS 不可用，先禁用覆写，不能断言绝对防泄漏。
 - **图标**：39 张原始 PNG 已迁入 StashKit 自有仓库，40 个策略组均指向 StashKit 固定提交；联网更新配置后应看到专用图标。如仍显示默认图标，请重新导入或更新配置，并检查手机是否能访问 StashKit 的图标 PNG URL。
@@ -56,11 +56,13 @@ curl --get 'http://127.0.0.1:9090/rules/match' \
 
 ## 自动采集真机运行时证据（只读）
 
-在 Stash 已运行的 Mac（或同一受信任局域网内可访问 iOS Stash 控制端口的电脑）中，按 [Stash 官方 HTTP API](https://stash.wiki/features/http-api) 开启外部控制并设置密钥。不要把密钥提交到 GitHub。运行：
+在 Stash 已运行的 Mac（或同一受信任局域网内可访问 iOS Stash 控制端口的电脑）中，按 [Stash 官方 HTTP API](https://stash.wiki/features/http-api) 开启外部控制并设置密钥。不要把密钥提交到 GitHub。运行前先将 Proxy 从 REJECT 切换到有效节点；停留在 REJECT 会使服务验收失败。使用 `--profile StashKit-Privacy.yaml` 或 `--profile StashKit-Local.yaml` 可指定正在验收的版本。运行：
 
 ```sh
 export STASH_API_TOKEN='由你在 Stash 设置的控制器密钥'
 python scripts/stash_runtime_audit.py --base-url http://127.0.0.1:9090
 ```
 
-iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，不要向公共互联网开放控制接口。脚本使用**只读 GET** 检查模式、Proxy 实际选择、54 个 provider 数量、几项路由匹配及内存接口；不会输出 API 密钥、个人节点订阅或者整个 DNS 缓存。**运行结果来自你的真实 Stash 才能称为真机验收**，GitHub Actions 无法代替它。DNS 旁路测试还需检查客户端连接记录与第三方 DNS 测试；单次 API 通过不是绝对无泄漏证明。
+iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，不要向公共互联网开放控制接口。脚本使用**只读 GET** 检查模式、Proxy 递归后的真实节点、55 个预期 provider 的名称和条目数、规则总量、广告及业务哨兵的命中规则与最终出口，并读取内存接口；不会输出 API 密钥、个人节点名、订阅或者整个 DNS 缓存。**运行结果来自你的真实 Stash 才能称为真机验收**，GitHub Actions 无法代替它。DNS 旁路测试还需检查客户端连接记录与第三方 DNS 测试；单次 API 通过不是绝对无泄漏证明。
+
+私网冷启动应在未缓存 GeoSite 的设备上验证 `router.internal`、NAS 单标签名称、路由器品牌域名与私有反向解析；三套配置不再含 GeoSite 引用。脚本通过只证明控制器返回的规则与出口符合配置，不代替真实业务连通性、播放或 DNS 旁路测试。

@@ -1,13 +1,19 @@
 {
   "schema_version": 1,
   "source_commit": "5f272104fc1207612c1cbd18f3e19d861d459ed9",
-  "expected_generated_rule_count": 196562,
+  "expected_generated_rule_count": 196570,
   "changes": [
     {
       "source": "AnimeCrazy",
       "behavior": "domain",
-      "remove": ["+.digicert.com", "+.hinet.net"],
-      "add": ["gamer-cds.cdn.hinet.net", "gamer2-cds.cdn.hinet.net"],
+      "remove": [
+        "+.digicert.com",
+        "+.hinet.net"
+      ],
+      "add": [
+        "gamer-cds.cdn.hinet.net",
+        "gamer2-cds.cdn.hinet.net"
+      ],
       "reason": "Do not route all DigiCert and HiNet traffic as anime streaming; retain the specific CDN hosts identified in Bahamut support diagnostics.",
       "reference": "https://forum.gamer.com.tw/C.php?bsn=60404&page=2&snA=27729"
     },
@@ -15,8 +21,27 @@
       "source": "SteamCN",
       "behavior": "domain",
       "remove": [],
-      "add": ["alibaba.cdn.steampipe.steamcontent.com"],
+      "add": [
+        "alibaba.cdn.steampipe.steamcontent.com"
+      ],
       "reason": "Promote the existing ChinaDirect exact CDN hostname ahead of the broad SteamGlobal steamcontent.com rule."
+    },
+    {
+      "source": "AdBlockBalanced",
+      "behavior": "domain",
+      "remove": [],
+      "add": [
+        "+.doubleclick.net",
+        "+.doubleclick-cn.net",
+        "+.googleadservices.com",
+        "+.googleadservices-cn.com",
+        "+.googlesyndication.com",
+        "+.googlesyndication-cn.com",
+        "+.google-analytics.com",
+        "+.google-analytics-cn.com"
+      ],
+      "reason": "Block Google advertising and measurement endpoints before the broad Google service collection, including the corresponding -cn domains.",
+      "reference": "https://developers.google.com/tag-platform/gtagjs"
     }
   ]
 }

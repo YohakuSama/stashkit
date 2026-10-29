@@ -8,9 +8,11 @@ StashKit 的原创配置、脚本和本地修正采用 [GPL-2.0-only](../LICENSE
 
 - [冻结的上游发布清单](../build/release_manifest.json)：43 个源文件的路径、固定资源地址、策略、SHA256 和 196,561 条原始匹配器。
 - [源锁](../build/source-lock.json)：基准提交、清单与原配置的摘要。
-- [StashKit 本地修正](../build/adjustments.json)：收窄動畫瘋范围和前移 Steam 国内 CDN；生成后为 196,562 条匹配器。
+- [StashKit 本地修正](../build/adjustments.json)：收窄動畫瘋范围、前移 Steam 国内 CDN 和补齐 Google 广告/统计端点；生成后为 196,570 条文件匹配器。
 - [历史来源目录](../build/historical_license_sources.json)：原样保留上游的 87 条历史输入记录；其中的旧数量、路径和未恢复的逐条溯源状态均是历史记录，不能当成当前分发数量或完整的逐条来源认证。
 - [材料摘要锁](../build/third-party-lock.json)：许可文本及历史目录的上游路径和 SHA256。
+
+内嵌 `Private-local` 的 133 条私网规则直接来自 [V2Fly 固定提交 fc0a0693 的 data/private](https://github.com/v2fly/domain-list-community/blob/fc0a0693ec4e5c09938957c98aa11e530764492f/data/private)。保留 [原始文件](../build/private-domains.source.txt)、[源与许可摘要锁](../build/private-domains-lock.json)和[对应 MIT 许可](../rules/LICENSE.MIT-PRIVATE)。精确、后缀与单标签 DNS 名称语义用于三套配置；单标签正则以适用于有效 DNS 标签的无逗号形式内嵌。
 
 ## 许可文本与来源项目
 
@@ -28,7 +30,7 @@ StashKit 的原创配置、脚本和本地修正采用 [GPL-2.0-only](../LICENSE
 
 ## 图标与品牌
 
-运行时 PNG 图标来自 LoonKit 固定资源提交 d82214d057b27a68d6b9c07c61fb126a69adc903。[图标说明](https://github.com/YohakuSama/loonkit/blob/5f272104fc1207612c1cbd18f3e19d861d459ed9/icons/README.md)与[App Store 来源清单](https://github.com/YohakuSama/loonkit/blob/5f272104fc1207612c1cbd18f3e19d861d459ed9/icons/appstore_sources.json)提供原有素材登记。本仓库引用远程图标，没有另行复制本地图标目录。
+运行时 PNG 图标来自 LoonKit 固定资源提交 d82214d057b27a68d6b9c07c61fb126a69adc903。[图标说明](https://github.com/YohakuSama/loonkit/blob/5f272104fc1207612c1cbd18f3e19d861d459ed9/icons/README.md)与[App Store 来源清单](https://github.com/YohakuSama/loonkit/blob/5f272104fc1207612c1cbd18f3e19d861d459ed9/icons/appstore_sources.json)提供原有素材登记。本仓库已将 40 张 PNG 自托管于 icons/，配置引用固定提交；摘要由 icon-lock.json 验证。
 
 品牌名称、商标和应用图标用于识别相应服务，权利归各自权利人；这不代表相关平台认可或赞助。
 

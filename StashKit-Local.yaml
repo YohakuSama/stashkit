@@ -1,4 +1,4 @@
-# StashKit v0.1.3 — LOCAL/OFFLINE rule providers: place rules/ in Stash managed resource directory
+# StashKit v0.1.4 — LOCAL/OFFLINE rule providers: place rules/ in Stash managed resource directory
 # Requires Stash iOS/tvOS 3.6+ or macOS 4.3+ for encrypted DNS bootstrap.
 # No nodes or private subscription URLs are bundled. Apply your own proxy-provider via an Override.
 # Routing assets are generated Stash-native snapshots in this repository.
@@ -19,14 +19,14 @@ dns:
     - https://223.5.5.5/dns-query
   # Private names need the LAN/system resolver; public names still use DoH.
   nameserver-policy:
-    'geosite:private': system
+    'rule-set:Private-local': system
     '+.local': system
     '+.lan': system
     '+.home.arpa': system
   follow-rule: false
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
-    - 'geosite:private'
+    - 'rule-set:Private-local'
     - 'localhost'
     - '+.local'
     - '+.lan'
@@ -367,222 +367,360 @@ proxy-groups:
       - "ALL"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/3778671c7d4141ac49d734a8dfd45452a5147949/icons/Paypal.png
 rule-providers:
+  # Pinned private names, embedded for DNS and routing without GeoSite downloads.
+  Private-local:
+    type: inline
+    behavior: classical
+    payload:
+    - DOMAIN-SUFFIX,lan
+    - DOMAIN-SUFFIX,localdomain
+    - DOMAIN-SUFFIX,example
+    - DOMAIN-SUFFIX,invalid
+    - DOMAIN-SUFFIX,localhost
+    - DOMAIN-SUFFIX,test
+    - DOMAIN-SUFFIX,local
+    - DOMAIN-SUFFIX,home.arpa
+    - DOMAIN-SUFFIX,internal
+    - DOMAIN-SUFFIX,2.0.192.in-addr.arpa
+    - DOMAIN-SUFFIX,10.in-addr.arpa
+    - DOMAIN-SUFFIX,16.172.in-addr.arpa
+    - DOMAIN-SUFFIX,17.172.in-addr.arpa
+    - DOMAIN-SUFFIX,18.172.in-addr.arpa
+    - DOMAIN-SUFFIX,19.172.in-addr.arpa
+    - DOMAIN-SUFFIX,20.172.in-addr.arpa
+    - DOMAIN-SUFFIX,21.172.in-addr.arpa
+    - DOMAIN-SUFFIX,22.172.in-addr.arpa
+    - DOMAIN-SUFFIX,23.172.in-addr.arpa
+    - DOMAIN-SUFFIX,24.172.in-addr.arpa
+    - DOMAIN-SUFFIX,25.172.in-addr.arpa
+    - DOMAIN-SUFFIX,26.172.in-addr.arpa
+    - DOMAIN-SUFFIX,27.172.in-addr.arpa
+    - DOMAIN-SUFFIX,28.172.in-addr.arpa
+    - DOMAIN-SUFFIX,29.172.in-addr.arpa
+    - DOMAIN-SUFFIX,30.172.in-addr.arpa
+    - DOMAIN-SUFFIX,31.172.in-addr.arpa
+    - DOMAIN-SUFFIX,100.51.198.in-addr.arpa
+    - DOMAIN-SUFFIX,113.0.203.in-addr.arpa
+    - DOMAIN-SUFFIX,127.in-addr.arpa
+    - DOMAIN-SUFFIX,168.192.in-addr.arpa
+    - DOMAIN-SUFFIX,254.169.in-addr.arpa
+    - DOMAIN-SUFFIX,255.255.255.255.in-addr.arpa
+    - DOMAIN-SUFFIX,1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa
+    - DOMAIN-SUFFIX,8.b.d.0.1.0.0.2.ip6.arpa
+    - DOMAIN-SUFFIX,8.e.f.ip6.arpa
+    - DOMAIN-SUFFIX,9.e.f.ip6.arpa
+    - DOMAIN-SUFFIX,a.e.f.ip6.arpa
+    - DOMAIN-SUFFIX,b.e.f.ip6.arpa
+    - DOMAIN-SUFFIX,d.f.ip6.arpa
+    - DOMAIN-SUFFIX,64.100.in-addr.arpa
+    - DOMAIN-SUFFIX,65.100.in-addr.arpa
+    - DOMAIN-SUFFIX,66.100.in-addr.arpa
+    - DOMAIN-SUFFIX,67.100.in-addr.arpa
+    - DOMAIN-SUFFIX,68.100.in-addr.arpa
+    - DOMAIN-SUFFIX,69.100.in-addr.arpa
+    - DOMAIN-SUFFIX,70.100.in-addr.arpa
+    - DOMAIN-SUFFIX,71.100.in-addr.arpa
+    - DOMAIN-SUFFIX,72.100.in-addr.arpa
+    - DOMAIN-SUFFIX,73.100.in-addr.arpa
+    - DOMAIN-SUFFIX,74.100.in-addr.arpa
+    - DOMAIN-SUFFIX,75.100.in-addr.arpa
+    - DOMAIN-SUFFIX,76.100.in-addr.arpa
+    - DOMAIN-SUFFIX,77.100.in-addr.arpa
+    - DOMAIN-SUFFIX,78.100.in-addr.arpa
+    - DOMAIN-SUFFIX,79.100.in-addr.arpa
+    - DOMAIN-SUFFIX,80.100.in-addr.arpa
+    - DOMAIN-SUFFIX,81.100.in-addr.arpa
+    - DOMAIN-SUFFIX,82.100.in-addr.arpa
+    - DOMAIN-SUFFIX,83.100.in-addr.arpa
+    - DOMAIN-SUFFIX,84.100.in-addr.arpa
+    - DOMAIN-SUFFIX,85.100.in-addr.arpa
+    - DOMAIN-SUFFIX,86.100.in-addr.arpa
+    - DOMAIN-SUFFIX,87.100.in-addr.arpa
+    - DOMAIN-SUFFIX,88.100.in-addr.arpa
+    - DOMAIN-SUFFIX,89.100.in-addr.arpa
+    - DOMAIN-SUFFIX,90.100.in-addr.arpa
+    - DOMAIN-SUFFIX,91.100.in-addr.arpa
+    - DOMAIN-SUFFIX,92.100.in-addr.arpa
+    - DOMAIN-SUFFIX,93.100.in-addr.arpa
+    - DOMAIN-SUFFIX,94.100.in-addr.arpa
+    - DOMAIN-SUFFIX,95.100.in-addr.arpa
+    - DOMAIN-SUFFIX,96.100.in-addr.arpa
+    - DOMAIN-SUFFIX,97.100.in-addr.arpa
+    - DOMAIN-SUFFIX,98.100.in-addr.arpa
+    - DOMAIN-SUFFIX,99.100.in-addr.arpa
+    - DOMAIN-SUFFIX,100.100.in-addr.arpa
+    - DOMAIN-SUFFIX,101.100.in-addr.arpa
+    - DOMAIN-SUFFIX,102.100.in-addr.arpa
+    - DOMAIN-SUFFIX,103.100.in-addr.arpa
+    - DOMAIN-SUFFIX,104.100.in-addr.arpa
+    - DOMAIN-SUFFIX,105.100.in-addr.arpa
+    - DOMAIN-SUFFIX,106.100.in-addr.arpa
+    - DOMAIN-SUFFIX,107.100.in-addr.arpa
+    - DOMAIN-SUFFIX,108.100.in-addr.arpa
+    - DOMAIN-SUFFIX,109.100.in-addr.arpa
+    - DOMAIN-SUFFIX,110.100.in-addr.arpa
+    - DOMAIN-SUFFIX,111.100.in-addr.arpa
+    - DOMAIN-SUFFIX,112.100.in-addr.arpa
+    - DOMAIN-SUFFIX,113.100.in-addr.arpa
+    - DOMAIN-SUFFIX,114.100.in-addr.arpa
+    - DOMAIN-SUFFIX,115.100.in-addr.arpa
+    - DOMAIN-SUFFIX,116.100.in-addr.arpa
+    - DOMAIN-SUFFIX,117.100.in-addr.arpa
+    - DOMAIN-SUFFIX,118.100.in-addr.arpa
+    - DOMAIN-SUFFIX,119.100.in-addr.arpa
+    - DOMAIN-SUFFIX,120.100.in-addr.arpa
+    - DOMAIN-SUFFIX,121.100.in-addr.arpa
+    - DOMAIN-SUFFIX,122.100.in-addr.arpa
+    - DOMAIN-SUFFIX,123.100.in-addr.arpa
+    - DOMAIN-SUFFIX,124.100.in-addr.arpa
+    - DOMAIN-SUFFIX,125.100.in-addr.arpa
+    - DOMAIN-SUFFIX,126.100.in-addr.arpa
+    - DOMAIN-SUFFIX,127.100.in-addr.arpa
+    - DOMAIN-REGEX,^[a-z]([a-z0-9-]*[a-z0-9])?$
+    - DOMAIN,instant.arubanetworks.com
+    - DOMAIN,setmeup.arubanetworks.com
+    - DOMAIN,asusrouter.com
+    - DOMAIN,router.asus.com
+    - DOMAIN,www.asusrouter.com
+    - DOMAIN,oasisauth.h3c.com
+    - DOMAIN,routerlogin.com
+    - DOMAIN,www.routerlogin.com
+    - DOMAIN-SUFFIX,hiwifi.com
+    - DOMAIN-SUFFIX,leike.cc
+    - DOMAIN-SUFFIX,my.router
+    - DOMAIN-SUFFIX,peiluyou.com
+    - DOMAIN-SUFFIX,phicomm.me
+    - DOMAIN-SUFFIX,router.ctc
+    - DOMAIN-SUFFIX,plex.direct
+    - DOMAIN-SUFFIX,localhost.sec.qq.com
+    - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
+    - DOMAIN,localhost.weixin.qq.com
+    - DOMAIN,localhost.work.weixin.qq.com
+    - DOMAIN-SUFFIX,tendawifi.com
+    - DOMAIN-SUFFIX,tplinkwifi.net
+    - DOMAIN,tplogin.cn
+    - DOMAIN,miwifi.com
+    - DOMAIN,www.miwifi.com
+    - DOMAIN-SUFFIX,zte.home
+    - DOMAIN-SUFFIX,ts.net
+    - DOMAIN,local.adguard.org
+    - DOMAIN-SUFFIX,kis.v2.scr.kaspersky-labs.com
   "AdBlockBalanced-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/AdBlockBalanced.domain.txt
+    path: ./rules/v0.1.4/AdBlockBalanced.domain.txt
   "DomesticCore-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/DomesticCore.domain.txt
+    path: ./rules/v0.1.4/DomesticCore.domain.txt
   "DomesticSupplement-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/DomesticSupplement.domain.txt
+    path: ./rules/v0.1.4/DomesticSupplement.domain.txt
   "SteamCN-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/SteamCN.domain.txt
+    path: ./rules/v0.1.4/SteamCN.domain.txt
   "DomesticAI-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/DomesticAI.domain.txt
+    path: ./rules/v0.1.4/DomesticAI.domain.txt
   "ChatGPT-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/ChatGPT.domain.txt
+    path: ./rules/v0.1.4/ChatGPT.domain.txt
   "Gemini-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Gemini.domain.txt
+    path: ./rules/v0.1.4/Gemini.domain.txt
   "Claude-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Claude.domain.txt
+    path: ./rules/v0.1.4/Claude.domain.txt
   "AIScoped-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/AIScoped.domain.txt
+    path: ./rules/v0.1.4/AIScoped.domain.txt
   "GitHub-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/GitHub.domain.txt
+    path: ./rules/v0.1.4/GitHub.domain.txt
   "Speedtest-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Speedtest.domain.txt
+    path: ./rules/v0.1.4/Speedtest.domain.txt
   "Cloudflare-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Cloudflare.domain.txt
+    path: ./rules/v0.1.4/Cloudflare.domain.txt
   "Service-Spotify-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Service-Spotify.domain.txt
+    path: ./rules/v0.1.4/Service-Spotify.domain.txt
   "Service-Twitch-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Service-Twitch.domain.txt
+    path: ./rules/v0.1.4/Service-Twitch.domain.txt
   "Service-BBC-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Service-BBC.domain.txt
+    path: ./rules/v0.1.4/Service-BBC.domain.txt
   "Service-Line-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Service-Line.domain.txt
+    path: ./rules/v0.1.4/Service-Line.domain.txt
   "Service-Reddit-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Service-Reddit.domain.txt
+    path: ./rules/v0.1.4/Service-Reddit.domain.txt
   "Service-Linkedin-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Service-Linkedin.domain.txt
+    path: ./rules/v0.1.4/Service-Linkedin.domain.txt
   "Service-Abema-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Service-Abema.domain.txt
+    path: ./rules/v0.1.4/Service-Abema.domain.txt
   "SharedInfrastructure-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/SharedInfrastructure.domain.txt
+    path: ./rules/v0.1.4/SharedInfrastructure.domain.txt
   "AppleOTA-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/AppleOTA.domain.txt
+    path: ./rules/v0.1.4/AppleOTA.domain.txt
   "SteamGlobal-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/SteamGlobal.domain.txt
+    path: ./rules/v0.1.4/SteamGlobal.domain.txt
   "YouTube-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/YouTube.domain.txt
+    path: ./rules/v0.1.4/YouTube.domain.txt
   "YouTube-ipcidr":
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.3/YouTube.ipcidr.txt
+    path: ./rules/v0.1.4/YouTube.ipcidr.txt
   "Netflix-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Netflix.domain.txt
+    path: ./rules/v0.1.4/Netflix.domain.txt
   "Netflix-asn":
     behavior: classical
     format: text
-    path: ./rules/v0.1.3/Netflix.asn.txt
+    path: ./rules/v0.1.4/Netflix.asn.txt
   "Disney-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Disney.domain.txt
+    path: ./rules/v0.1.4/Disney.domain.txt
   "PrimeVideo-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/PrimeVideo.domain.txt
+    path: ./rules/v0.1.4/PrimeVideo.domain.txt
   "TikTok-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/TikTok.domain.txt
+    path: ./rules/v0.1.4/TikTok.domain.txt
   "Bilibili-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Bilibili.domain.txt
+    path: ./rules/v0.1.4/Bilibili.domain.txt
   "AnimeCrazy-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/AnimeCrazy.domain.txt
+    path: ./rules/v0.1.4/AnimeCrazy.domain.txt
   "Dazn-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Dazn.domain.txt
+    path: ./rules/v0.1.4/Dazn.domain.txt
   "Telegram-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Telegram.domain.txt
+    path: ./rules/v0.1.4/Telegram.domain.txt
   "Telegram-ipcidr":
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.3/Telegram.ipcidr.txt
+    path: ./rules/v0.1.4/Telegram.ipcidr.txt
   "Telegram-asn":
     behavior: classical
     format: text
-    path: ./rules/v0.1.3/Telegram.asn.txt
+    path: ./rules/v0.1.4/Telegram.asn.txt
   "Whatsapp-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Whatsapp.domain.txt
+    path: ./rules/v0.1.4/Whatsapp.domain.txt
   "Whatsapp-ipcidr":
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.3/Whatsapp.ipcidr.txt
+    path: ./rules/v0.1.4/Whatsapp.ipcidr.txt
   "Instagram-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Instagram.domain.txt
+    path: ./rules/v0.1.4/Instagram.domain.txt
   "Facebook-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Facebook.domain.txt
+    path: ./rules/v0.1.4/Facebook.domain.txt
   "Facebook-ipcidr":
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.3/Facebook.ipcidr.txt
+    path: ./rules/v0.1.4/Facebook.ipcidr.txt
   "Facebook-asn":
     behavior: classical
     format: text
-    path: ./rules/v0.1.3/Facebook.asn.txt
+    path: ./rules/v0.1.4/Facebook.asn.txt
   "Twitter-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Twitter.domain.txt
+    path: ./rules/v0.1.4/Twitter.domain.txt
   "Twitter-ipcidr":
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.3/Twitter.ipcidr.txt
+    path: ./rules/v0.1.4/Twitter.ipcidr.txt
   "Discord-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Discord.domain.txt
+    path: ./rules/v0.1.4/Discord.domain.txt
   "HBO-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/HBO.domain.txt
+    path: ./rules/v0.1.4/HBO.domain.txt
   "Google-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Google.domain.txt
+    path: ./rules/v0.1.4/Google.domain.txt
   "Google-ipcidr":
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.3/Google.ipcidr.txt
+    path: ./rules/v0.1.4/Google.ipcidr.txt
   "Microsoft-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Microsoft.domain.txt
+    path: ./rules/v0.1.4/Microsoft.domain.txt
   "Apple-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Apple.domain.txt
+    path: ./rules/v0.1.4/Apple.domain.txt
   "Steam-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Steam.domain.txt
+    path: ./rules/v0.1.4/Steam.domain.txt
   "Paypal-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/Paypal.domain.txt
+    path: ./rules/v0.1.4/Paypal.domain.txt
   "ChinaDirect-domain":
     behavior: domain
     format: text
-    path: ./rules/v0.1.3/ChinaDirect.domain.txt
+    path: ./rules/v0.1.4/ChinaDirect.domain.txt
   "ChinaDirect-ipcidr":
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.3/ChinaDirect.ipcidr.txt
+    path: ./rules/v0.1.4/ChinaDirect.ipcidr.txt
   "ChinaDirect-asn":
     behavior: classical
     format: text
-    path: ./rules/v0.1.3/ChinaDirect.asn.txt
+    path: ./rules/v0.1.4/ChinaDirect.asn.txt
 
 rules:
   # Fake-IP exceptions alone do not make a connection DIRECT.
@@ -590,7 +728,7 @@ rules:
   - "DOMAIN-SUFFIX,local,DIRECT"
   - "DOMAIN-SUFFIX,lan,DIRECT"
   - "DOMAIN-SUFFIX,home.arpa,DIRECT"
-  - "GEOSITE,private,DIRECT"
+  - "RULE-SET,Private-local,DIRECT"
   - "GEOIP,LAN,DIRECT,no-resolve"
   - "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
   - "DOMAIN,trae-api-sg.mchost.guru,AI"
@@ -600,7 +738,6 @@ rules:
   - "DOMAIN,copilot.microsoft.com,AI"
   - "DOMAIN,copilot-proxy.githubusercontent.com,AI"
   - "DOMAIN,copilot-telemetry-service.githubusercontent.com,AI"
-  - "DOMAIN,copilot-telemetry.githubusercontent.com,AI"
   - "DOMAIN,copilot-workspace.githubnext.com,AI"
   - "RULE-SET,AdBlockBalanced-domain,AdBlock"
   - "RULE-SET,DomesticCore-domain,DIRECT"

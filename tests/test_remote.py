@@ -9,7 +9,7 @@ from check_remote import PREFIX, published_url
 
 class RemoteURLTests(unittest.TestCase):
     def test_production_url_is_immutable(self):
-        self.assertIn("d63fa06b915d403e2cebc782a8f1551d32b6c927", PREFIX)
+        self.assertIn("f4feec81dfc9bde9824d297b6959fa977d5dc39b", PREFIX)
         self.assertNotIn("/main/", PREFIX)
         url = PREFIX + "ChatGPT.domain.txt"
         self.assertEqual(published_url({"url": url}), (url, "ChatGPT.domain.txt"))
