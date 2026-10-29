@@ -185,15 +185,23 @@ def validate_profile(profile):
     require(isinstance(groups, list) and bool(groups), "proxy-groups: expected nonempty list")
     names = []
     for group in groups:
-        fields(group, {"name", "type", "proxies", "use", "include-all", "filter", "icon", "interval",
+        fields(group, {"name", "type", "proxies", "use", "use-url", "include-all", "filter", "icon", "interval",
                        "tolerance", "lazy", "hidden"}, {"name", "type"}, "proxy-group")
         text(group["name"], "proxy-group.name")
         require(group["type"] in {"select", "url-test", "fallback", "load-balance", "relay"},
                 f"{group['name']}: unsupported group type {group['type']}")
         names.append(group["name"])
-        for key in ("proxies", "use"):
+        for key in ("proxies", "use", "use-url"):
             if key in group:
                 string_list(group[key], f"{group['name']}.{key}")
+        if "use-url" in group:
+            require(bool(group["use-url"]), f"{group['name']}.use-url must not be empty")
+            for url in group["use-url"]:
+                http_url(url, f"{group['name']}.use-url")
+                require(urlsplit(url).scheme == "https",
+                        f"{group['name']}.use-url must use HTTPS")
+            require(not group.get("use") and not group.get("include-all"),
+                    f"{group['name']}: use-url cannot mix with use/include-all")
         for key in ("include-all", "lazy", "hidden"):
             if key in group:
                 require(type(group[key]) is bool, f"{group['name']}.{key}: expected boolean")
