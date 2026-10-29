@@ -8,9 +8,11 @@
 
 **服务分流** — 提供与 LoonKit 一致的 39 个策略组，覆盖 AI、开发平台、流媒体、社交及国内常用服务；广告请求由 `AdBlock` 处理。
 
+**服务直连** — Apple、Microsoft、Bilibili、Line、Speedtest 默认可选直连（首选为 `DIRECT`），Steam 可手动直连但默认走代理；国内核心服务、国内 AI 和 SteamCN CDN 在规则层直连。海外 AI / 流媒体保留独立代理选择，不把 `DIRECT` 泛加到所有服务或 `Proxy`。详见[路由策略](./docs/ROUTING.md)。
+
 **节点选路** — `Proxy` 明确包含 `Auto` / `Fallback`，并通过 `include-all` 和 `filter: '.*'` 收集订阅节点。ChatGPT 等服务组同时明确列出 `Proxy` / `Auto` / `Fallback` 和动态节点；没有 `ALL`、`Manual` 或具名 Provider 要求。项目不包含节点或个人订阅。
 
-**LoonKit 选路兼容性** — 除公共配置的 `include-all` 外，还支持基于 Stash 原生 `use-url` 的[私有订阅生成方案](./docs/LOON_POLICY_GROUPS.md)：只需在本地提供已有 HTTPS 节点订阅 URL，不必指定 Provider 名称或列举节点，`Proxy` 与服务组明确列出 `Auto` / `Fallback`，并引用相同的动态订阅。无需 `ALL` / `Manual` 中转组；生成的私有文件含订阅凭据，不能提交到公开仓库。iOS 实际显示仍需验收。
+**LoonKit 选路兼容性** — 除公共配置的 `include-all` 外，还支持基于 Stash 原生 `use-url` 的[私有订阅生成方案](./docs/LOON_POLICY_GROUPS.md)：只需在本地提供已有 HTTPS 节点订阅 URL，不必指定 Provider 名称或列举节点，`Proxy` 与服务组明确列出 `Auto` / `Fallback`，并引用相同的动态订阅。无需 `ALL` / `Manual` 中转组；私有生成版 `Proxy` 以 `Auto` 为首选，`REJECT` 放在最后作为明确的拒绝兜底，保留上述服务的 `DIRECT` 选择。生成的私有文件含订阅凭据，不能提交到公开仓库。iOS 实际显示仍需验收。
 
 **网络保护** — 使用 Stash Fake-IP、AliDNS 加密 DNS 和前置 STUN/常见 TURN 端口拦截规则。WebRTC 防护仅适用于被 Stash Tunnel 接管的连接。
 
