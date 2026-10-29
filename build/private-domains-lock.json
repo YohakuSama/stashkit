@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "repository": "v2fly/domain-list-community",
+  "commit": "fc0a0693ec4e5c09938957c98aa11e530764492f",
+  "source_path": "build/private-domains.source.txt",
+  "upstream_path": "data/private",
+  "source_sha256": "b1de221f355a0870577812f641ff4beb9a96bd838d1be21c0bce5f3e10241ced",
+  "license_path": "rules/LICENSE.MIT-PRIVATE",
+  "license_sha256": "b9d84a22870d3f21c91a4c6e410c9cc51d00902f5233ad0c84011479244bf7d2",
+  "rule_count": 133
+}

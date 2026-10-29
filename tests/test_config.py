@@ -25,11 +25,14 @@ class ConfigTests(unittest.TestCase):
         validate_profile(merged)
 
     def test_all_rules_use_immutable_refs_and_explicit_cache_paths(self):
-        pin = "d63fa06b915d403e2cebc782a8f1551d32b6c927"
+        pin = "f4feec81dfc9bde9824d297b6959fa977d5dc39b"
         for name, provider in self.profile["rule-providers"].items():
             with self.subTest(provider=name):
+                if provider.get("type") == "inline":
+                    self.assertEqual(name, "Private-local")
+                    continue
                 self.assertIn("/" + pin + "/rules/", provider["url"])
-                self.assertEqual(provider["path"], "./rules/v0.1.3/" + provider["url"].rsplit("/", 1)[1])
+                self.assertEqual(provider["path"], "./rules/v0.1.4/" + provider["url"].rsplit("/", 1)[1])
         for group in self.profile["proxy-groups"]:
             self.assertIn("icon", group)
             self.assertIn("/icons/", group["icon"])
@@ -106,6 +109,38 @@ class ConfigTests(unittest.TestCase):
     def test_duplicate_yaml_keys_rejected(self):
         with self.assertRaisesRegex(AssertionError, "Duplicate YAML key"):
             yaml.load("dns: {}\ndns: {}\n", Loader=UniqueKeysLoader)
+
+    def test_malformed_rule_values_rejected(self):
+        for row in ("DOMAIN,bad domain,Proxy", "DOMAIN-SUFFIX,https://example.com,Proxy",
+                    "DOMAIN,a..example.com,Proxy", "GEOIP,NOT-A-COUNTRY,DIRECT",
+                    "IP-ASN,4294967296,Proxy", "IP-ASN,0,Proxy", "DOMAIN-REGEX,[,Proxy"):
+            with self.subTest(row=row):
+                profile = copy.deepcopy(self.profile)
+                profile["rules"].insert(-1, row)
+                with self.assertRaises(ValueError):
+                    validate_profile(profile)
+
+    def test_match_cannot_hide_later_rules(self):
+        self.profile["rules"].insert(0, "MATCH,Proxy")
+        with self.assertRaisesRegex(ValueError, "MATCH"):
+            validate_profile(self.profile)
+
+    def test_dns_collections_must_exist_and_match_domains(self):
+        for name in ("missing", "YouTube-ipcidr"):
+            with self.subTest(name=name):
+                profile = copy.deepcopy(self.profile)
+                profile["dns"]["fake-ip-filter"].append("rule-set:" + name)
+                with self.assertRaises(ValueError):
+                    validate_profile(profile)
+
+    def test_malformed_inline_provider_is_rejected(self):
+        for key, value in (("payload", ["DOMAIN,bad domain"]), ("url", "https://example.com"),
+                           ("payload", ["DOMAIN-REGEX,["])):
+            with self.subTest(key=key, value=value):
+                profile = copy.deepcopy(self.profile)
+                profile["rule-providers"]["Private-local"][key] = value
+                with self.assertRaises(ValueError):
+                    validate_profile(profile)
 
 
 if __name__ == "__main__":

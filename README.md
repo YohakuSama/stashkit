@@ -2,7 +2,7 @@
 
 独立的 Stash 原生分流配置，基于 [LoonKit v7.0.10](https://github.com/YohakuSama/loonkit/tree/5f272104fc1207612c1cbd18f3e19d861d459ed9) 正式规则。全部规则自本仓库托管，不依赖旧的 `loonkit/stashkit` 目录。
 
-当前配置版本 **v0.1.3**。最低文档支持范围为 **Stash iOS/tvOS 3.6+、macOS 4.3+**，用于加密 DNS bootstrap 和独立的节点域名解析；不适用于把同名字段直接套到旧版 Clash 或 Loon。[变更记录](./docs/CHANGELOG.md) · [真机验收步骤](./docs/VALIDATION.md) · [架构审计与剩余风险](./docs/ARCHITECTURE_AUDIT.md)。
+当前配置版本 **v0.1.4**。最低文档支持范围为 **Stash iOS/tvOS 3.6+、macOS 4.3+**，用于加密 DNS bootstrap 和独立的节点域名解析；不适用于把同名字段直接套到旧版 Clash 或 Loon。[变更记录](./docs/CHANGELOG.md) · [真机验收步骤](./docs/VALIDATION.md) · [架构审计与剩余风险](./docs/ARCHITECTURE_AUDIT.md)。
 
 ## 导入
 
@@ -22,9 +22,9 @@ Auto、Fallback、ALL 中的 `REJECT` 仅为尚未配置节点池时的占位。
 
 ## 规则与策略
 
-- 以 LoonKit 43 份正式源文件的 **196,561** 条匹配器为基准，经[明确列出的本地修正](./build/adjustments.json)生成 **54 个 Stash 原生规则集**：43 domain、7 ipcidr、4 classical ASN，共 **196,562** 条匹配器。
+- 以 LoonKit 43 份正式源文件的 **196,561** 条匹配器为基准，经[明确列出的本地修正](./build/adjustments.json)生成 **54 个 Stash 原生规则集**：43 domain、7 ipcidr、4 classical ASN，共 **196,570** 条文件匹配器；另内嵌 **133** 条私网匹配器，合计 **55** 个 provider。
 - 保留原有 39 个策略组，另新增 ALL 全量节点池（共 **40** 组）。保留策略首选项及 IP 子集 `no-resolve`；内网、GitHub Raw 和 Steam 国内 CDN 的优先级修正见[路由说明](./docs/ROUTING.md)。
-- AdBlockBalanced **76,895** 条、ChinaDirect **114,705** 条按域名/IP 类型拆分；不把大型规则直接作为顺序匹配的 classical。
+- AdBlockBalanced **76,903** 条、ChinaDirect **114,705** 条按域名/IP 类型拆分；不把大型规则直接作为顺序匹配的 classical。
 - 使用 **Stash 自身的 Fake-IP + AliDNS DoH**。上游 DNS 与代理节点域名解析采用独立的 DNS 配置；不照搬 Loon 的 `real-ip` / `hijack-dns` 等指令，且 **DoH 加密不等于 DNS 一定经代理**。
 - 原 Loon 专用插件/脚本不冒充 Stash 兼容组件。
 
@@ -33,14 +33,14 @@ Auto、Fallback、ALL 中的 `REJECT` 仅为尚未配置节点池时的占位。
 - `dns.default-nameserver: https://223.5.5.5/dns-query`：使用 **IP 地址直连的加密 DoH** 解析 DoH 服务器的主机名，避免原先 `223.5.5.5` / `223.6.6.6` 普通 UDP DNS 的明文引导查询。CI 会测试该 IPv4 HTTPS 端点的证书和 RFC8484 应答。
 - `dns.nameserver: https://dns.alidns.com/dns-query`：Stash 的主 DNS 上游，默认**直连 DoH**，不是自动走代理。外部 DoH 服务商可看到需要真实解析的查询；Fake-IP 只能减少部分代理域名的本地 DNS 查询。
 - `dns.proxy-server-nameserver`：专门解析节点服务器域名，避免递归 DNS；同样采用加密 DoH，节点服务器名仍可能被 DNS 服务商看到。
-- 私有域名通过限定范围的 `nameserver-policy` 使用 `system`，便于访问路由器、NAS 和内网服务；这部分查询可能使用局域网明文 DNS，公共域名仍交给 DoH。私有域名和 LAN 地址另有前置 `DIRECT` 规则；`fake-ip-filter` 本身不负责直连。企业自定义域名需自行补充对应内网 DNS policy。
+- 私有域名通过内嵌 `Private-local` 集合和限定范围的 `nameserver-policy` 使用 `system`，便于访问路由器、NAS 和内网服务；这部分查询可能使用局域网明文 DNS，公共域名仍交给 DoH。私有域名和 LAN 地址另有前置 `DIRECT` 规则；`fake-ip-filter` 本身不负责直连。企业自定义域名需自行补充对应内网 DNS policy。私网名单来自固定的 V2Fly `data/private`，源码和 SHA256 见 [私网源锁](./build/private-domains-lock.json)；精确域名、后缀和单标签 DNS 名称均内嵌配置，不再首次下载 GeoSite。
 - `dns.fake-ip-filter`：仅保留私有域名、局域网、网络探测、游戏及 STUN 的有限兼容例外。移除了此前沿用 LoonKit 的 `+.apple.com`、`+.icloud.com` **大范围 Real-IP 例外**，防止不必要的真实 DNS 查询。
 - `dns.follow-rule: false`：显式保留 Stash 官方默认行为，不把所有 DNS 强行代理（可能导致代理节点域名递归解析、CDN 延迟）。如需海外 DNS 全程代理，须根据自己的节点 IP/域名及 `proxy-server-nameserver` 单独设计，不能简单打开开关。
 - **不保证绝对无 DNS 泄漏**：其他 App 的内置 DoH、直连路径、VPN/Network Extension 的接管情况都需要设备上验证；建议在 Stash 连接后检查 DNS 测试和请求记录。
 
 Stash 官方参考：[DNS 服务](https://stash.wiki/features/dns-server) · [策略组](https://stash.wiki/proxy-protocols/proxy-groups) · [高效配置](https://stash.wiki/faq/effective-stash)。
 
-## v0.1.3：不可变规则与首次加载
+## v0.1.4：广告修正、内嵌私网与不可变规则
 
 **在线配置（推荐）：**
 
@@ -48,11 +48,11 @@ Stash 官方参考：[DNS 服务](https://stash.wiki/features/dns-server) · [�
 https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml
 ```
 
-54 个规则 URL 固定到经 CI 验证的 commit `d63fa06b915d403e2cebc782a8f1551d32b6c927`，而不是可变 `main`。所有规则使用 **`path: ./rules/v0.1.3/<文件名>`**，Stash 会先读本地缓存，后台更新成功后覆写缓存。这避免了不同发布版本共享缓存路径，也降低重启时的网络依赖；**首次无缓存、GitHub Raw 被屏蔽时仍需要人工离线安装**。更新发布应先在仓库提交并验证规则，再发布一份指向该不可变提交的新配置；不能一次提交新规则并让配置引用未出现的版本。
+54 个规则 URL 固定到单独发布的规则快照 commit `f4feec81dfc9bde9824d297b6959fa977d5dc39b`，而不是可变 `main`。所有规则使用 **`path: ./rules/v0.1.4/<文件名>`**，Stash 会先读本地缓存，后台更新成功后覆写缓存。这避免了不同发布版本共享缓存路径，也降低重启时的网络依赖；**首次无缓存、GitHub Raw 被屏蔽时仍需要人工离线安装**。更新发布应先在仓库提交并验证规则，再发布一份指向该不可变提交的新配置；不能一次提交新规则并让配置引用未出现的版本。
 
-**离线资源包（GitHub Actions 产物）：** 在 [CI 工作流](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) 最新成功的 `main` 运行记录中下载 `StashKit-v0.1.3-offline`；包含 `StashKit-Local.yaml`、54 份规则文件和 `SHA256SUMS.txt`。也可自行运行 `python scripts/build_offline_bundle.py` 制作同一 ZIP。
+**离线资源包（GitHub Actions 产物）：** 在 [CI 工作流](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) 最新成功的 `main` 运行记录中下载 `StashKit-v0.1.4-offline`；包含 `StashKit-Local.yaml`、54 份规则文件和 `SHA256SUMS.txt`。也可自行运行 `python scripts/build_offline_bundle.py` 制作同一 ZIP。
 
-离线配置：[StashKit-Local.yaml](./StashKit-Local.yaml)（**仅引用本地 `path`，不进行远程规则下载**）。重要：**Stash 不会因为打开 ZIP 就自动将规则文件复制进其管理的资源目录。** 必须先把 ZIP 内 `rules/v0.1.3/*.txt` 按相同相对路径放入 Stash 的受管理规则资源目录，确认 54 个 provider 都已加载，才可启用本地配置。路径管理需按 Stash 实际版本的界面和 iCloud 目录操作；若设备不允许手动写入资源目录，不要把离线方式当成一键方案。参见 [Stash 官方 rule-provider 缓存说明](https://stash.wiki/rules/rule-set)。
+离线配置：[StashKit-Local.yaml](./StashKit-Local.yaml)（**文件规则仅引用本地 `path`，私网规则内嵌；不进行远程规则下载**）。重要：**Stash 不会因为打开 ZIP 就自动将规则文件复制进其管理的资源目录。** 必须先把 ZIP 内 `rules/v0.1.4/*.txt` 按相同相对路径放入 Stash 的受管理规则资源目录，确认 54 个文件 provider 和内嵌私网 provider 都已加载，才可启用本地配置。路径管理需按 Stash 实际版本的界面和 iCloud 目录操作；若设备不允许手动写入资源目录，不要把离线方式当成一键方案。参见 [Stash 官方 rule-provider 缓存说明](https://stash.wiki/rules/rule-set)。
 
 **严格 DNS 隐私配置（直接导入可选）：**
 
@@ -60,11 +60,13 @@ https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml
 https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit-Privacy.yaml
 ```
 
-[StashKit-Privacy.yaml](./StashKit-Privacy.yaml) 直接开启 `dns.follow-rule: true`，并把 `dns.alidns.com` 的 DoH 请求优先交给 Proxy。与普通配置相比，**54 份规则、40 个策略组、全部分流顺序不变**，但必须先添加并选定可用节点，否则 DNS 可能失败。此配置不是全设备防泄漏保证：节点 DNS bootstrap 和私有 LAN DNS 仍通过独立直连链路。
+[StashKit-Privacy.yaml](./StashKit-Privacy.yaml) 直接开启 `dns.follow-rule: true`，并把 `dns.alidns.com` 的 DoH 请求优先交给 Proxy。与普通配置相比，**54 份文件规则、1 个内嵌私网集合和 40 个策略组一致**，但必须先添加并选定可用节点，否则 DNS 可能失败。此配置不是全设备防泄漏保证：节点 DNS bootstrap 和私有 LAN DNS 仍通过独立直连链路。
 
 **DNS 隐私模式（覆写现有普通配置，可选）：** 配好真实节点、让 `Proxy` 组实际使用节点后，启用 [DNS 隐私覆写](./overrides/dns-privacy.stoverride.example)，另存为 `.stoverride`。它将 `dns.follow-rule` 设为 `true`，并将 `dns.alidns.com` 的 DoH 连接先于国内直连规则交给 `Proxy`。如果节点失效、尚未选节点或网络阻断，该模式可能导致**DNS 解析失败或变慢**；故不作为通用默认值。代理节点自身的加密 DNS bootstrap、节点域名解析仍走独立直连 DoH；内网 `system` DNS 仍会经局域网链路。此模式也不能保证设备上所有程序的 DNS 都被代理。
 
 **策略组图标（独立托管）：** [icons/](./icons/) 中保留 38 张原始 LoonKit PNG，更新 HBO 图标并为 ALL 新增独立图标，共 40 张。普通、严格 DNS 和本地规则配置均从 StashKit 固定提交 `3778671c7d4141ac49d734a8dfd45452a5147949` 加载图标；不依赖旧 LoonKit 仓库。若手机仍显示缓存图标，请更新或重新导入配置。CI 校验 PNG Git blob 与远程 URL 的字节一致性；离线状态下图标可能暂不显示（不影响规则）。
+
+广告规则补齐 Google Ads / DoubleClick / Analytics 的常用域名及 `-cn` 变体，并让已有 Copilot 遥测拦截规则优先生效。`AdBlock` 改选 `DIRECT` 会直接放行已命中的请求，不会继续后续服务分流；误拦请按域名添加指向正确服务组的精确例外。共享域名的策略范围见 [路由说明](./docs/ROUTING.md)。
 
 ## 自动校验
 

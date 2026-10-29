@@ -1,6 +1,6 @@
 # 生成规则与来源
 
-本目录包含 54 份 Stash text 规则集：43 domain、7 ipcidr、4 classical ASN；当前共 196,562 条匹配器。
+本目录包含 54 份 Stash text 规则集：43 domain、7 ipcidr、4 classical ASN；当前共 196,570 条文件匹配器。配置另内嵌 133 条 `Private-local` 私网匹配器，共 55 个 provider；私网源文件、摘要和许可证见 [私网源锁](../build/private-domains-lock.json)。
 
 输入为 [LoonKit v7.0.10 固定源清单](../build/release_manifest.json)，共有 43 个源文件、196,561 条匹配器；[本地调整](../build/adjustments.json)显式登记了增删与原因。清单中的 URI 指向原始 Loon 资产，不能作为 Stash 规则 URL 直接导入。Stash 实际入口为 [StashKit.yaml](../StashKit.yaml) 中本仓库的 rule-providers。
 

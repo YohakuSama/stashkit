@@ -4,7 +4,10 @@ This is intentionally a project schema, not a schema for every Stash feature.
 Extend it alongside tests when adopting another documented native feature.
 """
 import ipaddress
+import re
 from urllib.parse import urlsplit
+
+from rule_sources import valid_domain
 
 BUILTINS = {"DIRECT", "REJECT", "REJECT-DROP"}
 
@@ -94,6 +97,47 @@ def validate_headers(headers, where):
             text(value, where)
 
 
+def validate_matcher(kind, value, where):
+    text(value, where)
+    if kind in {"DOMAIN", "DOMAIN-SUFFIX"}:
+        valid_domain(value)
+    elif kind == "DOMAIN-REGEX":
+        try:
+            re.compile(value)
+        except re.error as error:
+            raise ValueError(f"{where}: invalid regular expression") from error
+    elif kind in {"IP-CIDR", "IP-CIDR6"}:
+        version = ipaddress.ip_network(value, strict=False).version
+        require(version == (4 if kind == "IP-CIDR" else 6), f"Wrong address family: {where}")
+    elif kind == "IP-ASN":
+        require(value.isdigit() and 0 < int(value) <= 4294967295, f"Invalid ASN: {where}")
+    elif kind == "GEOIP":
+        require(value in {"LAN", "UNKNOWN"} or bool(re.fullmatch(r"[A-Z]{2}", value)),
+                f"Invalid GEOIP value: {where}")
+    elif kind == "GEOSITE":
+        require(bool(re.fullmatch(r"[A-Za-z0-9_@!.-]+", value)), f"Invalid GEOSITE value: {where}")
+    else:
+        raise ValueError(f"Unsupported matcher: {where}")
+
+
+def validate_inline(spec, where):
+    fields(spec, {"type", "behavior", "payload"}, {"type", "behavior", "payload"}, where)
+    string_list(spec["payload"], where + ".payload", nonempty=True)
+    for row in spec["payload"]:
+        if spec["behavior"] == "domain":
+            valid_domain(row[2:] if row.startswith("+.") else row)
+        elif spec["behavior"] == "ipcidr":
+            ipaddress.ip_network(row, strict=False)
+        else:
+            pieces = row.split(",")
+            require(len(pieces) >= 2, f"Malformed inline rule: {row}")
+            kind, value, *options = pieces
+            validate_matcher(kind, value, row)
+            require(not options or (options == ["no-resolve"] and
+                    kind in {"GEOIP", "IP-ASN", "IP-CIDR", "IP-CIDR6"}),
+                    f"Unsupported inline options: {row}")
+
+
 def validate_proxy_providers(providers):
     require(isinstance(providers, dict), "proxy-providers: expected mapping")
     for name, spec in providers.items():
@@ -142,6 +186,8 @@ def validate_profile(profile):
         for key in ("interval", "tolerance"):
             if key in group:
                 require(type(group[key]) is int, f"{group['name']}.{key}: expected integer")
+        if "interval" in group:
+            require(group["interval"] > 0, f"{group['name']}: interval must be positive")
         if "tolerance" in group:
             require(group["type"] == "url-test" and group["tolerance"] >= 0,
                     f"{group['name']}: tolerance is for url-test and must be nonnegative")
@@ -175,14 +221,19 @@ def validate_profile(profile):
     require(isinstance(providers, dict), "rule-providers: expected mapping")
     for name, spec in providers.items():
         text(name, "rule-providers name")
-        fields(spec, {"behavior", "format", "url", "path", "interval", "headers"},
-               {"behavior", "format"}, f"rule-providers.{name}")
+        fields(spec, {"type", "payload", "behavior", "format", "url", "path", "interval", "headers"},
+               {"behavior"}, f"rule-providers.{name}")
+        require(spec["behavior"] in {"domain", "ipcidr", "classical"}, f"{name}: invalid behavior")
+        if spec.get("type") == "inline":
+            validate_inline(spec, f"rule-providers.{name}")
+            continue
+        require("type" not in spec and "payload" not in spec, f"{name}: unsupported provider type")
+        require("format" in spec, f"{name}: format required")
         require("url" in spec or "path" in spec, f"{name}: remote URL or local path required")
         if "url" in spec:
             require("interval" in spec, f"{name}: remote provider interval required")
         else:
             require("interval" not in spec, f"{name}: local-only provider cannot auto-update")
-        require(spec["behavior"] in {"domain", "ipcidr", "classical"}, f"{name}: invalid behavior")
         require(spec["format"] in {"text", "yaml"}, f"{name}: invalid format")
         if "url" in spec:
             http_url(spec["url"], f"{name}.url")
@@ -192,10 +243,22 @@ def validate_profile(profile):
             validate_headers(spec["headers"], f"{name}.headers")
         if "path" in spec:
             text(spec["path"], f"{name}.path")
+    dns_refs = list(profile["dns"].get("nameserver-policy", {})) + profile["dns"].get("fake-ip-filter", [])
+    for value in dns_refs:
+        if value.startswith("rule-set:"):
+            name = value[len("rule-set:"):]
+            require(name in providers, f"Unknown DNS rule provider: {name}")
+            spec = providers[name]
+            require(spec["behavior"] != "ipcidr", f"DNS rule provider must match domains: {name}")
+            if spec.get("type") == "inline" and spec["behavior"] == "classical":
+                require(all(row.startswith(("DOMAIN,", "DOMAIN-SUFFIX,", "DOMAIN-REGEX,"))
+                            for row in spec["payload"]), f"DNS inline provider must contain only domains: {name}")
     string_list(profile["rules"], "rules", nonempty=True)
+    require(sum(rule.startswith("MATCH,") for rule in profile["rules"]) == 1 and
+            profile["rules"][-1].startswith("MATCH,"), "MATCH must occur exactly once at the end")
     for rule in profile["rules"]:
         kind, *args = rule.split(",")
-        require(kind in {"DOMAIN", "DOMAIN-SUFFIX", "GEOIP", "GEOSITE", "IP-CIDR", "IP-CIDR6",
+        require(kind in {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-REGEX", "GEOIP", "GEOSITE", "IP-CIDR", "IP-CIDR6",
                          "IP-ASN", "RULE-SET", "MATCH"}, f"Unsupported StashKit rule: {rule}")
         required = 1 if kind == "MATCH" else 2
         require(len(args) >= required, f"Malformed rule: {rule}")
@@ -211,11 +274,8 @@ def validate_profile(profile):
             text(args[0], f"Rule value: {rule}")
         if kind == "RULE-SET":
             require(args[0] in providers, f"Unknown rule provider: {rule}")
-        if kind in {"IP-CIDR", "IP-CIDR6"}:
-            version = ipaddress.ip_network(args[0], strict=False).version
-            require(version == (4 if kind == "IP-CIDR" else 6), f"Wrong address family: {rule}")
-        if kind == "IP-ASN":
-            require(args[0].isdigit(), f"Invalid ASN: {rule}")
+        elif kind != "MATCH":
+            validate_matcher(kind, args[0], rule)
 
 
 def validate_override(override):

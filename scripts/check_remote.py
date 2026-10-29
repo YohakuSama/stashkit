@@ -18,7 +18,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "StashKit.yaml"
-PREFIX = "https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/"
+PREFIX = "https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/"
 
 
 def published_url(spec, ref=None):
@@ -31,7 +31,7 @@ def published_url(spec, ref=None):
     if ref is not None:
         if not re.fullmatch(r"[0-9a-f]{40}", ref):
             raise ValueError("--ref must be a full lowercase commit SHA")
-        url = PREFIX.replace("/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/", f"/{ref}/rules/") + basename
+        url = PREFIX.replace("/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/", f"/{ref}/rules/") + basename
     return url, basename
 
 
@@ -68,7 +68,7 @@ def check(item, ref=None):
 
 def main(ref=None):
     config = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
-    items = list(config["rule-providers"].items())
+    items = [(name, spec) for name, spec in config["rule-providers"].items() if "url" in spec]
     if len(items) != 54:
         raise AssertionError(f"Expected 54 providers, got {len(items)}")
     total_bytes = 0
@@ -78,7 +78,7 @@ def main(ref=None):
             name, size = future.result()
             total_bytes += size
             print(f"PASS: {name} HTTP 200, {size} bytes, exact byte-for-byte match")
-    print(f"PASS: all 54 pinned GitHub Raw URLs verified at {ref or 'd63fa06b915d403e2cebc782a8f1551d32b6c927'}, {total_bytes:,} total bytes")
+    print(f"PASS: all 54 pinned GitHub Raw URLs verified at {ref or 'f4feec81dfc9bde9824d297b6959fa977d5dc39b'}, {total_bytes:,} total bytes")
 
 
 if __name__ == "__main__":

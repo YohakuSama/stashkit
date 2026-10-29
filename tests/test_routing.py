@@ -1,9 +1,10 @@
 """Offline routing sentinels, not a replacement for Stash's /rules/match.
 
-Only the profile's explicit domain rules, text providers and private IPs are
-modelled. GeoSite data, public GeoIP/ASN data and DNS resolution require Stash.
+Only explicit domain rules, inline private rules, text providers and private IPs
+are modelled. Public GeoIP/ASN data and DNS resolution require Stash.
 """
 import ipaddress
+import re
 import sys
 import unittest
 from functools import lru_cache
@@ -29,6 +30,7 @@ def provider_entries(filename):
 
 def route(target, profile):
     """Return the first statically decidable policy for a sentinel target."""
+    target = target.lower().rstrip(".")
     try:
         address = ipaddress.ip_address(target)
     except ValueError:
@@ -49,7 +51,15 @@ def route(target, profile):
                 return policy
         if kind == "RULE-SET":
             spec = profile["rule-providers"][value]
-            entries = provider_entries(spec["url"].rsplit("/", 1)[1])
+            entries = spec["payload"] if spec.get("type") == "inline" else provider_entries(
+                spec.get("url", spec.get("path")).rsplit("/", 1)[1])
+            if spec["behavior"] == "classical" and address is None:
+                for row in entries:
+                    matcher, value, *_ = row.split(",")
+                    if ((matcher == "DOMAIN" and target == value) or
+                        (matcher == "DOMAIN-SUFFIX" and value in suffixes) or
+                        (matcher == "DOMAIN-REGEX" and re.search(value, target))):
+                        return policy
             if spec["behavior"] == "domain" and address is None:
                 if target in entries or any("+." + suffix in entries for suffix in suffixes):
                     return policy
@@ -74,7 +84,7 @@ class RoutingTests(unittest.TestCase):
 
     def test_private_dns_is_scoped_to_system(self):
         dns = self.profile["dns"]
-        for name in ("geosite:private", "+.local", "+.lan", "+.home.arpa"):
+        for name in ("rule-set:Private-local", "+.local", "+.lan", "+.home.arpa"):
             self.assertEqual(dns["nameserver-policy"][name], "system")
             self.assertIn(name, dns["fake-ip-filter"])
         self.assertEqual(dns["nameserver"], ["https://dns.alidns.com/dns-query"])
@@ -99,6 +109,30 @@ class RoutingTests(unittest.TestCase):
             with self.subTest(target=target):
                 self.assertEqual(route(target, self.profile), policy)
 
+    def test_google_ads_and_copilot_telemetry_are_blocked_in_every_profile(self):
+        targets = ("googleads.g.doubleclick.net", "pagead2.googlesyndication.com",
+                   "www.googleadservices.com", "www.google-analytics.com",
+                   "www.doubleclick-cn.net", "www.googlesyndication-cn.com",
+                   "www.googleadservices-cn.com", "www.google-analytics-cn.com",
+                   "copilot-telemetry.githubusercontent.com")
+        for name in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+            profile = yaml.load((ROOT / name).read_text(), Loader=UniqueKeysLoader)
+            for target in targets:
+                with self.subTest(profile=name, target=target):
+                    self.assertEqual(route(target, profile), "AdBlock")
+            for target, policy in (("www.google.com", "Google"), ("accounts.google.com", "Google"),
+                                   ("copilot-proxy.githubusercontent.com", "AI")):
+                self.assertEqual(route(target, profile), policy)
+
+    def test_private_names_work_without_geosite_downloads(self):
+        for name in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+            profile = yaml.load((ROOT / name).read_text(), Loader=UniqueKeysLoader)
+            self.assertNotIn("GEOSITE,private,DIRECT", profile["rules"])
+            for target in ("nas", "router.internal", "host.localdomain", "router.asus.com",
+                           "host.ts.net", "1.168.192.in-addr.arpa", "localhost.weixin.qq.com"):
+                with self.subTest(profile=name, target=target):
+                    self.assertEqual(route(target, profile), "DIRECT")
+
     def test_streaming_cdn_exceptions_are_scoped(self):
         expected = {
             "www.digicert.com": "Final",
@@ -109,6 +143,10 @@ class RoutingTests(unittest.TestCase):
             "other.steamcontent.com": "Steam",
             "control.kochava.com": "AdBlock",
             "graph.facebook.com": "Whatsapp",
+            "www.amazon.com": "PrimeVideo",
+            "redirector.gvt1.com": "YouTube",
+            "api.statsig.com": "Proxy",
+            "challenges.cloudflare.com": "Cloudflare",
         }
         for target, policy in expected.items():
             with self.subTest(target=target):

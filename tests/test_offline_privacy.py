@@ -18,16 +18,19 @@ class OfflineAndPrivacyTests(unittest.TestCase):
         binary = make_zip()
         with zipfile.ZipFile(io.BytesIO(binary)) as archive:
             names = archive.namelist()
-            self.assertEqual(len([n for n in names if n.startswith("rules/v0.1.3/")]), 54)
+            self.assertEqual(len([n for n in names if n.startswith("rules/v0.1.4/")]), 54)
             self.assertEqual(len(names), 57)
             self.assertEqual(archive.read("StashKit-Local.yaml"),
                              (ROOT / "StashKit-Local.yaml").read_bytes())
             profile = yaml.safe_load(archive.read("StashKit-Local.yaml"))
-            self.assertEqual(len(profile["rule-providers"]), 54)
+            self.assertEqual(len(profile["rule-providers"]), 55)
             for provider in profile["rule-providers"].values():
                 self.assertNotIn("url", provider)
                 self.assertNotIn("interval", provider)
-                self.assertTrue(provider["path"].startswith("./rules/v0.1.3/"))
+                if provider.get("type") == "inline":
+                    self.assertNotIn("path", provider)
+                    continue
+                self.assertTrue(provider["path"].startswith("./rules/v0.1.4/"))
             validate_profile(profile)
 
     def test_bundle_is_byte_reproducible(self):
@@ -55,7 +58,7 @@ class OfflineAndPrivacyTests(unittest.TestCase):
         self.assertEqual(profile["rules"][0], "DOMAIN,dns.alidns.com,Proxy")
         self.assertEqual(profile["dns"]["proxy-server-nameserver"],
                          ["https://223.5.5.5/dns-query"])
-        self.assertEqual(profile["dns"]["nameserver-policy"]["geosite:private"], "system")
+        self.assertEqual(profile["dns"]["nameserver-policy"]["rule-set:Private-local"], "system")
 
 
 if __name__ == "__main__":

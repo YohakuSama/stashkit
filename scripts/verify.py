@@ -9,16 +9,17 @@ from pathlib import Path
 
 import yaml
 from validate_config import validate_profile, validate_override
+from private_rules import NAME as PRIVATE_NAME, private_provider
 from rule_sources import (KIT, ROOT, valid_domain, lines_from, generate_source_sets,
                           load_adjustments, apply_adjustments, load_baseline, render_asset)
 
-SOURCE_URL = "https://raw.githubusercontent.com/YohakuSama/stashkit/d63fa06b915d403e2cebc782a8f1551d32b6c927/rules/"
+SOURCE_URL = "https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/"
 LOCAL_DIRECT_RULES = [
     "DOMAIN,localhost,DIRECT",
     "DOMAIN-SUFFIX,local,DIRECT",
     "DOMAIN-SUFFIX,lan,DIRECT",
     "DOMAIN-SUFFIX,home.arpa,DIRECT",
-    "GEOSITE,private,DIRECT",
+    "RULE-SET,Private-local,DIRECT",
     "GEOIP,LAN,DIRECT,no-resolve",
 ]
 
@@ -62,7 +63,9 @@ def main():
     # No LoonKit 'real-ip' blanket exemptions: protected domains should use
     # Fake-IP unless an explicit Stash compatibility case requires otherwise.
     filters = set(dns["fake-ip-filter"])
-    assert "geosite:private" in filters
+    assert "rule-set:Private-local" in filters
+    assert dns["nameserver-policy"]["rule-set:Private-local"] == "system"
+    assert not any(value.startswith("geosite:") for value in filters | set(dns["nameserver-policy"]))
     assert "+.apple.com" not in filters and "+.icloud.com" not in filters
     assert "captive.apple.com" in filters
     assert all(not entry.startswith(("http://", "udp://", "tcp://")) and
@@ -108,9 +111,9 @@ def main():
                                  f"{icon_ref}/icons/{expected_icon}"), f"Wrong icon URL: {group['name']}"
         assert expected_icon in icon_lock["asset_git_blob_shas"]
     release_lock = __import__("json").loads((KIT / "build/release-lock.json").read_text(encoding="utf-8"))
-    assert release_lock == {"version": "v0.1.3", "source_ref": "d63fa06b915d403e2cebc782a8f1551d32b6c927"}, "Immutable release lock changed"
+    assert release_lock == {"version": "v0.1.4", "source_ref": "f4feec81dfc9bde9824d297b6959fa977d5dc39b"}, "Immutable release lock changed"
     assert SOURCE_URL == f"https://raw.githubusercontent.com/YohakuSama/stashkit/{release_lock['source_ref']}/rules/"
-    expected_providers = {}
+    expected_providers = {PRIVATE_NAME: private_provider()}
     expected_routes = []
     total = 0
     domain_count = ip_count = asn_count = 0
@@ -151,7 +154,7 @@ def main():
                 "behavior": "classical" if behavior == "asn" else behavior,
                 "format": "text",
                 "url": SOURCE_URL + path.name,
-                "path": "./rules/v0.1.3/" + path.name,
+                "path": "./rules/v0.1.4/" + path.name,
                 "interval": 86400,
             }
             expected_routes.append("RULE-SET," + key + "," + src["policy"] + (
@@ -160,18 +163,19 @@ def main():
     generated_total = domain_count + ip_count + asn_count
     assert generated_total == adjustments["expected_generated_rule_count"], generated_total
     assert profile["rule-providers"] == expected_providers, "Provider names/URL/types are inconsistent"
-    assert len(expected_providers) == 54
+    assert len(expected_providers) == 55
     assert len(list((KIT / "rules").glob("*.txt"))) == 54
     source_rule_section = original.split("[Rule]", 1)[1].split("[Plugin]", 1)[0]
     source_rules = [row.strip() for row in source_rule_section.splitlines() if row.strip()]
     assert source_rules[0] == "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
     source_rules[0] = "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
+    source_rules.remove("DOMAIN,copilot-telemetry.githubusercontent.com,AI")
     expected_rules = LOCAL_DIRECT_RULES + source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
     assert profile["rules"] == expected_rules, "Rules changed order, policy, or local precedence"
     assert profile["rules"][-1] == "MATCH,Final"
     assert len(expected_routes) == 54
     print(f"PASS: {len(resources)} production LoonKit sources; {len(expected_providers)} Stash "
-          f"rule providers; {len(names)} groups; {generated_total:,} rules "
+          f"rule providers (54 files + 1 inline private); {len(names)} groups; {generated_total:,} file rules "
           f"({domain_count:,} domain / {ip_count:,} CIDR / {asn_count:,} ASN).")
     print("PASS: SHA-256, reviewed source adjustments, no within-set duplicates, project schema, "
           "acyclic group references, no-resolve, provider URLs and expected routing order.")
