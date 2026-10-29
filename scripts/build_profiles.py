@@ -4,6 +4,9 @@ import argparse
 import re
 from pathlib import Path
 
+import yaml
+
+from build_loon_selection import build_loon_selection
 from release_meta import PROFILE_VERSION, RULES_PATH_PREFIX
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,10 +53,27 @@ def local_profile(config=None):
 
 
 def derived_profiles(config):
-    return {
+    outputs = {
         "StashKit-Privacy.yaml": privacy_profile(config),
         "StashKit-Local.yaml": local_profile(config),
     }
+    # Keep old public links working without maintaining a second policy model.
+    outputs.update({
+        "StashKit-ALL.yaml": config,
+        "StashKit-Privacy-ALL.yaml": outputs["StashKit-Privacy.yaml"],
+        "StashKit-Local-ALL.yaml": outputs["StashKit-Local.yaml"],
+    })
+    source = yaml.safe_load(config)
+    for filename, layout in (("StashKit-Loon-Preview.yaml", "nested"),
+                             ("StashKit-Native-Preview.yaml", "native")):
+        preview = build_loon_selection(source,
+                                       providers={"personal": {"path": "./providers/personal.yaml"}},
+                                       layout=layout)
+        preview.pop("proxy-providers")
+        outputs[filename] = (f"# StashKit {PROFILE_VERSION} — provider reference only\n"
+                             "# Define a real personal provider before importing this reference.\n"
+                             + yaml.safe_dump(preview, sort_keys=False, allow_unicode=True))
+    return outputs
 
 
 def main():
@@ -69,11 +89,11 @@ def main():
                       if (ROOT / name).read_bytes() != value.encode("utf-8")]
         if mismatches:
             raise ValueError(f"Derived profiles differ from canonical source: {mismatches}")
-        print("PASS: privacy and local profiles match canonical source")
+        print("PASS: derived profiles, compatibility aliases and references match canonical source")
     else:
         for name, value in outputs.items():
             (ROOT / name).write_text(value, encoding="utf-8")
-        print("Updated privacy and local profiles from StashKit.yaml")
+        print("Updated derived profiles, compatibility aliases and references from StashKit.yaml")
 
 
 if __name__ == "__main__":

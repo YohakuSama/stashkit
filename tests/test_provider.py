@@ -17,16 +17,15 @@ class ProviderTests(unittest.TestCase):
         for group in profile["proxy-groups"]:
             with self.subTest(group=group["name"]):
                 self.assertNotIn("url", group)
-        # All selectable native groups reference the same local provider.
-        self.assertEqual(profile["proxy-providers"]["personal"],
-                         {"path": "./providers/personal.yaml"})
+        # Public selectors do not require a hardcoded provider name or path.
+        self.assertNotIn("proxy-providers", profile)
         for group in profile["proxy-groups"]:
-            self.assertNotIn("include-all", group)
-            self.assertNotIn("filter", group)
-            if group["name"] not in {"AdBlock", "Final"}:
-                self.assertEqual(group["use"], ["personal"])
+            if group["name"] in {"Auto", "Fallback", "ALL"}:
+                self.assertTrue(group["include-all"])
+                self.assertEqual(group["proxies"], [])
             else:
-                self.assertNotIn("use", group)
+                self.assertNotIn("include-all", group)
+            self.assertNotIn("use", group)
 
 
 if __name__ == "__main__":

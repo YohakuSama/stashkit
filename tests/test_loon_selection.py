@@ -44,9 +44,9 @@ class LoonSelectionTests(unittest.TestCase):
                 self.assertIn("ALL", by_name)
                 self.assertEqual(by_name["Proxy"]["proxies"],
                                  ["Auto", "Fallback", "ALL", "REJECT"])
-                self.assertEqual(by_name["Auto"]["proxies"], ["REJECT"])
-                self.assertEqual(by_name["Fallback"]["proxies"], ["REJECT"])
-                self.assertEqual(by_name["ALL"]["proxies"], ["REJECT"])
+                self.assertEqual(by_name["Auto"]["proxies"], [])
+                self.assertEqual(by_name["Fallback"]["proxies"], [])
+                self.assertEqual(by_name["ALL"]["proxies"], [])
                 for name, group in by_name.items():
                     self.assertNotIn("include-all", group)
                     if name in {"Auto", "Fallback", "ALL"}:
@@ -159,11 +159,11 @@ class LoonSelectionTests(unittest.TestCase):
                     self.assertEqual(groups["ChatGPT"]["proxies"],
                                      ["Proxy", "Auto", "Fallback", "ALL"])
                     self.assertEqual(groups["Auto"]["proxies"],
-                                     [node["name"] for node in nodes] + ["REJECT"])
+                                     [node["name"] for node in nodes])
                     self.assertEqual(groups["Fallback"]["proxies"],
-                                     [node["name"] for node in nodes] + ["REJECT"])
+                                     [node["name"] for node in nodes])
                     self.assertEqual(groups["ALL"]["proxies"],
-                                     [node["name"] for node in nodes] + ["REJECT"])
+                                     [node["name"] for node in nodes])
                     self.assertNotIn("include-all", groups["ChatGPT"])
                     self.assertNotIn("use", groups["ChatGPT"])
                     self.assertEqual(result["proxies"], nodes)
@@ -227,9 +227,9 @@ class LoonSelectionTests(unittest.TestCase):
                         self.assertEqual(group["use-url"], urls)
                     else:
                         self.assertNotIn("use-url", group)
-                self.assertEqual(groups["Auto"]["proxies"], ["REJECT"])
-                self.assertEqual(groups["Fallback"]["proxies"], ["REJECT"])
-                self.assertEqual(groups["ALL"]["proxies"], ["REJECT"])
+                self.assertEqual(groups["Auto"]["proxies"], [])
+                self.assertEqual(groups["Fallback"]["proxies"], [])
+                self.assertEqual(groups["ALL"]["proxies"], [])
                 self.assertNotIn("proxy-providers", output)
                 self.assertNotIn("proxies", output)
                 for key in ("rules", "rule-providers", "dns", "mode", "log-level"):
@@ -299,8 +299,8 @@ class LoonSelectionTests(unittest.TestCase):
                                      ["Auto", "Fallback"] + names + ["REJECT"])
                     self.assertEqual(groups["ChatGPT"]["proxies"],
                                      ["Proxy", "Auto", "Fallback"] + names)
-                    self.assertEqual(groups["Auto"]["proxies"], names + ["REJECT"])
-                    self.assertEqual(groups["Fallback"]["proxies"], names + ["REJECT"])
+                    self.assertEqual(groups["Auto"]["proxies"], names)
+                    self.assertEqual(groups["Fallback"]["proxies"], names)
                     for group in groups.values():
                         self.assertNotIn("include-all", group)
                         self.assertNotIn("filter", group)
@@ -347,8 +347,7 @@ class LoonSelectionTests(unittest.TestCase):
         for filename in NATIVE_PROFILE_FILES.values():
             source = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
             validate_profile(source)
-            self.assertEqual(source["proxy-providers"],
-                             {"personal": {"path": "./providers/personal.yaml"}})
+            self.assertNotIn("proxy-providers", source)
             generated = build_loon_selection(source, providers=PROVIDERS,
                                              layout="native")
             validate_profile(generated)

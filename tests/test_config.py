@@ -38,26 +38,25 @@ class ConfigTests(unittest.TestCase):
             self.assertIn("icon", group)
             self.assertIn("/icons/", group["icon"])
 
-    def test_proxy_uses_flat_native_provider_nodes(self):
+    def test_public_proxy_preserves_auto_fallback_and_imports_unbound_nodes(self):
         by_name = {group["name"]: group for group in self.profile["proxy-groups"]}
-        self.assertEqual(by_name["Proxy"]["proxies"], ["Auto", "Fallback", "REJECT"])
-        self.assertEqual(by_name["Proxy"]["use"], ["personal"])
+        self.assertEqual(by_name["Proxy"]["proxies"], ["Auto", "Fallback", "ALL", "REJECT"])
+        self.assertNotIn("use", by_name["Proxy"])
         self.assertNotIn("include-all", by_name["Proxy"])
         self.assertNotIn("filter", by_name["Proxy"])
-        self.assertEqual(by_name["ChatGPT"]["proxies"], ["Proxy", "Auto", "Fallback"])
-        self.assertEqual(by_name["ChatGPT"]["use"], ["personal"])
+        self.assertEqual(by_name["ChatGPT"]["proxies"], ["Proxy", "Auto", "Fallback", "ALL"])
+        self.assertNotIn("use", by_name["ChatGPT"])
         self.assertNotIn("include-all", by_name["ChatGPT"])
         self.assertNotIn("filter", by_name["ChatGPT"])
-        self.assertNotIn("ALL", by_name)
-        self.assertEqual(len(by_name), 39)
+        self.assertEqual(len(by_name), 40)
         self.assertEqual(by_name["Final"]["proxies"][0], "Proxy")
         self.assertEqual(by_name["ChatGPT"]["proxies"][0], "Proxy")
         self.assertEqual(by_name["AI"]["proxies"][0], "Proxy")
         self.assertEqual(by_name["AdBlock"]["proxies"][0], "REJECT")
-        # Without nodes, Auto and Fallback retain a REJECT fallback.
-        # Empty pool behavior must still be checked on Stash iOS.
-        self.assertEqual(self.profile["proxy-providers"],
-                         {"personal": {"path": "./providers/personal.yaml"}})
+        self.assertNotIn("proxy-providers", self.profile)
+        for name in ("Auto", "Fallback", "ALL"):
+            self.assertTrue(by_name[name]["include-all"])
+            self.assertEqual(by_name[name]["proxies"], [])
 
     def test_self_hosted_original_icons_are_pinned(self):
         import hashlib

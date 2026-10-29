@@ -35,6 +35,12 @@ class RuntimeAuditTests(unittest.TestCase):
                                            for row in self.profile["rules"])},
             "/diagnosis/usedMemory": {"memory": 1000000},
         }
+        loaded = self.responses['/proxies']['proxies']
+        for group in self.profile['proxy-groups']:
+            kind = {'select': 'Selector', 'url-test': 'URLTest', 'fallback': 'Fallback'}[group['type']]
+            members = (['private-node-name'] if group['name'] in {'Auto', 'Fallback', 'ALL'}
+                       else group['proxies'][:])
+            loaded[group['name']] = {'type': kind, 'all': members, 'now': members[0]}
         for target, kind, payload, policy in SENTINELS:
             self.responses[self.match_path(target)] = {
                 "rule": {"type": kind, "payload": payload},
@@ -124,6 +130,41 @@ class RuntimeAuditTests(unittest.TestCase):
 
     def test_non_rule_mode_fails(self):
         self.responses['/configs']['mode'] = 'direct'
+        self.assertFalse(self.run_audit())
+
+    def test_missing_auto_choice_fails_even_when_proxy_has_a_working_node(self):
+        groups = self.responses['/proxies']['proxies']
+        groups['Proxy']['all'] = ['private-node-name']
+        groups['Proxy']['now'] = 'private-node-name'
+        self.assertFalse(self.run_audit())
+
+    def test_unused_fallback_empty_provider_substitution_fails(self):
+        groups = self.responses['/proxies']['proxies']
+        groups['Fallback']['all'] = ['DIRECT']
+        groups['Fallback']['now'] = 'DIRECT'
+        self.assertFalse(self.run_audit())
+
+    def test_missing_service_group_or_wrong_type_fails(self):
+        groups = self.responses['/proxies']['proxies']
+        del groups['Netflix']
+        groups['Apple']['type'] = 'URLTest'
+        self.assertFalse(self.run_audit())
+
+    def test_reject_or_nested_group_in_node_pool_fails(self):
+        groups = self.responses['/proxies']['proxies']
+        for substitute in ('REJECT', 'ChatGPT'):
+            with self.subTest(substitute=substitute):
+                groups['Fallback']['all'] = ['private-node-name', substitute]
+                self.assertFalse(self.run_audit())
+
+    def test_mismatched_node_pools_fail(self):
+        groups = self.responses['/proxies']['proxies']
+        groups['second-private-node'] = {'type': 'Shadowsocks'}
+        groups['ALL']['all'].append('second-private-node')
+        self.assertFalse(self.run_audit())
+
+    def test_unexpected_direct_choice_in_overseas_service_fails(self):
+        self.responses['/proxies']['proxies']['ChatGPT']['all'].append('DIRECT')
         self.assertFalse(self.run_audit())
 
 
