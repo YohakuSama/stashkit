@@ -16,9 +16,11 @@ from pathlib import Path
 
 import yaml
 
+from release_meta import RULES_REF, RULES_URL_PREFIX
+
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "StashKit.yaml"
-PREFIX = "https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/"
+PREFIX = RULES_URL_PREFIX
 
 
 def published_url(spec, ref=None):
@@ -31,7 +33,7 @@ def published_url(spec, ref=None):
     if ref is not None:
         if not re.fullmatch(r"[0-9a-f]{40}", ref):
             raise ValueError("--ref must be a full lowercase commit SHA")
-        url = PREFIX.replace("/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/", f"/{ref}/rules/") + basename
+        url = PREFIX.replace(f"/{RULES_REF}/rules/", f"/{ref}/rules/") + basename
     return url, basename
 
 
@@ -78,7 +80,7 @@ def main(ref=None):
             name, size = future.result()
             total_bytes += size
             print(f"PASS: {name} HTTP 200, {size} bytes, exact byte-for-byte match")
-    print(f"PASS: all 54 pinned GitHub Raw URLs verified at {ref or 'f4feec81dfc9bde9824d297b6959fa977d5dc39b'}, {total_bytes:,} total bytes")
+    print(f"PASS: all 54 pinned GitHub Raw URLs verified at {ref or RULES_REF}, {total_bytes:,} total bytes")
 
 
 if __name__ == "__main__":
