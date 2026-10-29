@@ -56,7 +56,7 @@ class LoonSelectionTests(unittest.TestCase):
                     if name not in NODE_POOLS | {"AdBlock", "Final"}:
                         self.assertTrue({"Proxy", "Auto", "Fallback", "ALL"} <= set(group["proxies"]))
                 self.assertEqual(by_name["ChatGPT"]["proxies"],
-                                 ["Proxy", "Auto", "Fallback", "ALL"])
+                                 ["Proxy", "Auto", "Fallback", "DIRECT"])
 
     def test_direct_service_choices_survive_all_private_node_sources(self):
         # LoonKit intentionally allows DIRECT for selected services, not for
