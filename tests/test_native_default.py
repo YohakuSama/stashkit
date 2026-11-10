@@ -29,7 +29,7 @@ PROVIDERS = {
 class NativeDefaultTests(unittest.TestCase):
     def assert_native(self, output, source_key, sources):
         groups = {g['name']: g for g in output['proxy-groups']}
-        self.assertEqual(len(groups), 39)
+        self.assertEqual(len(groups), 40)
         self.assertFalse({'ALL', 'Manual'} & set(groups))
         self.assertEqual(groups['Proxy']['proxies'], ['Auto', 'Fallback', 'REJECT'])
         self.assertEqual(groups['ChatGPT']['proxies'], ['Proxy', 'Auto', 'Fallback'])
@@ -63,7 +63,7 @@ class NativeDefaultTests(unittest.TestCase):
         legacy = build_loon_selection(yaml.safe_load((ROOT / 'StashKit.yaml').read_text()),
                                       providers=PROVIDERS, layout='nested')
         self.assertIn('ALL', {g['name'] for g in legacy['proxy-groups']})
-        self.assertEqual(len(legacy['proxy-groups']), 40)
+        self.assertEqual(len(legacy['proxy-groups']), 41)
 
     def test_cli_default_keeps_subscription_links_without_fetching_a_snapshot(self):
         # These deliberately unreachable HTTPS endpoints must remain references.

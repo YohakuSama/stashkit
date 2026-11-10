@@ -40,7 +40,7 @@ class LoonSelectionTests(unittest.TestCase):
                     self.assertEqual(generated[key], original[key])
                 self.assertEqual(generated["proxy-providers"], PROVIDERS)
                 by_name = {row["name"]: row for row in generated["proxy-groups"]}
-                self.assertEqual(len(by_name), 40)
+                self.assertEqual(len(by_name), 41)
                 self.assertIn("ALL", by_name)
                 self.assertEqual(by_name["Proxy"]["proxies"],
                                  ["Auto", "Fallback", "ALL", "REJECT"])
@@ -211,7 +211,7 @@ class LoonSelectionTests(unittest.TestCase):
                 output = build_loon_selection(original, subscription_urls=urls, layout="nested")
                 validate_profile(output)
                 self.assertEqual(original, snapshot)
-                self.assertEqual(len(output["proxy-groups"]), 40)
+                self.assertEqual(len(output["proxy-groups"]), 41)
                 groups = {g["name"]: g for g in output["proxy-groups"]}
                 self.assertNotIn("Manual", groups)
                 self.assertIn("ALL", groups)
@@ -293,7 +293,7 @@ class LoonSelectionTests(unittest.TestCase):
                     self.assertEqual(result["dns"], original["dns"])
                     self.assertEqual(result["rule-providers"], original["rule-providers"])
                     groups = {g["name"]: g for g in result["proxy-groups"]}
-                    self.assertEqual(len(groups), 39)
+                    self.assertEqual(len(groups), 40)
                     self.assertNotIn("ALL", groups)
                     self.assertEqual(groups["Proxy"]["proxies"],
                                      ["Auto", "Fallback"] + names + ["REJECT"])
@@ -350,13 +350,13 @@ class LoonSelectionTests(unittest.TestCase):
             self.assertEqual(list(source["proxy-providers"]), ["Airport"])
             self.assertEqual(source["proxy-providers"]["Airport"]["url"],
                              "https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION")
-            self.assertEqual(len(source["proxy-groups"]), 39)
+            self.assertEqual(len(source["proxy-groups"]), 40)
             generated = build_loon_selection(source, providers=PROVIDERS,
                                              layout="native")
             validate_profile(generated)
             self.assertEqual(generated["proxy-providers"], PROVIDERS)
             groups = {g["name"]: g for g in generated["proxy-groups"]}
-            self.assertEqual(len(groups), 39)
+            self.assertEqual(len(groups), 40)
             self.assertNotIn("ALL", groups)
             self.assertEqual(groups["Proxy"]["use"], list(PROVIDERS))
             self.assertEqual(groups["Proxy"]["proxies"],
