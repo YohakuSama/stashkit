@@ -83,3 +83,9 @@ iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，�
 **当前 v0.1.18 精简版**：正常订阅、自建、Privacy、Local 文件约 280 行，远程规则仍是 54 份冻结业务规则加独立 Crypto 规则集（219 条）；`Private-local` 133 条继续内嵌以保证首次私网 / DNS 处理不依赖网络。检查 Crypto 单独固定的 URL、LoonKit v7.0.13 源 SHA256、219 条转换内容和匹配顺序；离线包中 `rules/v0.1.18/Crypto.v7.0.13.domain.txt` 必须一并安装。旧 ALL 和 Preview 兼容文件保留展开排版，不属于推荐入口。
 
 **Coincheck / 广告优先级验收**：使用 Stash 的 `/rules/match` 分别核对 `coincheck.com` → `DOMAIN,coincheck.com,Crypto`、`trade.coincheck.com` → `RULE-SET,Crypto-domain,Crypto`，并核对广告遥测域名仍先由 `AdBlockBalanced-domain` 处理。前两条是远程快照配合精确例外的预期行为；不要把整个 coincheck.com 后缀设为直连或无条件放行。远程资源未加载时必须先修复 Provider 状态，不能仅根据静态配置判断实际出口。
+
+## v0.1.19 Proxy 选项顺序与 VPN 状态验收
+
+在 Stash 网络设置里选择**按配置文件顺序**排列节点，使用同一个已导入并选中的配置；分别在 VPN **关闭、开启、节点刷新后**查看 Proxy 列表，目标始终为：`Auto`、`Fallback`、`REJECT`、随后实际节点（顺序与订阅自身一致）。Auto / Fallback 的组内部应只包含节点，不能把 REJECT 当测速节点。依次切换这些选项，确认实际出口和请求记录。不要将进入首页、配置文件切换或 Provider 尚未载入时的空组截图当作完整运行结果。
+
+如可使用 Stash 控制器，读取 `GET /proxies`，检查 `Proxy.all` 同时包含所有固定选项及 `Airport` 实际节点；`scripts/stash_runtime_audit.py --profile 个人配置.yaml` 对缺失或选项错序的运行时列表会报错。**CLI / CI 不启动 iOS VPN，无法证明该界面故障已经解决**。实际选项缺失时先排查 Provider 与已选配置，必要时回退已确认可用的个人配置。

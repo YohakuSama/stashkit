@@ -23,7 +23,7 @@
 
 <p align="center"><sub>先下载并在本地填写自己的订阅或节点，再导入 Stash；仓库不提供代理节点和订阅。</sub></p>
 
-当前配置：**v0.1.18** · 对齐 [LoonKit v7.0.13](https://github.com/YohakuSama/loonkit/tree/66b01bffe8982d6a8153af7b03c897dc1bbab648) 的 Crypto 远程规则 · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
+当前配置：**v0.1.19** · 对齐 [LoonKit v7.0.13](https://github.com/YohakuSama/loonkit/tree/66b01bffe8982d6a8153af7b03c897dc1bbab648) 的 Crypto 远程规则 · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
 
 ---
 
@@ -33,7 +33,7 @@
 
 **规则按需远程加载** — 正式在线配置引用 **55 份独立、固定提交的远程规则文件**：54 份经审查的 Stash 原生规则集，加一份来自 LoonKit v7.0.13 的 **219 条 Crypto 域名规则集**。规则不铺进主 YAML；Stash 下载并缓存各 Provider，缓存过期可重新拉取相同的不可变快照。
 
-**节点独立管理** — 订阅版通过 `Airport` Provider 自动更新节点；自建版通过顶层 `proxies` 和 `include-all` 纳入任意数量、名称不重复的节点。规则、节点和策略组各司其职，不必为更新服务规则重写节点列表。
+**节点独立管理** — `Proxy` 的固定选择顺序为 **Auto → Fallback → REJECT**，之后才是订阅或自建的具体节点；订阅版通过 `Airport` Provider 自动更新节点；自建版通过顶层 `proxies` 和 `include-all` 纳入任意数量、名称不重复的节点。规则、节点和策略组各司其职，不必为更新服务规则重写节点列表。
 
 ## 快速开始
 
@@ -95,7 +95,7 @@ proxies:
 
 ## 使用与排查
 
-- **没有节点**：先确认用的是订阅版还是自建版，检查实际提供的订阅内容或顶层 `proxies`，重新启用导入的配置；`Auto` 和业务组显示的成员应和当前节点来源一致。
+- **没有节点或 VPN 启动后选项消失**：先确认用的是订阅版还是自建版，检查实际提供的订阅内容或顶层 `proxies`，重新启用导入的配置。`Proxy` 应同时含 Auto、Fallback、REJECT 与真实节点。若启动前后成员列表改变，先用[运行时验收](./docs/VALIDATION.md)排查，不要将静态 YAML 校验当成真机修复；需要固定排序时在 Stash 网络设置中选择按配置顺序而非延迟排序。
 - **Crypto 没走预期出口**：检查域名是否命中 `Crypto-domain`、是否先匹配广告规则，以及 Crypto 策略组选中了哪个节点；`Final` 或国家 IP 规则并不能替代域名匹配。
 - **部分流媒体或 App 不可用**：先查看实际请求记录，尤其共享 CDN、登录、支付与统计接口，不应随意将大型公共根域归入特定服务。
 - **DNS / WebRTC**：默认使用 AliDNS DoH、Fake-IP 和常见 STUN/TURN 端口防护；它们不能保证未由 Tunnel 接管的所有流量也不会泄露。公共 DoH 的选路与系统 DNS 需要真机核验。
@@ -129,6 +129,6 @@ proxies:
 
 **规则与技术细节** · [远程规则与来源](./rules/README.md) · [路由优先级](./docs/ROUTING.md) · [DNS/网络边界](./docs/ARCHITECTURE_AUDIT.md)
 
-**项目维护** · [更新记录](./docs/CHANGELOG.md) · [v0.1.18 发布说明](./docs/RELEASE_NOTES_v0.1.18.md) · [依赖与第三方声明](./docs/THIRD_PARTY_NOTICES.md) · [GitHub Actions](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml)
+**项目维护** · [更新记录](./docs/CHANGELOG.md) · [v0.1.19 发布说明](./docs/RELEASE_NOTES_v0.1.19.md) · [依赖与第三方声明](./docs/THIRD_PARTY_NOTICES.md) · [GitHub Actions](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml)
 
 <sub>[Issues](https://github.com/YohakuSama/stashkit/issues) · [GPL-2.0-only](./LICENSE) · 公开仓库不存储个人订阅、节点密钥或运行时凭据</sub>

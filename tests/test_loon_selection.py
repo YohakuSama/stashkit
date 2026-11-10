@@ -80,7 +80,7 @@ class LoonSelectionTests(unittest.TestCase):
                     self.assertEqual(result["rules"], source["rules"])
                     self.assertEqual(groups["Proxy"]["proxies"][0:2],
                                      ["Auto", "Fallback"])
-                    self.assertEqual(groups["Proxy"]["proxies"][-1], "REJECT")
+                    self.assertEqual(groups["Proxy"]["proxies"][2], "REJECT")
                     self.assertNotIn("DIRECT", groups["Proxy"]["proxies"])
                     for name in direct_first:
                         self.assertEqual(groups[name]["proxies"][0:4],
@@ -296,7 +296,7 @@ class LoonSelectionTests(unittest.TestCase):
                     self.assertEqual(len(groups), 40)
                     self.assertNotIn("ALL", groups)
                     self.assertEqual(groups["Proxy"]["proxies"],
-                                     ["Auto", "Fallback"] + names + ["REJECT"])
+                                     ["Auto", "Fallback", "REJECT"] + names)
                     self.assertEqual(groups["ChatGPT"]["proxies"],
                                      ["Proxy", "Auto", "Fallback"] + names)
                     self.assertEqual(groups["Auto"]["proxies"], names)
