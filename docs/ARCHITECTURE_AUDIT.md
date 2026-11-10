@@ -1,6 +1,6 @@
 # StashKit 架构与验证边界
 
-项目输出的是 Stash 原生配置和规则文件，不包含浏览器内核、代理节点或 Loon 插件。当前策略与本地规则基准为固定的 [LoonKit v7.0.12](https://github.com/YohakuSama/loonkit/tree/edbfedad1b568578edc1a6dcebf422867a36a3ed)；43 份未变化的远程订阅资源继续按 v7.0.10 冻结。
+项目输出的是 Stash 原生配置和规则文件，不包含浏览器内核、代理节点或 Loon 插件。当前策略组与主要规则基准为固定的 [LoonKit v7.0.12](https://github.com/YohakuSama/loonkit/tree/edbfedad1b568578edc1a6dcebf422867a36a3ed)；43 份原有远程订阅资源继续按 v7.0.10 冻结。Crypto 规则独立按 [LoonKit v7.0.13](https://github.com/YohakuSama/loonkit/tree/66b01bffe8982d6a8153af7b03c897dc1bbab648) 更新，原快照不被覆盖。
 
 自建版 StashKit-SelfHosted.yaml 是独立的静态多节点派生文件，顶层 proxies 可填写任意多个不同名称的本地节点；38 个需节点的策略组通过 include-all: true 自动引用所有本地节点，无需更新每个组的名称列表。其余规则、DNS、40 个策略组的默认固定选项保持一致，不依赖 Airport 订阅和额外本地 Provider 文件。该公开模板不含真实节点凭据，部署后需真机验收。
 
@@ -20,7 +20,7 @@
 
 ## 固定的行为与资源
 
-- 54 个冻结文件规则 provider（43 domain、7 ipcidr、4 classical ASN），另有独立 Crypto-domain（domain，29 后缀）和 1 个内嵌 `Private-local`，合计 56 个 provider。
+- 54 个冻结文件规则 provider（43 domain、7 ipcidr、4 classical ASN），另有独立 Crypto-domain（domain，219 条，其中 1 条精确匹配）和 1 个内嵌 `Private-local`，合计 56 个 provider。
 - 原上游 43 份输入经人工审查的 [adjustments.json](../build/adjustments.json) 转换。规则资源固定到 [release-lock.json](../build/release-lock.json) 指向的不可变提交，不跟随远程 `main`。
 - 三份正式配置和默认 native 输出均保留 LoonKit 的 40 个策略组，无 ALL/Manual 中间组。正式 YAML 使用 `Airport` 具名 Provider 和无效占位 URL，可直接在本地改为私人订阅；高级生成器仍可将其替换为多 Provider/use-url 来源，保留 Stash 的后台节点更新，不下载成静态快照。旧 ALL 仅为显式兼容选项，flat 仅为静态快照选项。运行时审计逐组核对当前订阅节点，CI 不启动 Stash iOS，详见[订阅绑定说明](./NATIVE_PROVIDER_TRIAL.md)。
 - STUN 和常用 TURN 端口拦截位于 LAN/CN 直连之前，所有三套配置保持一致。此次架构调整**不修改**这些网络规则。
@@ -39,6 +39,8 @@
 
 CI 成功表示仓库生成与静态约束通过，不等于对所有设备、网络和服务的无故障保证。设备验收步骤和只读 HTTP API 审计见 [VALIDATION.md](./VALIDATION.md)，变更历史见 [CHANGELOG.md](./CHANGELOG.md)。
 
-## v0.1.17 配置格式精简
+## v0.1.18 配置格式精简与新版 Crypto
 
-正式主配置约 280 行，仍声明全部 40 个策略组和 55 个远程文件规则 Provider。传统多行 YAML 组 / Provider 映射改为 YAML Flow Mapping；Stash 解析后的策略名、顺序、图标、节点来源、规则先后关系没有改变。Private-local 本地规则保持原始 133 条，仅压缩到 YAML Flow Sequence，保留首次启动的私网与 DNS 保护。Crypto 29 条后缀在独立冻结文件中，以一个 `RULE-SET,Crypto-domain,Crypto` 路由，无需将每个域名写到主配置。旧 ALL 和 Preview 文件维持展开布局供兼容使用。
+正式主配置约 280 行，仍声明全部 40 个策略组和 55 个远程文件规则 Provider。传统多行 YAML 组 / Provider 映射改为 YAML Flow Mapping；Stash 解析后的策略名、顺序、图标、节点来源、规则先后关系没有改变。Private-local 本地规则保持原始 133 条，仅压缩到 YAML Flow Sequence，保留首次启动的私网与 DNS 保护。Crypto 219 条域名匹配在独立冻结文件中，以一个 `RULE-SET,Crypto-domain,Crypto` 路由，无需将每个域名写到主配置。旧 ALL 和 Preview 文件维持展开布局供兼容使用。
+
+新版 Crypto 从 LoonKit v7.0.13 的固定 `.lsr` 转换为 Stash `behavior: domain` 文本资源，转换结果保存在 `rules/extra/Crypto.v7.0.13.domain.txt`，上游路径、提交、SHA256 和条目数登记在 [crypto-source-lock.json](../build/crypto-source-lock.json)。在线配置只含远程 Provider 引用，离线包单独收录文件。广告快照仍为原冻结版本；通过 `DOMAIN,coincheck.com,Crypto` 的单一精确例外避免旧广告规则误拦主页，再让广告规则优先于 Crypto 集合，不能将此例外扩大为整个 `coincheck.com` 后缀。
