@@ -21,10 +21,10 @@ class OfflineAndPrivacyTests(unittest.TestCase):
             names = archive.namelist()
             self.assertEqual(len([n for n in names if n.startswith(f"rules/{RULES_VERSION}/")]), 54)
             self.assertEqual(len(names), 58)
-            self.assertIn("rules/v0.1.17/Crypto.domain.txt", names)
+            self.assertIn("rules/v0.1.18/Crypto.v7.0.13.domain.txt", names)
             self.assertEqual(
-                archive.read("rules/v0.1.17/Crypto.domain.txt"),
-                (ROOT / "rules/extra/Crypto.domain.txt").read_bytes(),
+                archive.read("rules/v0.1.18/Crypto.v7.0.13.domain.txt"),
+                (ROOT / "rules/extra/Crypto.v7.0.13.domain.txt").read_bytes(),
             )
             self.assertEqual(archive.read("StashKit-Local.yaml"),
                              (ROOT / "StashKit-Local.yaml").read_bytes())
@@ -37,7 +37,7 @@ class OfflineAndPrivacyTests(unittest.TestCase):
                     self.assertNotIn("path", provider)
                     continue
                 self.assertTrue(provider["path"].startswith(RULES_PATH_PREFIX)
-                                or provider["path"] == "./rules/v0.1.17/Crypto.domain.txt")
+                                or provider["path"] == "./rules/v0.1.18/Crypto.v7.0.13.domain.txt")
             validate_profile(profile)
 
     def test_bundle_is_byte_reproducible(self):

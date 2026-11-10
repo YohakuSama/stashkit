@@ -25,8 +25,8 @@ LAN_NETWORKS = tuple(map(ipaddress.ip_network, (
 @lru_cache(maxsize=None)
 def provider_entries(filename):
     path = ROOT / "rules" / filename
-    if filename == "Crypto.domain.txt":
-        path = ROOT / "rules/extra/Crypto.domain.txt"
+    if filename == "Crypto.v7.0.13.domain.txt":
+        path = ROOT / "rules/extra/Crypto.v7.0.13.domain.txt"
     return frozenset(row.strip() for row in path.read_text().splitlines()
                      if row.strip() and not row.lstrip().startswith("#"))
 
@@ -162,13 +162,22 @@ class RoutingTests(unittest.TestCase):
             "api.coinbase.com", "www.kraken.com", "wallet.metamask.io",
             "www.coingecko.com", "api.gemini.com", "api.crypto.com",
             "scan.etherscan.io", "www.dexscreener.com",
+            "coincheck.com", "trade.coincheck.com", "app.hyperliquid.xyz",
+            "wallet.phantom.app", "app.aave.com", "solscan.io",
+            "app.pancakeswap.finance",
         )
-        unrelated = ("notbinance.com", "binance.com.example.net", "crypto.example.net")
+        unrelated = ("notbinance.com", "binance.com.example.net",
+                     "crypto.example.net", "notcoincheck.com")
         for filename in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
             profile = yaml.load((ROOT / filename).read_text(), Loader=UniqueKeysLoader)
             for target in exact:
                 with self.subTest(filename=filename, target=target):
                     self.assertEqual(route(target, profile), "Crypto")
+            rules = profile["rules"]
+            self.assertLess(rules.index("DOMAIN,coincheck.com,Crypto"),
+                            rules.index("RULE-SET,AdBlockBalanced-domain,AdBlock"))
+            self.assertLess(rules.index("RULE-SET,AdBlockBalanced-domain,AdBlock"),
+                            rules.index("RULE-SET,Crypto-domain,Crypto"))
             for target in unrelated:
                 with self.subTest(filename=filename, unrelated=target):
                     self.assertNotEqual(route(target, profile), "Crypto")
