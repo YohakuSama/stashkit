@@ -2,7 +2,7 @@
 
 项目输出的是 Stash 原生配置和规则文件，不包含浏览器内核、代理节点或 Loon 插件。当前策略与本地规则基准为固定的 [LoonKit v7.0.12](https://github.com/YohakuSama/loonkit/tree/edbfedad1b568578edc1a6dcebf422867a36a3ed)；43 份未变化的远程订阅资源继续按 v7.0.10 冻结。
 
-自建版 StashKit-SelfHosted.yaml 是独立的静态单节点派生文件，直接在顶层 proxies 中替换 SelfHosted 节点定义；其余规则、DNS、40 个策略组的默认选项保持一致，不依赖 Airport 订阅和额外本地 Provider 文件。该公开模板不含真实节点凭据，部署后需真机验收。
+自建版 StashKit-SelfHosted.yaml 是独立的静态多节点派生文件，顶层 proxies 可填写任意多个不同名称的本地节点；38 个需节点的策略组通过 include-all: true 自动引用所有本地节点，无需更新每个组的名称列表。其余规则、DNS、40 个策略组的默认固定选项保持一致，不依赖 Airport 订阅和额外本地 Provider 文件。该公开模板不含真实节点凭据，部署后需真机验收。
 
 ## 构建流程
 

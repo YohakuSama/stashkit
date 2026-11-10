@@ -1,5 +1,13 @@
 # 变更记录
 
+## v0.1.16 — 修复自建多个节点不显示
+
+- 修复 v0.1.15 自建模板只引用固定 SelfHosted 节点、额外粘贴的节点不出现在策略组的问题。
+- 38 个需节点的策略组改用 Stash 支持的 include-all: true，动态引用顶层 proxies 列表中任意数量、任意名称的静态节点。保留 Proxy/Auto/Fallback 及 40 个策略组的原有固定选项；AdBlock/Final 不变。
+- README 增加三节点示例、单一顶层 proxies 键与名称去重说明，以及导入新版 YAML / 启用配置的检查方法。
+- 添加多节点引用结构回归，不改动订阅版 DNS、业务规则、图标和固定规则资源。
+
+
 ## v0.1.15 — 订阅和自建节点双配置
 
 - README 改为两个主入口，直观说明机场订阅修改 proxy-providers.Airport.url、自建修改顶层 proxies.SelfHosted 节点。

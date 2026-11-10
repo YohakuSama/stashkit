@@ -1,4 +1,4 @@
-# StashKit v0.1.15 — self-hosted node
+# StashKit v0.1.16 — self-hosted node
 mode: rule
 log-level: warning
 
@@ -31,7 +31,7 @@ dns:
     - 'xbox.*.*.microsoft.com'
     - '*.*.xboxlive.com'
 
-# Replace this local node definition; keep the name SelfHosted for group references.
+# Replace this placeholder with one or more named local nodes; names must be unique.
 proxies:
   - name: SelfHosted
     type: ss
@@ -43,23 +43,23 @@ proxies:
 proxy-groups:
   - name: "Proxy"
     type: select
+    include-all: true
     proxies:
       - Auto
       - Fallback
-      - SelfHosted
       - REJECT
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Proxy.png
   - name: "Auto"
     type: url-test
-    proxies:
-      - SelfHosted
+    include-all: true
+    proxies: []
     interval: 600
     tolerance: 60
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Auto.png
   - name: "Fallback"
     type: fallback
-    proxies:
-      - SelfHosted
+    include-all: true
+    proxies: []
     interval: 900
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Fallback.png
   - name: "AdBlock"
@@ -79,288 +79,288 @@ proxy-groups:
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Final.png
   - name: "AI"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AI.png
   - name: "ChatGPT"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/ChatGPT.png
   - name: "Gemini"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Gemini.png
   - name: "Claude"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Claude.png
   - name: "GitHub"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/GitHub.png
   - name: "Google"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Google.png
   - name: "Microsoft"
     type: select
+    include-all: true
     proxies:
       - "DIRECT"
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Microsoft.png
   - name: "Apple"
     type: select
+    include-all: true
     proxies:
       - "DIRECT"
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Apple.png
   - name: "Cloudflare"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Cloudflare.png
   - name: "Speedtest"
     type: select
+    include-all: true
     proxies:
       - "DIRECT"
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Speedtest.png
   - name: "Crypto"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Crypto.png
   - name: "Paypal"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Paypal.png
   - name: "YouTube"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/YouTube.png
   - name: "Netflix"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Netflix.png
   - name: "Disney"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Disney.png
   - name: "PrimeVideo"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/PrimeVideo.png
   - name: "Spotify"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Spotify.png
   - name: "TikTok"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/TikTok.png
   - name: "Twitch"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Twitch.png
   - name: "HBO"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/HBO.png
   - name: "Abema"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Abema.png
   - name: "動畫瘋"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AnimeCrazy.png
   - name: "Dazn"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Dazn.png
   - name: "BBC"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/BBC.png
   - name: "Bilibili"
     type: select
+    include-all: true
     proxies:
       - "DIRECT"
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Bilibili.png
   - name: "Telegram"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Telegram.png
   - name: "Whatsapp"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Whatsapp.png
   - name: "Instagram"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Instagram.png
   - name: "Facebook"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Facebook.png
   - name: "Twitter"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Twitter.png
   - name: "Discord"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Discord.png
   - name: "Line"
     type: select
+    include-all: true
     proxies:
       - "DIRECT"
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Line.png
   - name: "Reddit"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Reddit.png
   - name: "Linkedin"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Linkedin.png
   - name: "Steam"
     type: select
+    include-all: true
     proxies:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - SelfHosted
       - "DIRECT"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Steam.png
 rule-providers:

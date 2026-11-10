@@ -35,7 +35,7 @@ class SelfHostedProfileTests(unittest.TestCase):
             "password": "REPLACE-WITH-YOUR-PASSWORD",
         }])
 
-    def test_all_40_groups_have_local_node_without_helpers(self):
+    def test_all_40_groups_include_any_local_nodes_without_helpers(self):
         expected = self.canonical["proxy-groups"]
         actual = self.self_hosted["proxy-groups"]
         self.assertEqual([group["name"] for group in actual],
@@ -46,24 +46,33 @@ class SelfHostedProfileTests(unittest.TestCase):
                 self.assertEqual(group["type"], original["type"])
                 self.assertEqual(group.get("icon"), original.get("icon"))
                 self.assertNotIn("use", group)
-                self.assertNotIn("include-all", group)
-                name = group["name"]
-                if name in {"Final", "AdBlock"}:
+                self.assertEqual(group["proxies"], original["proxies"])
+                if group["name"] in {"Final", "AdBlock"}:
                     self.assertEqual(group, original)
-                elif name in {"Auto", "Fallback"}:
-                    self.assertEqual(group["proxies"], ["SelfHosted"])
-                elif name == "Proxy":
-                    self.assertEqual(
-                        group["proxies"], ["Auto", "Fallback", "SelfHosted", "REJECT"]
-                    )
-                elif name == "Steam":
-                    self.assertEqual(
-                        group["proxies"], ["Proxy", "Auto", "Fallback", "SelfHosted", "DIRECT"]
-                    )
+                    self.assertNotIn("include-all", group)
                 else:
-                    self.assertEqual(
-                        group["proxies"], original["proxies"] + ["SelfHosted"]
-                    )
+                    self.assertTrue(group["include-all"])
+
+    def test_three_distinct_local_node_names_are_accepted(self):
+        from copy import deepcopy
+        profile = deepcopy(self.self_hosted)
+        profile["proxies"] = [
+            {**profile["proxies"][0], "name": name}
+            for name in ("HK", "JP", "US")
+        ]
+        validate_profile(profile)
+        self.assertEqual(len(profile["proxies"]), 3)
+        for group in profile["proxy-groups"]:
+            if group["name"] not in {"Final", "AdBlock"}:
+                self.assertTrue(group["include-all"])
+                self.assertNotIn("SelfHosted", group.get("proxies", []))
+
+    def test_duplicate_local_node_names_are_rejected(self):
+        from copy import deepcopy
+        profile = deepcopy(self.self_hosted)
+        profile["proxies"] = [dict(profile["proxies"][0])] * 3
+        with self.assertRaises(ValueError):
+            validate_profile(profile)
 
     def test_dns_and_rules_remain_identical(self):
         for key in ("mode", "log-level", "dns", "rule-providers", "rules"):

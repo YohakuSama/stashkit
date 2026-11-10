@@ -27,11 +27,11 @@
 
 默认 native 不会提前下载私人订阅。生成成功说明引用与结构有效，Provider 是否非空、实际节点是否连通需要在 Stash 中检查。空组或空 Provider 可能按 DIRECT 处理，手动 REJECT 选项不能保证自动阻断。
 
-## 单节点自建版
+## 自建多节点版
 
-[StashKit-SelfHosted.yaml](../StashKit-SelfHosted.yaml) 提供另一条正式入口：将订阅版顶层 Airport Provider 换成单个静态 proxies.SelfHosted 节点，38 个需节点的策略组都直接引用该名称，Auto/Fallback 的测速和故障回退仍使用同一个节点池。用户只需要替换顶层节点参数，不能只新增节点名称而不更新策略引用。
+[StashKit-SelfHosted.yaml](../StashKit-SelfHosted.yaml) 将 Airport Provider 替换为顶层静态 `proxies` 节点列表；38 个需节点的策略组均采用 Stash 官方 `include-all: true` 自动纳入**全部本地节点**，任意数量、名称可不同且不能重复。Auto/Fallback 的候选节点来自同一列表，Proxy 与业务组仍保留原有策略选项。AdBlock、Final 不直接加载节点；保留 40 个组，没有 ALL/Manual。
 
-此版仍为 40 个策略组，没有 ALL/Manual；与机场订阅版不同，节点参数变更需要修改本地文件并重新导入，不会自动更新。
+此版与机场订阅版不同：节点参数变更需重新编辑、从文件导入并启用新配置，不会自动更新。v0.1.15 自建模板曾硬编码 SelfHosted 引用，新增节点可能不出现在策略组中；v0.1.16 修复此问题。
 
 ## 可选布局
 
