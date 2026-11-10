@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="348" viewBox="0 0 560 348" role="img" aria-label="StashKit - Routing configuration for Stash">
+<title>StashKit — Routing configuration for Stash</title>
+<rect x=".75" y=".75" width="558.5" height="346.5" rx="22" fill="#F6F8FC" stroke="#DCE4F0" stroke-width="1.5"/>
+<text x="39" y="48" fill="#65748B" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif" font-weight="600" letter-spacing="2.2" font-size="17">STASH / CONFIGURATION</text>
+<text x="34" y="138" fill="#182437" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif" font-size="85" font-weight="750" letter-spacing="-3">StashKit</text>
+<rect x="40" y="156" width="36" height="4" rx="2" fill="#426BE3"/>
+<text x="40" y="192" fill="#65748B" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif" font-size="23" font-weight="500">Rule-based routing for Stash</text>
+<rect class="route-panel" x="39" y="209" width="482" height="125" rx="13" fill="#FFFFFF" stroke="#DCE4F0"/>
+<text x="59" y="235" fill="#65748B" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif" font-size="14" font-weight="600" letter-spacing="1.5">ROUTE CONTROL</text>
+<g fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M76 282H172" stroke="#182437"/>
+<path d="M172 282C207 282 210 251 250 251H293" stroke="#426BE3"/>
+<path d="M172 282H293" stroke="#8B9AAE"/>
+<path d="M172 282C207 282 210 313 250 313H293" stroke="#8B9AAE"/>
+</g>
+<circle cx="76" cy="282" r="6.5" fill="#182437"/>
+<circle cx="172" cy="282" r="6.5" fill="#426BE3"/>
+<g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif" font-weight="650" font-size="16.5" letter-spacing=".2">
+<rect class="route-option" x="294" y="238" width="183" height="26" rx="7" fill="#EDF3FF"/>
+<rect class="route-option" x="294" y="269" width="183" height="26" rx="7" fill="#EFF3F9"/>
+<rect class="route-option" x="294" y="300" width="183" height="26" rx="7" fill="#EFF3F9"/>
+<circle cx="312" cy="251" r="4" fill="#426BE3"/><text x="326" y="257" fill="#182437">DIRECT</text>
+<circle cx="312" cy="282" r="4" fill="#8B9AAE"/><text x="326" y="288" fill="#182437">AUTO</text>
+<circle cx="312" cy="313" r="4" fill="#8B9AAE"/><text x="326" y="319" fill="#182437">PROXY</text>
+</g>
+</svg>

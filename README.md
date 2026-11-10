@@ -1,62 +1,73 @@
-# StashKit
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./docs/assets/stashkit-hero-mobile-dark.svg" />
+    <source media="(max-width: 600px)" srcset="./docs/assets/stashkit-hero-mobile-light.svg" />
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/stashkit-hero-wide-dark.svg" />
+    <img src="./docs/assets/stashkit-hero-wide-light.svg" alt="StashKit：适用于 Stash 的模块化规则分流配置" width="960" />
+  </picture>
+</p>
 
-为 [Stash](https://stash.wiki/) 提供的规则分流配置。与 [LoonKit v7.0.12](https://github.com/YohakuSama/loonkit/tree/edbfedad1b568578edc1a6dcebf422867a36a3ed) 的 40 个策略组及 Crypto / Paypal 排序保持一致，支持 AI、开发平台、流媒体、社交、游戏和国内服务分流。原始 43 份 LoonKit 远程来源已转换为 54 份冻结规则文件，另有独立 Crypto 规则集；所有远程 URL 均固定到不可变提交，不追踪上游主分支。
+<p align="center"><strong>不同服务，按规则选择合适的线路。</strong></p>
 
-当前配置：**v0.1.17** · [发布说明](./docs/RELEASE_NOTES_v0.1.17.md) · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [许可证](./LICENSE)
+<p align="center">
+  StashKit 是面向 <a href="https://stash.wiki/">Stash</a> 的模块化 YAML 分流配置。<br />
+  保留 LoonKit 的 40 个业务策略组，使用远程规则集处理 AI、金融、流媒体、社交、游戏和国内服务。
+</p>
 
-## 规则解耦与精简
+<p align="center">
+  <a href="https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit-Subscription.yaml"><strong>获取订阅版配置</strong></a> ·
+  <a href="https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit-SelfHosted.yaml"><strong>获取自建版配置</strong></a> ·
+  <a href="#快速开始">快速开始</a> ·
+  <a href="./docs/VALIDATION.md">验收与排查</a>
+</p>
 
-**正式主配置约 280 行**（原来 983 行），没有删除 LoonKit 对应的 40 个策略组或业务分流。之所以能变短，是把 YAML 的重复展开改为简洁的 Stash 原生写法，并将 Crypto 的 29 条后缀规则提取成独立远程规则集。
+<p align="center"><sub>先下载并在本地填写自己的订阅或节点，再导入 Stash；仓库不提供代理节点和订阅。</sub></p>
 
-- 原有 **54 份按业务划分的远程规则**继续使用 v0.1.4 固定快照，不追踪可变 main；新 **Crypto-domain** 规则集也固定到不可变提交。共有 55 份远程文件规则集，使用 `rule-providers` 声明及 `RULE-SET` 分流。
-- 40 个策略组、Provider 声明使用**单行 YAML 映射**，缩短文件但仍是同一份 YAML 标准对象；并非将节点或规则数据混入主配置。
-- 133 条 **Private-local** 私网匹配器仍内嵌为短列表，避免局域网 DNS 在冷启动时依赖 Github 下载，防止影响 `localhost`、`.lan`、私有反查等规则。其余路由和节点按需引用远程规则 / 代理来源。
-- `Local` 离线版仍需把 54 份冻结资源和新 Crypto 文件（分别放入 `rules/v0.1.4/`、`rules/v0.1.17/`）安装到 Stash 受管目录。默认在线版从 GitHub Raw 按需下载并缓存。Stash 支持后台静默更新这些 Rule Set，缓存路径固定，详见 [官方规则集合文档](https://stash.wiki/rules/rule-set)。
+当前配置：**v0.1.18** · 对齐 [LoonKit v7.0.13](https://github.com/YohakuSama/loonkit/tree/66b01bffe8982d6a8153af7b03c897dc1bbab648) 的 Crypto 远程规则 · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
 
-## 选一个配置即可
+---
 
-| 使用场景 | 推荐下载 | 只需要修改 | 节点维护 |
-| --- | --- | --- | --- |
-| 机场 / 服务商提供订阅 URL | **[StashKit-Subscription.yaml](./StashKit-Subscription.yaml)** | proxy-providers → Airport → url | Stash 每 3600 秒刷新节点 |
-| 自建 VPS / 一个或多个自有代理节点 | **[StashKit-SelfHosted.yaml](./StashKit-SelfHosted.yaml)** | **顶层 proxies: 下的节点列表** | 修改本地 YAML，重新导入 |
+## 功能概览
 
-[StashKit.yaml](./StashKit.yaml) 继续作为**订阅版的兼容主入口**，内容与 StashKit-Subscription.yaml 完全相同。两份推荐文件都包含完整分流规则和策略组，不必手动合并。下载到**本地**填写个人信息后，再从文件导入 Stash；不要直接启用尚未修改的公开示例。
+**分类分流** — 40 个原生策略组，按基础选路、AI、平台与金融、流媒体、社交、游戏排列。国内常用服务优先直连，海外服务按组选择线路，末尾由 `Final` 决定未匹配请求。
 
-## A. 机场订阅版：只改一行
+**规则按需远程加载** — 正式在线配置引用 **55 份独立、固定提交的远程规则文件**：54 份经审查的 Stash 原生规则集，加一份来自 LoonKit v7.0.13 的 **219 条 Crypto 域名规则集**。规则不铺进主 YAML；Stash 下载并缓存各 Provider，缓存过期可重新拉取相同的不可变快照。
 
-打开 **StashKit-Subscription.yaml**，找到顶层的 proxy-providers：
+**节点独立管理** — 订阅版通过 `Airport` Provider 自动更新节点；自建版通过顶层 `proxies` 和 `include-all` 纳入任意数量、名称不重复的节点。规则、节点和策略组各司其职，不必为更新服务规则重写节点列表。
 
-~~~yaml
+## 快速开始
+
+| 使用场景 | 入口 | 需要填写的内容 |
+| --- | --- | --- |
+| 机场提供 Clash / Stash YAML 节点订阅 | [StashKit-Subscription.yaml](./StashKit-Subscription.yaml) | `proxy-providers.Airport.url` |
+| 自建 VPS / 手动维护 1～N 个节点 | [StashKit-SelfHosted.yaml](./StashKit-SelfHosted.yaml) | 顶层 `proxies` |
+| 公共 DoH 希望优先走代理 | [StashKit-Privacy.yaml](./StashKit-Privacy.yaml) | 同订阅版的 `Airport.url` |
+| 事先安装全部规则资源、离线启动 | [StashKit-Local.yaml](./StashKit-Local.yaml) | 本地节点来源与 55 份规则文件 |
+
+1. **备份**：导出你当前的 Stash 配置，确认私人订阅和密钥没有存放在公开仓库。
+2. **选择并下载**：只选上表中与你的节点管理方式对应的一份 YAML，保存为本地文件。
+3. **填入节点来源**：使用编辑器修改下方示例所示字段，**不要**修改 `rule-providers` 的固定远程 URL 或乱改 `proxy-groups` 引用。
+4. **导入 Stash**：从配置文件管理界面导入本地文件，选中并启用；等待首次远程规则加载完成，再检查 `Proxy`、`Auto`、`Fallback` 及业务组。
+5. **验收流量**：核对请求记录中的规则、策略、节点和最终出口；特别检查国内直连、广告拦截、Crypto 与 DNS。参见[验收清单](./docs/VALIDATION.md)。
+
+> [!IMPORTANT]
+> 公开模板使用 `example.invalid` 作为无效节点占位，**直接导入不等于已经拥有可用节点**。请先填写私人来源。代理中断、空订阅、无缓存规则集都需要单独测试；CI 通过不代表你的设备已验证。
+
+### 订阅用户：只改 Airport 的 URL
+
+```yaml
 proxy-providers:
   Airport:
     url: 'https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION'
     path: ./providers/stashkit-airport.yaml
     interval: 3600
-~~~
+```
 
-**只把 url 改为你自己的 HTTPS Clash/Stash YAML 节点订阅链接**，保留英文单引号、Airport 名称和其余字段。订阅返回内容须包含顶层 proxies 节点列表；普通 URI / Base64 节点文本不能直接作为该 Provider 的 YAML 来源。
+将 `url` 换为**返回顶层 `proxies` 列表的 HTTPS Clash/Stash YAML 订阅**，其他字段保留。普通 Base64 节点文本不是此 Provider 直接支持的 YAML。订阅每 3600 秒可刷新节点；不要把含 Token 的地址提交到 GitHub。`StashKit.yaml` 是订阅版的兼容入口，内容保持相同。
 
-更新节点由 Stash 负责；40 个策略组中有 38 个使用 Airport，Auto、Fallback、Proxy 和业务组都能引用同一批节点。不要将包含 Token 的真实订阅地址提交到公开仓库。
+### 自建用户：仅维护顶层 proxies
 
-## B. 自建节点版：支持直接粘贴 1～N 个节点
-
-打开 **[StashKit-SelfHosted.yaml](./StashKit-SelfHosted.yaml)**，在文件开头找到**顶层 proxies:**。这里的默认 Shadowsocks 仅为**无效占位示例**：
-
-~~~yaml
-proxies:
-  - name: SelfHosted
-    type: ss
-    server: replace-me.invalid
-    port: 443
-    cipher: aes-128-gcm
-    password: 'REPLACE-WITH-YOUR-PASSWORD'
-~~~
-
-把顶层 **proxies:** 换成自己的节点列表即可。**v0.1.16 起，节点名可以随意填写（不能重复），1 个或 3 个或更多个都能自动出现在代理策略组中**。无需把所有节点都命名成 SelfHosted，也不需要修改其他 38 个组。
-
-下面是三个 Shadowsocks 节点的示例结构，所有服务器地址和密码都是无效占位，需替换为自己的实际参数：
-
-~~~yaml
+```yaml
 proxies:
   - name: 香港节点
     type: ss
@@ -70,57 +81,54 @@ proxies:
     port: 443
     cipher: aes-128-gcm
     password: 'REPLACE-JP-PASSWORD'
-  - name: 美国节点
-    type: ss
-    server: us.example.invalid
-    port: 443
-    cipher: aes-128-gcm
-    password: 'REPLACE-US-PASSWORD'
-~~~
+```
 
-**注意事项：**
+示例服务器、密码均无效。只保留**一个顶层 `proxies:`**，其中每个节点的 `name` 不重复；按实际协议填写字段。38 个需要节点的策略组会自动读取这些本地节点，无需逐组添加名称。更新节点后要重新导入并启用个人 YAML。
 
-- 整个 YAML 只能有**一个顶层 proxies:**，三个节点依次以 `  - name:` 开头、保持相同缩进，不能重复写三个顶层 proxies:。
-- 每个节点需有**唯一的 name**、正确的 type / server / port 和对应协议认证参数。以上 type: ss 仅为 Shadowsocks 示例；Trojan、VLESS 等要使用自己的协议字段。
-- **不需要修改 proxy-groups 下的 proxies:**。自建版的 Proxy、Auto、Fallback 和业务组使用 Stash 官方支持的 `include-all: true`，自动载入顶层所有本地节点；AdBlock 与 Final 仍保持原有策略选项。
-- 如果 Stash 中仍只显示旧节点，请先确认导入并**启用了新版本的个人 YAML**，而不是仍在使用旧的 v0.1.15 配置或订阅版。修改完成后要从文件重新导入/切换到新配置，再查看 Proxy / Auto / ChatGPT 的节点列表。
-- 若配置导入失败，优先检查 YAML 缩进、重复的顶层字段、重名、协议字段及端口是否有效。敏感信息只填在本地文件，勿上传公开仓库。
+## 规则、优先级与同步边界
 
-自建节点信息不会自动从服务器更新；修改时需要重新导入个人 YAML。不需要订阅 URL，也不需要额外本地 Provider 文件。[官方策略组说明](https://stash.wiki/proxy-protocols/proxy-groups)。
+正式配置保留独立的 `rule-providers` 和 `RULE-SET`，不在 YAML 中展开 219 条 Crypto 域名，也不把 54 份大型规则复制到本地。现有 54 份规则继续使用审查过的 v0.1.4 冻结资源，Crypto 则单独同步到 LoonKit v7.0.13 的 219 条固定快照；不会因为 LoonKit 或 GitHub `main` 改动而静默换规则。
 
-## 导入并检查
+规则顺序为 **WebRTC 防护 → 局域网直连 → 精确服务例外 → AdBlock → Crypto → 国内与其他服务 → Final**。旧版广告快照对 `coincheck.com` 主页存在误拦，当前通过**仅针对该主机的一条精确例外**与 LoonKit v7.0.13 对齐；其余广告遥测仍先进入 AdBlock。只有冷启动必需的 **133 条 Private-local 私网匹配器**继续内嵌，避免 LAN / DNS 防护首次启动就依赖远程下载。
 
-1. 把对应 YAML 保存到本地（例如「文件」App / iCloud Drive），替换真实订阅或节点信息；不要把带凭据的版本上传 GitHub。
-2. 在 Stash 的配置文件管理中从**本地文件导入**，选中导入的配置并启动 Tunnel。
-3. 检查策略组列表有 **40 组，无 ALL / Manual**。Proxy 应能选 Auto、Fallback 和真实节点；ChatGPT、Crypto 等业务组也应列出实际节点，自建版显示你所填写的全部节点名称。
-4. 在 Stash 请求记录中核对出口、Crypto 等规则命中、国内服务直连；测试节点断开、订阅刷新和 DNS。**空订阅或不可用节点不等于安全断网**，务必确认没有意外直连。
+在线版首次使用需要网络获取规则；离线版必须另行安装带版本目录的 55 份资源，**单独下载 YAML 无法自动安装离线规则包**。使用说明见[规则目录](./rules/README.md)、[路由优先级](./docs/ROUTING.md)和[架构说明](./docs/ARCHITECTURE_AUDIT.md)。
 
-## 规则与其他版本
+## 使用与排查
 
-默认采用 Stash Fake-IP、AliDNS DoH、前置 STUN / 常见 TURN 端口拦截和 40 个原生策略组。WebRTC 防护只覆盖 Stash Tunnel 实际接管的流量；真实 DNS 泄露与 IPv6 表现需要设备测试。
+- **没有节点**：先确认用的是订阅版还是自建版，检查实际提供的订阅内容或顶层 `proxies`，重新启用导入的配置；`Auto` 和业务组显示的成员应和当前节点来源一致。
+- **Crypto 没走预期出口**：检查域名是否命中 `Crypto-domain`、是否先匹配广告规则，以及 Crypto 策略组选中了哪个节点；`Final` 或国家 IP 规则并不能替代域名匹配。
+- **部分流媒体或 App 不可用**：先查看实际请求记录，尤其共享 CDN、登录、支付与统计接口，不应随意将大型公共根域归入特定服务。
+- **DNS / WebRTC**：默认使用 AliDNS DoH、Fake-IP 和常见 STUN/TURN 端口防护；它们不能保证未由 Tunnel 接管的所有流量也不会泄露。公共 DoH 的选路与系统 DNS 需要真机核验。
 
-| 文件 | 用途 |
-| --- | --- |
-| [StashKit-Subscription.yaml](./StashKit-Subscription.yaml) | **订阅版**，提供 Airport 自动更新 |
-| [StashKit-SelfHosted.yaml](./StashKit-SelfHosted.yaml) | **自建版**，直接填写多个静态节点 |
-| [StashKit.yaml](./StashKit.yaml) | 订阅版兼容主入口 |
-| [StashKit-Privacy.yaml](./StashKit-Privacy.yaml) | 订阅版：公共 DoH 跟随路由并优先走 Proxy |
-| [StashKit-Local.yaml](./StashKit-Local.yaml) | 订阅版：55 份规则文件需要事先安装到 Stash 资源目录 |
-| [StashKit-ALL.yaml](./StashKit-ALL.yaml) | 旧版 ALL 入口兼容方案，按兼容格式保留较长 YAML，非默认推荐 |
+## 常见问题
 
-离线资源从 [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) 或 [Releases](https://github.com/YohakuSama/stashkit/releases) 获取；仅下载 ZIP 不会自动将规则放到 Stash 受管目录。
+<details>
+<summary><strong>为什么规则文件不直接合并进 YAML？</strong></summary>
 
-## 高级用法与维护
+主配置只负责引用和排序，分类规则在独立远程 Provider 中下载、缓存，避免重复维护和膨胀。远程资源固定到完整提交 SHA，既能按需加载，也可追踪版本和复现内容。
 
-多机场、复杂的自建节点编排、已有完整 Stash/Clash 配置，可以使用 [配置生成器](./docs/NATIVE_PROVIDER_TRIAL.md) 从真实 Provider 或静态 proxies 生成独立的个人配置：
+</details>
 
-~~~sh
-python -m pip install -r requirements-dev.txt
-python scripts/build_loon_selection.py --nodes-from dist/source.yaml --output dist/StashKit-Personal.yaml
-~~~
+<details>
+<summary><strong>订阅版与自建版可以混用吗？</strong></summary>
 
-个人文件放在 Git 忽略的 dist/ 目录，不将 Token、节点密码上传至公开仓库。生成器可保留多个动态 Provider，或显式生成静态节点选择列表；自建版的单节点场景**不需要 Python**。
+两份配置是独立模板。需要多个 Airport、动态 Provider 和静态节点混合管理时，使用[高级节点绑定生成器](./docs/NATIVE_PROVIDER_TRIAL.md)创建自己的配置，不要把两份完整 YAML 拼接。
 
-更多说明：[节点绑定](./docs/NATIVE_PROVIDER_TRIAL.md) · [路由与优先级](./docs/ROUTING.md) · [真机及离线资源验收](./docs/VALIDATION.md) · [策略组适配](./docs/LOON_POLICY_GROUPS.md) · [架构](./docs/ARCHITECTURE_AUDIT.md)。
+</details>
 
-开发校验：本仓库将 StashKit.yaml 作为派生配置的来源，编辑后运行 `python scripts/build_profiles.py --write`，再运行 `python scripts/build_profiles.py --check`、`python -m unittest discover -s tests -v` 和 `python scripts/verify.py`。需要先按照 [开发说明](./docs/VALIDATION.md) 准备固定版本的 LoonKit 源。策略组、规则和图标仍以冻结依赖为准。
+<details>
+<summary><strong>离线版为什么提示规则集不存在？</strong></summary>
+
+离线 YAML 引用的是 Stash 受管目录中的资源路径。需从 [Releases](https://github.com/YohakuSama/stashkit/releases) 或 CI 获取离线包，校验 SHA256 并按版本目录部署；普通 ZIP 导入不会自动安装规则。
+
+</details>
+
+## 文档导航
+
+**入门与日常使用** · [策略组与节点绑定](./docs/LOON_POLICY_GROUPS.md) · [高级订阅 / 自建配置](./docs/NATIVE_PROVIDER_TRIAL.md) · [真机验证](./docs/VALIDATION.md)
+
+**规则与技术细节** · [远程规则与来源](./rules/README.md) · [路由优先级](./docs/ROUTING.md) · [DNS/网络边界](./docs/ARCHITECTURE_AUDIT.md)
+
+**项目维护** · [更新记录](./docs/CHANGELOG.md) · [v0.1.18 发布说明](./docs/RELEASE_NOTES_v0.1.18.md) · [依赖与第三方声明](./docs/THIRD_PARTY_NOTICES.md) · [GitHub Actions](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml)
+
+<sub>[Issues](https://github.com/YohakuSama/stashkit/issues) · [GPL-2.0-only](./LICENSE) · 公开仓库不存储个人订阅、节点密钥或运行时凭据</sub>
