@@ -11,6 +11,7 @@ import yaml
 from validate_config import validate_profile, validate_override
 from private_rules import NAME as PRIVATE_NAME, private_provider
 from release_meta import PROFILE_VERSION, RULES_PATH_PREFIX, RULES_URL_PREFIX, RULES_REF, load_lock
+from check_remote import CRYPTO_REMOTE_URL
 from rule_sources import (KIT, ROOT, valid_domain, lines_from, generate_source_sets,
                           load_adjustments, apply_adjustments, load_baseline, render_asset)
 
@@ -163,6 +164,13 @@ def main():
     assert (KIT / "StashKit.yaml").read_text(encoding="utf-8").startswith(f"# StashKit {PROFILE_VERSION}\n")
     assert SOURCE_URL == f"https://raw.githubusercontent.com/YohakuSama/stashkit/{RULES_REF}/rules/"
     expected_providers = {PRIVATE_NAME: private_provider()}
+    expected_providers["Crypto-domain"] = {
+        "behavior": "domain",
+        "format": "text",
+        "url": CRYPTO_REMOTE_URL,
+        "path": "./rules/v0.1.17/Crypto.domain.txt",
+        "interval": 86400,
+    }
     expected_routes = []
     total = 0
     domain_count = ip_count = asn_count = 0
@@ -212,22 +220,31 @@ def main():
     generated_total = domain_count + ip_count + asn_count
     assert generated_total == adjustments["expected_generated_rule_count"], generated_total
     assert profile["rule-providers"] == expected_providers, "Provider names/URL/types are inconsistent"
-    assert len(expected_providers) == 55
+    assert len(expected_providers) == 56
     assert len(list((KIT / "rules").glob("*.txt"))) == 54
     source_rule_section = policy_profile.split("[Rule]", 1)[1].split("[Plugin]", 1)[0]
     source_rules = [row.strip() for row in source_rule_section.splitlines() if row.strip()]
     assert len([row for row in source_rules if row.endswith(",Crypto")]) == 29
     assert all(row.startswith("DOMAIN-SUFFIX,") and row.endswith(",Crypto")
                for row in source_rules[:29]), "Crypto routes must remain first in upstream rule order"
-    assert source_rules[29] == "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
-    source_rules[29] = "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
+    # Preserve every upstream Crypto suffix while routing it through one
+    # immutable, indexed Stash domain rule-set instead of 29 inline matches.
+    crypto_expected = ["+." + row.split(",")[1] for row in source_rules[:29]]
+    crypto_asset = KIT / "rules/extra/Crypto.domain.txt"
+    crypto_actual = lines_from(crypto_asset)
+    assert crypto_actual == crypto_expected, "Crypto remote asset drifted from pinned LoonKit policy"
+    assert len(crypto_actual) == len(set(crypto_actual)) == 29
+    assert all(valid_domain(row[2:]) is not False for row in crypto_actual)
+    source_rules = ["RULE-SET,Crypto-domain,Crypto"] + source_rules[29:]
+    assert source_rules[1] == "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
+    source_rules[1] = "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
     source_rules.remove("DOMAIN,copilot-telemetry.githubusercontent.com,AI")
     expected_rules = WEBRTC_GUARDS + LOCAL_DIRECT_RULES + source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
     assert profile["rules"] == expected_rules, "Rules changed order, policy, or local precedence"
     assert profile["rules"][-1] == "MATCH,Final"
     assert len(expected_routes) == 54
     print(f"PASS: {len(resources)} production LoonKit sources; {len(expected_providers)} Stash "
-          f"rule providers (54 files + 1 inline private); {len(names)} groups; {generated_total:,} file rules "
+          f"rule providers (54 frozen files + 1 Crypto + 1 inline private); {len(names)} groups; {generated_total:,} file rules "
           f"({domain_count:,} domain / {ip_count:,} CIDR / {asn_count:,} ASN).")
     print("PASS: SHA-256, reviewed source adjustments, no within-set duplicates, project schema, "
           "acyclic group references, no-resolve, provider URLs and expected routing order.")
