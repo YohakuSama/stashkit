@@ -24,7 +24,10 @@ LAN_NETWORKS = tuple(map(ipaddress.ip_network, (
 
 @lru_cache(maxsize=None)
 def provider_entries(filename):
-    return frozenset(row.strip() for row in (ROOT / "rules" / filename).read_text().splitlines()
+    path = ROOT / "rules" / filename
+    if filename == "Crypto.domain.txt":
+        path = ROOT / "rules/extra/Crypto.domain.txt"
+    return frozenset(row.strip() for row in path.read_text().splitlines()
                      if row.strip() and not row.lstrip().startswith("#"))
 
 

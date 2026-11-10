@@ -49,7 +49,7 @@ class ProfileVariantTests(unittest.TestCase):
             (self.source.replace("  follow-rule: false\n", ""), privacy_profile),
             (self.source.replace("rules:\n", "routes:\n"), privacy_profile),
             (self.source.replace("rule-providers:\n", "providers:\n"), local_profile),
-            (self.source.replace("    interval: 86400\n", "", 1), local_profile),
+            (self.source.replace("interval: 86400}", "interval: 1}", 1), local_profile),
         ):
             with self.subTest(render=render.__name__):
                 with self.assertRaises(ValueError):
