@@ -31,7 +31,7 @@ dns:
     - 'xbox.*.*.microsoft.com'
     - '*.*.xboxlive.com'
 
-# Replace this local node definition; keep the name SelfHosted for group references.
+# Replace this placeholder with one or more named local nodes; names must be unique.
 proxies:
   - name: SelfHosted
     type: ss
