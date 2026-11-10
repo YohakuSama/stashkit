@@ -38,8 +38,8 @@ class ReleaseMetadataTests(unittest.TestCase):
         self.assertEqual(standard.count(RULES_PATH_PREFIX), 54)
         self.assertEqual(local.count(RULES_PATH_PREFIX), 54)
         self.assertNotIn("url: https://raw.githubusercontent.com/", local)
-        self.assertIn("/e2ced4ba62cba874b3a37f8338074f40518758d1/rules/extra/Crypto.domain.txt", standard)
-        self.assertIn("./rules/v0.1.17/Crypto.domain.txt", local)
+        self.assertIn("/fd6627fc33eef9cf1e93b001a2327c47b0993133/rules/extra/Crypto.v7.0.13.domain.txt", standard)
+        self.assertIn("./rules/v0.1.18/Crypto.v7.0.13.domain.txt", local)
 
     def test_malformed_release_locks_are_rejected(self):
         valid = load_lock()
