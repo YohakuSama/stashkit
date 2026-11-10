@@ -23,12 +23,12 @@ class RemoteURLTests(unittest.TestCase):
     def test_crypto_asset_is_independently_pinned(self):
         self.assertEqual(
             published_url({"url": CRYPTO_REMOTE_URL}),
-            (CRYPTO_REMOTE_URL, "extra/Crypto.domain.txt"),
+            (CRYPTO_REMOTE_URL, "extra/Crypto.v7.0.13.domain.txt"),
         )
         # Candidate verification must not silently repin the separately published Crypto file.
         self.assertEqual(
             published_url({"url": CRYPTO_REMOTE_URL}, "a" * 40),
-            (CRYPTO_REMOTE_URL, "extra/Crypto.domain.txt"),
+            (CRYPTO_REMOTE_URL, "extra/Crypto.v7.0.13.domain.txt"),
         )
 
     def test_unsafe_refs_are_rejected(self):

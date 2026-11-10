@@ -1,4 +1,4 @@
-# StashKit v0.1.17 — provider reference only
+# StashKit v0.1.18 — provider reference only
 # Define a real personal provider before importing this reference.
 mode: rule
 log-level: warning
@@ -500,8 +500,8 @@ rule-providers:
   Crypto-domain:
     behavior: domain
     format: text
-    url: https://raw.githubusercontent.com/YohakuSama/stashkit/e2ced4ba62cba874b3a37f8338074f40518758d1/rules/extra/Crypto.domain.txt
-    path: ./rules/v0.1.17/Crypto.domain.txt
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/fd6627fc33eef9cf1e93b001a2327c47b0993133/rules/extra/Crypto.v7.0.13.domain.txt
+    path: ./rules/v0.1.18/Crypto.v7.0.13.domain.txt
     interval: 86400
   AdBlockBalanced-domain:
     behavior: domain
@@ -847,7 +847,7 @@ rules:
 - DOMAIN-SUFFIX,home.arpa,DIRECT
 - RULE-SET,Private-local,DIRECT
 - GEOIP,LAN,DIRECT,no-resolve
-- RULE-SET,Crypto-domain,Crypto
+- DOMAIN,coincheck.com,Crypto
 - DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub
 - DOMAIN,trae-api-sg.mchost.guru,AI
 - DOMAIN,trae-api-us.mchost.guru,AI
@@ -858,6 +858,7 @@ rules:
 - DOMAIN,copilot-telemetry-service.githubusercontent.com,AI
 - DOMAIN,copilot-workspace.githubnext.com,AI
 - RULE-SET,AdBlockBalanced-domain,AdBlock
+- RULE-SET,Crypto-domain,Crypto
 - RULE-SET,DomesticCore-domain,DIRECT
 - RULE-SET,DomesticSupplement-domain,DIRECT
 - RULE-SET,SteamCN-domain,DIRECT

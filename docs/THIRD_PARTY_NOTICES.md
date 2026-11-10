@@ -14,6 +14,10 @@ StashKit 的原创配置、脚本和本地修正采用 [GPL-2.0-only](../LICENSE
 
 内嵌 `Private-local` 的 133 条私网规则直接来自 [V2Fly 固定提交 fc0a0693 的 data/private](https://github.com/v2fly/domain-list-community/blob/fc0a0693ec4e5c09938957c98aa11e530764492f/data/private)。保留 [原始文件](../build/private-domains.source.txt)、[源与许可摘要锁](../build/private-domains-lock.json)和[对应 MIT 许可](../rules/LICENSE.MIT-PRIVATE)。精确、后缀与单标签 DNS 名称语义用于三套配置；单标签正则以适用于有效 DNS 标签的无逗号形式内嵌。
 
+## v0.1.18 Crypto 增量来源
+
+新版 [Crypto.v7.0.13.domain.txt](../rules/extra/Crypto.v7.0.13.domain.txt) 由 [LoonKit v7.0.13 的 Crypto.lsr](https://github.com/YohakuSama/loonkit/blob/66b01bffe8982d6a8153af7b03c897dc1bbab648/rules/releases/v7.0.13/Crypto.lsr) 逐条转为 Stash `domain` 格式，原始 219 条均保留。上游为 [blackmatrix7/ios_rule_script 固定参考](https://github.com/blackmatrix7/ios_rule_script/tree/0b6897dc17e0c513d25449c935a9694818e32f0c)，遵循 GPL-2.0-only。转换来源、上游提交、SHA256 和条目数见 [crypto-source-lock.json](../build/crypto-source-lock.json)。此前的 54 份冻结文件仍使用旧基准，不能将其称为 v7.0.13 全量重建。
+
 ## 许可文本与来源项目
 
 | 来源项目 | 上游记录的许可 | 随仓库保留的材料 |

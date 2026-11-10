@@ -168,7 +168,7 @@ def main():
         "behavior": "domain",
         "format": "text",
         "url": CRYPTO_REMOTE_URL,
-        "path": "./rules/v0.1.17/Crypto.domain.txt",
+        "path": "./rules/v0.1.18/Crypto.v7.0.13.domain.txt",
         "interval": 86400,
     }
     expected_routes = []
@@ -227,19 +227,36 @@ def main():
     assert len([row for row in source_rules if row.endswith(",Crypto")]) == 29
     assert all(row.startswith("DOMAIN-SUFFIX,") and row.endswith(",Crypto")
                for row in source_rules[:29]), "Crypto routes must remain first in upstream rule order"
-    # Preserve every upstream Crypto suffix while routing it through one
-    # immutable, indexed Stash domain rule-set instead of 29 inline matches.
-    crypto_expected = ["+." + row.split(",")[1] for row in source_rules[:29]]
-    crypto_asset = KIT / "rules/extra/Crypto.domain.txt"
+    # Reproduce the new Crypto rules from the independently pinned LoonKit
+    # v7.0.13 source while retaining the older reviewed 54 Stash rule assets.
+    crypto_lock = json.loads((KIT / "build/crypto-source-lock.json").read_text(encoding="utf-8"))
+    assert crypto_lock["commit"] == "66b01bffe8982d6a8153af7b03c897dc1bbab648"
+    assert crypto_lock["matcher_count"] == 219
+    crypto_source = KIT / "upstream/crypto-loonkit" / crypto_lock["path"]
+    raw = crypto_source.read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == crypto_lock["sha256"], "Crypto source SHA mismatch"
+    crypto_expected = []
+    for row in lines_from(crypto_source):
+        kind, value = row.split(",")
+        assert kind in ("DOMAIN", "DOMAIN-SUFFIX"), f"Unsupported Crypto matcher: {row}"
+        assert valid_domain(value) is not False
+        crypto_expected.append(("+." if kind == "DOMAIN-SUFFIX" else "") + value)
+    crypto_asset = KIT / "rules/extra/Crypto.v7.0.13.domain.txt"
     crypto_actual = lines_from(crypto_asset)
-    assert crypto_actual == crypto_expected, "Crypto remote asset drifted from pinned LoonKit policy"
-    assert len(crypto_actual) == len(set(crypto_actual)) == 29
-    assert all(valid_domain(row[2:]) is not False for row in crypto_actual)
-    source_rules = ["RULE-SET,Crypto-domain,Crypto"] + source_rules[29:]
+    assert crypto_actual == crypto_expected, "Crypto translation differs from pinned LoonKit v7.0.13"
+    assert len(crypto_actual) == len(set(crypto_actual)) == 219
+    original_crypto = ["+." + row.split(",")[1] for row in source_rules[:29]]
+    assert set(original_crypto) <= set(crypto_actual), "Original 29 Crypto roots missing"
+    # The frozen AdBlock snapshot has the old Coincheck apex false positive.
+    # A single exact exception is necessary until AdBlock is independently repinned.
+    source_rules = ["DOMAIN,coincheck.com,Crypto"] + source_rules[29:]
     assert source_rules[1] == "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
     source_rules[1] = "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
     source_rules.remove("DOMAIN,copilot-telemetry.githubusercontent.com,AI")
-    expected_rules = WEBRTC_GUARDS + LOCAL_DIRECT_RULES + source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
+    assert expected_routes[0] == "RULE-SET,AdBlockBalanced-domain,AdBlock"
+    expected_rules = (WEBRTC_GUARDS + LOCAL_DIRECT_RULES + source_rules[:-2]
+                      + [expected_routes[0], "RULE-SET,Crypto-domain,Crypto"] + expected_routes[1:]
+                      + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"])
     assert profile["rules"] == expected_rules, "Rules changed order, policy, or local precedence"
     assert profile["rules"][-1] == "MATCH,Final"
     assert len(expected_routes) == 54

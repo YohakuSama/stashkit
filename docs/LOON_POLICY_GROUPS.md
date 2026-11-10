@@ -43,7 +43,7 @@
 
 旧兼容文件不再是默认模板的别名，不会因运行默认生成器而重新插入 ALL。
 
-Crypto 的 29 条域名后缀规则从 LoonKit v7.0.12 直接适配，组位于 Speedtest 后、Paypal 前，默认 Proxy，无 DIRECT；兼容版的额外 ALL 入口只用于主动选择。
+Crypto 的 219 条域名规则从 LoonKit v7.0.13 独立远程规则集转换（保留原 29 个根域），组位于 Speedtest 后、Paypal 前，默认 Proxy，无 DIRECT；兼容版的额外 ALL 入口只用于主动选择。
 
 ## 适配边界
 

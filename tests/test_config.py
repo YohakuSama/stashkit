@@ -33,8 +33,8 @@ class ConfigTests(unittest.TestCase):
                     self.assertEqual(name, "Private-local")
                     continue
                 if name == "Crypto-domain":
-                    self.assertIn("/e2ced4ba62cba874b3a37f8338074f40518758d1/rules/extra/", provider["url"])
-                    self.assertEqual(provider["path"], "./rules/v0.1.17/Crypto.domain.txt")
+                    self.assertIn("/fd6627fc33eef9cf1e93b001a2327c47b0993133/rules/extra/", provider["url"])
+                    self.assertEqual(provider["path"], "./rules/v0.1.18/Crypto.v7.0.13.domain.txt")
                     continue
                 self.assertIn("/" + pin + "/rules/", provider["url"])
                 self.assertEqual(provider["path"], RULES_PATH_PREFIX + provider["url"].rsplit("/", 1)[1])

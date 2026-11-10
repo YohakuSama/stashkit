@@ -1,4 +1,4 @@
-# StashKit v0.1.17 — local rule providers
+# StashKit v0.1.18 — local rule providers
 mode: rule
 log-level: warning
 
@@ -133,7 +133,7 @@ rule-providers:
       "DOMAIN-SUFFIX,zte.home", "DOMAIN-SUFFIX,ts.net", "DOMAIN,local.adguard.org",
       "DOMAIN-SUFFIX,kis.v2.scr.kaspersky-labs.com"
     ]
-  "Crypto-domain": {behavior: domain, format: text, path: ./rules/v0.1.17/Crypto.domain.txt}
+  "Crypto-domain": {behavior: domain, format: text, path: ./rules/v0.1.18/Crypto.v7.0.13.domain.txt}
   "AdBlockBalanced-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/AdBlockBalanced.domain.txt}
   "DomesticCore-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/DomesticCore.domain.txt}
   "DomesticSupplement-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/DomesticSupplement.domain.txt}
@@ -211,7 +211,7 @@ rules:
   - "DOMAIN-SUFFIX,home.arpa,DIRECT"
   - "RULE-SET,Private-local,DIRECT"
   - "GEOIP,LAN,DIRECT,no-resolve"
-  - "RULE-SET,Crypto-domain,Crypto"
+  - "DOMAIN,coincheck.com,Crypto"
   - "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
   - "DOMAIN,trae-api-sg.mchost.guru,AI"
   - "DOMAIN,trae-api-us.mchost.guru,AI"
@@ -222,6 +222,7 @@ rules:
   - "DOMAIN,copilot-telemetry-service.githubusercontent.com,AI"
   - "DOMAIN,copilot-workspace.githubnext.com,AI"
   - "RULE-SET,AdBlockBalanced-domain,AdBlock"
+  - "RULE-SET,Crypto-domain,Crypto"
   - "RULE-SET,DomesticCore-domain,DIRECT"
   - "RULE-SET,DomesticSupplement-domain,DIRECT"
   - "RULE-SET,SteamCN-domain,DIRECT"

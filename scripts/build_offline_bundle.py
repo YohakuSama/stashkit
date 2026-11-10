@@ -24,11 +24,11 @@ def make_zip(root=ROOT):
     assets = sorted((root / "rules").glob("*.txt"))
     if len(assets) != 54:
         raise ValueError(f"Expected 54 rule assets, got {len(assets)}")
-    crypto = root / "rules/extra/Crypto.domain.txt"
+    crypto = root / "rules/extra/Crypto.v7.0.13.domain.txt"
     if not crypto.is_file():
         raise ValueError("Missing independently pinned Crypto domain rule-set")
     files = {"StashKit-Local.yaml": profile,
-             "rules/v0.1.17/Crypto.domain.txt": crypto.read_bytes()}
+             "rules/v0.1.18/Crypto.v7.0.13.domain.txt": crypto.read_bytes()}
     for path in assets:
         files[f"rules/{RULES_VERSION}/" + path.name] = path.read_bytes()
     manifest = "\n".join(hashlib.sha256(data).hexdigest() + "  " + name
@@ -37,7 +37,7 @@ def make_zip(root=ROOT):
     files["README-OFFLINE.txt"] = (
         f"StashKit {PROFILE_VERSION} — offline provider bundle\n"
         "1) StashKit-Local.yaml uses 55 path-only file providers plus 1 embedded private provider.\n"
-        f"2) Install rules/v0.1.4/*.txt AND rules/v0.1.17/Crypto.domain.txt into Stash-managed resource directories.\n"
+        f"2) Install rules/v0.1.4/*.txt AND rules/v0.1.18/Crypto.v7.0.13.domain.txt into Stash-managed resource directories.\n"
         "3) Replace the example Airport URL in StashKit-Local.yaml locally before importing.\n"
         "4) Stash does NOT automatically install provider paths when importing a ZIP.\n"
         "5) Confirm all 56 providers load; otherwise do not use this as an active profile.\n"

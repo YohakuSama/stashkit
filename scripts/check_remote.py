@@ -21,17 +21,17 @@ from release_meta import RULES_REF, RULES_URL_PREFIX
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "StashKit.yaml"
 PREFIX = RULES_URL_PREFIX
-CRYPTO_REF = "e2ced4ba62cba874b3a37f8338074f40518758d1"
+CRYPTO_REF = "fd6627fc33eef9cf1e93b001a2327c47b0993133"
 CRYPTO_REMOTE_URL = (
     "https://raw.githubusercontent.com/YohakuSama/stashkit/"
-    + CRYPTO_REF + "/rules/extra/Crypto.domain.txt"
+    + CRYPTO_REF + "/rules/extra/Crypto.v7.0.13.domain.txt"
 )
 
 
 def published_url(spec, ref=None):
     url = spec["url"]
     if url == CRYPTO_REMOTE_URL:
-        return url, "extra/Crypto.domain.txt"
+        return url, "extra/Crypto.v7.0.13.domain.txt"
     if not url.startswith(PREFIX):
         raise ValueError(f"Unexpected host/path: {url}")
     basename = url[len(PREFIX):]

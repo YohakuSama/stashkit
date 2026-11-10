@@ -41,13 +41,15 @@ class ProfileVariantTests(unittest.TestCase):
                 self.assertEqual(len(data["rule-providers"]["Private-local"]["payload"]), 133)
                 self.assertEqual(
                     [row for row in data["rules"] if row.endswith(",Crypto")],
-                    ["RULE-SET,Crypto-domain,Crypto"],
+                    ["DOMAIN,coincheck.com,Crypto", "RULE-SET,Crypto-domain,Crypto"],
                 )
         source = yaml.safe_load(self.source)
         remote = [name for name, spec in source["rule-providers"].items()
                   if "url" in spec]
         self.assertEqual(len(remote), 55)
         self.assertEqual(source["rule-providers"]["Crypto-domain"]["behavior"], "domain")
+        self.assertLess(source["rules"].index("RULE-SET,AdBlockBalanced-domain,AdBlock"),
+                        source["rules"].index("RULE-SET,Crypto-domain,Crypto"))
 
     def test_privacy_variant_changes_only_documented_dns_and_route(self):
         original = yaml.safe_load(self.source)

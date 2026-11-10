@@ -15,7 +15,7 @@ python scripts/build_offline_bundle.py --check
 
 回归测试使用离线输入；真实 HTTPS DoH 探测单独运行，遇到证书错误、DNS 错误或不完整消息会失败，不跳过 TLS 身份检查。GitHub CI 的实测不等于每个用户网络都可用。
 
-合并前可运行 `python scripts/check_remote.py --ref 完整候选提交SHA`，逐字节检查该提交原有 54 个远程文件（另检查已单独固定提交的 Crypto 文件）；省略参数则检查配置锁定的生产快照，始终不跟随 main。新的规则先在独立提交发布并完成字节校验，随后配置切换 pin 与缓存版本。内嵌 Private-local 由源文件、许可证摘要及三套配置一致性测试验证。
+合并前可运行 `python scripts/check_remote.py --ref 完整候选提交SHA`，逐字节检查该提交原有 54 个远程文件（另检查已单独固定提交的新版 Crypto 文件）；省略参数则检查配置锁定的生产快照，始终不跟随 main。新的规则先在独立提交发布并完成字节校验，随后配置切换 pin 与缓存版本。内嵌 Private-local 由源文件、许可证摘要及三套配置一致性测试验证。
 
 ## Stash 真机验收
 
@@ -80,4 +80,6 @@ iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，�
 私网冷启动应在未缓存 GeoSite 的设备上验证 `router.internal`、NAS 单标签名称、路由器品牌域名与私有反向解析；三套配置不再含 GeoSite 引用。脚本通过只证明控制器返回的规则与出口符合配置，不代替真实业务连通性、播放或 DNS 旁路测试。
 
 
-**当前 v0.1.17 精简版**：正常订阅、自建、Privacy、Local 文件约 280 行，远程规则仍是 54 份冻结业务规则加独立 Crypto 规则集（29 条）；`Private-local` 133 条继续内嵌以保证首次私网 / DNS 处理不依赖网络。检查 Crypto 单独固定的 URL、文件字节和匹配顺序；离线包中 `rules/v0.1.17/Crypto.domain.txt` 必须一并安装。旧 ALL 和 Preview 兼容文件保留展开排版，不属于推荐入口。
+**当前 v0.1.18 精简版**：正常订阅、自建、Privacy、Local 文件约 280 行，远程规则仍是 54 份冻结业务规则加独立 Crypto 规则集（219 条）；`Private-local` 133 条继续内嵌以保证首次私网 / DNS 处理不依赖网络。检查 Crypto 单独固定的 URL、LoonKit v7.0.13 源 SHA256、219 条转换内容和匹配顺序；离线包中 `rules/v0.1.18/Crypto.v7.0.13.domain.txt` 必须一并安装。旧 ALL 和 Preview 兼容文件保留展开排版，不属于推荐入口。
+
+**Coincheck / 广告优先级验收**：使用 Stash 的 `/rules/match` 分别核对 `coincheck.com` → `DOMAIN,coincheck.com,Crypto`、`trade.coincheck.com` → `RULE-SET,Crypto-domain,Crypto`，并核对广告遥测域名仍先由 `AdBlockBalanced-domain` 处理。前两条是远程快照配合精确例外的预期行为；不要把整个 coincheck.com 后缀设为直连或无条件放行。远程资源未加载时必须先修复 Provider 状态，不能仅根据静态配置判断实际出口。

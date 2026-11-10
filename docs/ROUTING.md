@@ -4,18 +4,18 @@
 
 ## 服务直连与代理选择
 
-LoonKit v7.0.12 的直连能力在 StashKit 保持为两层：
+LoonKit v7.0.12 的策略组与直连基线在 StashKit 保持为两层；Crypto 另行同步至 v7.0.13：
 
 - **规则直接直连**：`DomesticCore`、`DomesticSupplement`、`DomesticAI`、`SteamCN` 和国内 IP 命中对应规则后直接走 `DIRECT`，独立于 `Proxy` 当前选中什么。
 - **服务策略可以直连**：`Apple`、`Microsoft`、`Bilibili`、`Line`、`Speedtest` 的首选项为 `DIRECT`；`Steam` 可手动选 `DIRECT`，但默认仍为 `Proxy`。这些组还能直接选择 `Auto`、`Fallback` 或订阅节点。
-- **加密货币代理优先**：Crypto 的 29 条交易平台、钱包和行情后缀已置入独立、固定提交的 `Crypto-domain` 远程域名规则集，经 `RULE-SET,Crypto-domain,Crypto` 在 ChinaDirect / GEOIP CN 之前匹配，且不提供 DIRECT 选项。
+- **加密货币代理优先**：Crypto 的 219 条交易平台、钱包和行情域名（含原 29 个后缀）已置入独立、固定提交的 `Crypto-domain` 远程域名规则集，经 `RULE-SET,Crypto-domain,Crypto` 在 ChinaDirect / GEOIP CN 之前匹配，且不提供 DIRECT 选项。
 - **海外服务不自动直连**：`ChatGPT`、`Gemini`、`Claude` 等保留 LoonKit 的默认代理逻辑。`Proxy` 不添加 `DIRECT` 选项，避免把多个海外服务一次性切成直连。
 
 策略组选择仅对**实际命中该策略组的请求**有效。例如广告规则先命中 `AdBlock`、国内服务先命中 `DIRECT` 时，之后的 Apple / Steam 组不会再覆盖它们。Stash 可能保留更新前设备上的旧选择，需在策略界面明确检查当前选中项。
 
 | 目标 | 策略 | 原因 |
 | --- | --- | --- |
-| api.binance.com、www.okx.com、wallet.metamask.io | Crypto | 独立 Crypto-domain 远程规则集，保留 LoonKit v7.0.12 的 29 条后缀，避免被 ChinaDirect / CN GeoIP 兜底直连 |
+| api.binance.com、www.okx.com、wallet.metamask.io | Crypto | 独立 Crypto-domain 远程规则集，按 LoonKit v7.0.13 提供 219 条规则，保留原 29 条后缀，避免被 ChinaDirect / CN GeoIP 兜底直连 |
 | 私有域名、LAN 地址 | DIRECT | Private-local 内嵌精确域名、后缀与单标签匹配，不依赖首次下载 GeoSite；Fake-IP 过滤不等于直连 |
 | raw.githubusercontent.com | GitHub | 默认仍经 Proxy，手动切换 GitHub 组时同时生效 |
 | alibaba.cdn.steampipe.steamcontent.com | DIRECT | 将 ChinaDirect 已有的精确国内 CDN 规则前移到 SteamCN |
@@ -33,7 +33,7 @@ LoonKit v7.0.12 的直连能力在 StashKit 保持为两层：
 
 生成器通过 [adjustments.json](../build/adjustments.json) 应用可审查的增删；固定的上游源不被修改。HiNet 的精确 CDN 域名来自[巴哈姆特站务诊断记录](https://forum.gamer.com.tw/C.php?bsn=60404&page=2&snA=27729)；播放服务可能改变 CDN，新增域名应根据实际请求记录单独补充，不能扩大到整个运营商。
 
-域名遮蔽不全是错误。例如 YouTube 优先于 Google、广告拦截优先于服务统计，属于明确的策略选择。优化时应使用预期路由用例，而不是自动删除所有重叠项。
+域名遮蔽不全是错误。例如 YouTube 优先于 Google、广告拦截优先于服务统计，属于明确的策略选择。Crypto 现由 AdBlock 优先匹配；原广告快照误拦 Coincheck 主页，因此仅保留 `DOMAIN,coincheck.com,Crypto` 精确例外，子域仍先由 AdBlock 检查。优化时应使用预期路由用例，而不是自动删除所有重叠项。
 
 `GEOIP,CN,DIRECT,no-resolve` 以及 CIDR/ASN 的 `no-resolve` 保留了上游避免主动解析的取舍：域名若未命中域名集合，这些规则不会为了判断国家而触发 DNS；没有已有目标 IP 的请求会进入 Final。因此此配置不保证所有国内域名自动直连。
 
