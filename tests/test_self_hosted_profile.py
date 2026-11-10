@@ -84,7 +84,7 @@ class SelfHostedProfileTests(unittest.TestCase):
 
     def test_unbound_or_modified_subscription_fails(self):
         with self.assertRaises(ValueError):
-            self_hosted_profile(self.source.replace("use: [ Airport ], ", "", 1))
+            self_hosted_profile(self.source.replace("    use:\n      - Airport\n", "", 1))
         with self.assertRaises(ValueError):
             self_hosted_profile(self.source.replace(
                 "https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION",

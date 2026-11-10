@@ -43,7 +43,7 @@ class PolicyGroupParityTests(unittest.TestCase):
                 with self.subTest(profile=filename, group=name):
                     expanded = [NODE['name'] if child in filters else child for child in choices]
                     if name == 'Proxy':
-                        expanded.append('REJECT')
+                        expanded.insert(2, 'REJECT')
                     self.assertEqual(group['type'], kind)
                     self.assertEqual(group['proxies'], expanded)
                     self.assertFalse(set(group) & {'use', 'use-url', 'include-all', 'filter'})
