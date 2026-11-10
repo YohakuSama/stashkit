@@ -83,12 +83,7 @@ def subscription_profile(config=None):
 
 
 def self_hosted_profile(config=None):
-    """Single-file static self-hosted node, reusing all canonical routing rules.
-
-    Only the top-level proxies node needs editing by the end user. Its fixed
-    name is deliberately referenced in every node-capable group, without
-    relying on include-all, remote subscriptions, or a second local file.
-    """
+    """Build a self-contained static node profile without Airport bindings."""
     content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
     if content.count("      - Airport\n") != 38:
         raise ValueError("Expected exactly 38 node-capable groups bound to Airport")
@@ -96,11 +91,41 @@ def self_hosted_profile(config=None):
     content = replace_once(content, SUBSCRIPTION_BLOCK, SELF_HOSTED_BLOCK, "node source block")
     begin, marker, rest = content.partition("proxy-groups:\n")
     if not marker:
-        raise ValueError("Expected one proxy-groups section")
-    groups_text, marker, end = rest.partition("\nrule-providers:\n")
+        raise ValueError("Missing proxy-groups section")
+    groups_text, marker, ending = rest.partition("\nrule-providers:\n")
     if not marker:
-        raise ValueError("Expected rule-providers after proxy-groups")
-    matches = list(re.finditer(r'^  - name: "([^"]+)"
+        raise ValueError("Missing rule-providers section")
+    matches = list(re.finditer(r'^  - name: "([^"]+)"', groups_text, re.M))
+    if len(matches) != 40 or len({match.group(1) for match in matches}) != 40:
+        raise ValueError("Expected 40 unique canonical policy groups")
+    result_groups = []
+    count = 0
+    for index, match in enumerate(matches):
+        name = match.group(1)
+        next_index = matches[index + 1].start() if index + 1 < len(matches) else len(groups_text)
+        block = groups_text[match.start():next_index]
+        if name not in {"AdBlock", "Final"}:
+            count += 1
+            block = replace_once(block, "    use:\n      - Airport\n", "", name + " binding")
+            if name in {"Auto", "Fallback"}:
+                block = replace_once(block, "    proxies: []\n",
+                                     "    proxies:\n      - SelfHosted\n", name + " node pool")
+            elif name == "Proxy":
+                block = replace_once(block, "      - REJECT\n",
+                                     "      - SelfHosted\n      - REJECT\n", name + " node choice")
+            else:
+                block = replace_once(block, "    icon: ",
+                                     "      - SelfHosted\n    icon: ", name + " node choice")
+        result_groups.append(block)
+    if count != 38:
+        raise ValueError("Expected 38 node-capable groups")
+    result = begin + "proxy-groups:\n" + "".join(result_groups) + "\nrule-providers:\n" + ending
+    if "      - Airport\n" in result or "proxy-providers:" in result:
+        raise ValueError("Subscription binding leaked into self-hosted profile")
+    return result
+
+
+def derived_profiles(config):
     outputs = {
         "StashKit-Privacy.yaml": privacy_profile(config),
         "StashKit-Subscription.yaml": subscription_profile(config),
