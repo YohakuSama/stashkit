@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "loonkit_release": "v7.0.13",
+  "loonkit_profile_ref": "66b01bffe8982d6a8153af7b03c897dc1bbab648",
+  "upstream_rule_asset_ref": "90659c20351c37fe505d7db18896baf0aeb8f59d",
+  "crypto": {
+    "source": "rules/releases/v7.0.13/Crypto.lsr",
+    "upstream_license": "GPL-2.0-only",
+    "upstream_reference": "blackmatrix7/ios_rule_script@0b6897dc17e0c513d25449c935a9694818e32f0c",
+    "exact_match_count": 1,
+    "suffix_match_count": 218,
+    "matcher_count": 219,
+    "asset": "rules/extra/Crypto.domain.txt",
+    "blob_sha": "9ccd6ebe02510528e49d412e1e697635369c67a3"
+  },
+  "adblock": {
+    "source": "rules/AdBlockBalanced.domain.txt",
+    "source_blob_sha": "04d65d7c8074a2afb641b3a6b3e5dcec3e44a393",
+    "asset": "rules/extra/AdBlockBalanced.domain.txt",
+    "removed_exact_entries": [
+      "coincheck.com"
+    ],
+    "blob_sha": "a918dd463b791423614a3748402b5c471486b153"
+  }
+}
