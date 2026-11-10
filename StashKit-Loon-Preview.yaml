@@ -39,17 +39,17 @@ proxy-groups:
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Proxy.png
 - name: Auto
   type: url-test
+  proxies: []
   use:
   - personal
-  proxies: []
   interval: 600
   tolerance: 60
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Auto.png
 - name: Fallback
   type: fallback
+  proxies: []
   use:
   - personal
-  proxies: []
   interval: 900
   icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Fallback.png
 - name: ALL
