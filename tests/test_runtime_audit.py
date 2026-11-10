@@ -73,6 +73,16 @@ class RuntimeAuditTests(unittest.TestCase):
         self.assertEqual(len(self.calls), 6 + len(SENTINELS))
         self.assertTrue(all(path.startswith('/') for path in self.calls))
 
+    def test_proxy_must_keep_auto_fallback_reject_above_dynamic_nodes(self):
+        group = self.responses["/proxies"]["proxies"]["Proxy"]
+        group["all"] = ["private-node-name", "Auto", "Fallback", "REJECT"]
+        self.assertFalse(self.run_audit())
+
+    def test_live_provider_must_not_replace_fixed_proxy_choices(self):
+        group = self.responses["/proxies"]["proxies"]["Proxy"]
+        group["all"] = ["private-node-name"]
+        self.assertFalse(self.run_audit())
+
     def test_missing_or_wrong_provider_names_fail(self):
         providers = self.responses['/providers/rules']['providers']
         providers['wrong-name'] = providers.pop('ChatGPT-domain')

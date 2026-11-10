@@ -77,7 +77,7 @@ def local_profile(config=None):
 def subscription_profile(config=None):
     """Keep the old Subscription filename as an alias of the official main profile."""
     content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
-    if content.count("use: [ Airport ]") != 38 or content.count("proxy-providers:\n") != 1:
+    if content.count("    use:\n      - Airport\n") != 38 or content.count("proxy-providers:\n") != 1:
         raise ValueError("Expected 38 policy groups bound to the official Airport provider")
     return content
 
@@ -85,7 +85,7 @@ def subscription_profile(config=None):
 def self_hosted_profile(config=None):
     """Bind all locally declared nodes to 38 policies using Stash include-all."""
     content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
-    if content.count("use: [ Airport ]") != 38:
+    if content.count("    use:\n      - Airport\n") != 38:
         raise ValueError("Expected exactly 38 node-capable groups bound to Airport")
     content = replace_once(content, HEADER, SELF_HOSTED_HEADER, "self-hosted profile header")
     content = replace_once(content, SUBSCRIPTION_BLOCK, SELF_HOSTED_BLOCK, "node source block")
@@ -95,7 +95,7 @@ def self_hosted_profile(config=None):
     groups_text, marker, ending = rest.partition("\nrule-providers:\n")
     if not marker:
         raise ValueError("Missing rule-providers section")
-    matches = list(re.finditer(r'^  - \{name: "([^"]+)", type:', groups_text, re.M))
+    matches = list(re.finditer(r'^  - name: "([^"]+)"$', groups_text, re.M))
     if len(matches) != 40 or len({match.group(1) for match in matches}) != 40:
         raise ValueError("Expected 40 unique canonical policy groups")
     result_groups = []
@@ -107,14 +107,14 @@ def self_hosted_profile(config=None):
         if name not in {"AdBlock", "Final"}:
             count += 1
             block = replace_once(
-                block, "use: [ Airport ], ", "include-all: true, ",
+                block, "    use:\n      - Airport\n", "    include-all: true\n",
                 name + " static node discovery"
             )
         result_groups.append(block)
     if count != 38:
         raise ValueError("Expected 38 node-capable groups")
     result = begin + "proxy-groups:\n" + "".join(result_groups) + "\nrule-providers:\n" + ending
-    if "use: [ Airport ]" in result or "proxy-providers:" in result or "      - SelfHosted\n" in result:
+    if "    use:\n      - Airport\n" in result or "proxy-providers:" in result or "      - SelfHosted\n" in result:
         raise ValueError("Subscription binding leaked into self-hosted profile")
     return result
 

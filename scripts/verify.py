@@ -111,6 +111,9 @@ def main():
     assert by_name["Auto"]["tolerance"] == 60
     assert by_name["Fallback"]["type"] == "fallback" and by_name["Fallback"]["interval"] == 900
     assert by_name["Proxy"]["proxies"] == ["Auto", "Fallback", "REJECT"]
+    assert all(list(group).index("proxies") < list(group).index("use")
+               for group in groups if group.get("use")), (
+        "Fixed policy choices must precede dynamically loaded provider nodes")
     for name in ("Auto", "Fallback"):
         assert by_name[name]["proxies"] == []
     for name in ("ChatGPT", "Gemini", "Netflix", "GitHub"):
