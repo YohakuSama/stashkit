@@ -162,8 +162,11 @@ def expected_counts(profile, root=ROOT):
             counts[name] = len(spec["payload"])
         else:
             filename = spec.get("url", spec.get("path", "")).rsplit("/", 1)[-1]
+            path = root / "rules" / filename
+            if name == "Crypto-domain":
+                path = root / "rules/extra/Crypto.domain.txt"
             counts[name] = sum(bool(row.strip()) and not row.lstrip().startswith("#")
-                               for row in (root / "rules" / filename).read_text().splitlines())
+                               for row in path.read_text().splitlines())
     return counts
 
 
