@@ -79,7 +79,7 @@ class SelfHostedProfileTests(unittest.TestCase):
             self.assertEqual(self.self_hosted[key], self.canonical[key])
         self.assertEqual(
             [rule for rule in self.self_hosted["rules"] if rule.endswith(",Crypto")],
-            ["RULE-SET,Crypto-domain,Crypto"],
+            ["DOMAIN,coincheck.com,Crypto", "RULE-SET,Crypto-domain,Crypto"],
         )
 
     def test_unbound_or_modified_subscription_fails(self):
