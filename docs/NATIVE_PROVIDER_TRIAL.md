@@ -5,9 +5,9 @@
 ## 直接使用单文件配置
 
 - **机场订阅**：[StashKit-Subscription.yaml](../StashKit-Subscription.yaml)：本地替换 proxy-providers.Airport.url，Stash 后台更新节点。
-- **自建单节点**：[StashKit-SelfHosted.yaml](../StashKit-SelfHosted.yaml)：本地仅替换顶层 proxies.SelfHosted 的协议、服务器、端口和认证字段。保持节点名 SelfHosted；38 个用节点的组已有显式引用，不用修改 proxy-groups 中的 proxies 列表。自建版没有 Airport，也不需要单独的本地 Provider 文件；配置变动需重新导入。
+- **自建多节点**：[StashKit-SelfHosted.yaml](../StashKit-SelfHosted.yaml)：本地替换顶层 proxies 节点列表，可添加任意多个唯一 name 的节点。38 个需节点的组使用 include-all: true 自动纳入所有本地节点，不要修改 proxy-groups 中的 proxies。自建版没有 Airport，也不需要单独的本地 Provider 文件；配置变动需重新导入。
 
-这两个入口都保留 40 个原生策略组与规则，个人密码和 Token 不能提交到公开仓库。自建版只是静态单节点模板，不会自动拉取配置。
+这两个入口都保留 40 个原生策略组与规则，个人密码和 Token 不能提交到公开仓库。自建版是静态多节点模板，不会自动拉取配置。
 
 ## 无需生成器：直接编辑 YAML
 
