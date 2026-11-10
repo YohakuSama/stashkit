@@ -31,6 +31,13 @@ jobs:
           ref: edbfedad1b568578edc1a6dcebf422867a36a3ed
           path: upstream/policy-loonkit
           persist-credentials: false
+      - name: Checkout pinned LoonKit v7.0.13 Crypto source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: YohakuSama/loonkit
+          ref: 66b01bffe8982d6a8153af7b03c897dc1bbab648
+          path: upstream/crypto-loonkit
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
