@@ -19,9 +19,9 @@ from validate_config import validate_profile
 ROOT = Path(__file__).resolve().parents[1]
 NODE_POOLS = frozenset({"Proxy", "Auto", "Fallback", "ALL"})
 SERVICE_EXCEPTIONS = frozenset({"AdBlock", "Final"})
-EXPECTED_GROUP_COUNT = 39
+EXPECTED_GROUP_COUNT = 40
 DEFAULT_LAYOUT = "native"
-# Public templates contain the original 39 policies. Bind private sources once;
+# Public templates contain the original 40 policies. Bind private sources once;
 # Stash then keeps the Provider/use-url node lists up to date itself.
 PROFILE_FILES = {
     "default": "StashKit.yaml",
@@ -86,7 +86,7 @@ def read_subscription_urls(path):
 
 def build_loon_selection(source, providers=None, nodes=None, subscription_urls=None,
                          layout=DEFAULT_LAYOUT):
-    """Bind sources directly to the 39 original policies by default.
+    """Bind sources directly to the 40 original policies by default.
 
     Provider definitions and use-url links remain dynamic. The optional nested
     layout is retained only for old ALL clients. Actual iOS display still needs
@@ -185,7 +185,7 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
 
 def build_flat_selection(source, providers=None, nodes=None, subscription_urls=None,
                          base_dir=Path("."), **resolver_options):
-    """Resolve actual nodes before building the 39 original LoonKit groups."""
+    """Resolve actual nodes before building the 40 original LoonKit groups."""
     resolved = resolve_node_sources(nodes, providers, subscription_urls,
                                     base_dir=base_dir, **resolver_options)
     return build_loon_selection(source, nodes=resolved, layout="native")

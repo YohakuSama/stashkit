@@ -6,7 +6,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-UPSTREAM = ROOT / 'upstream/loonkit/LoonKit.lcf'
+UPSTREAM = ROOT / 'upstream/policy-loonkit/LoonKit.lcf'
 sys.path.insert(0, str(ROOT / 'scripts'))
 from build_loon_selection import build_flat_selection
 from validate_config import validate_profile
@@ -32,7 +32,7 @@ class PolicyGroupParityTests(unittest.TestCase):
     def test_flat_output_expands_every_loon_filter_at_its_original_position(self):
         filters = {'ALL_Filter', 'Auto_Filter', 'Fallback_Filter'}
         expected = loon_groups()
-        self.assertEqual(len(expected), 39)
+        self.assertEqual(len(expected), 40)
         for filename in ('StashKit.yaml', 'StashKit-Privacy.yaml', 'StashKit-Local.yaml'):
             source = yaml.safe_load((ROOT / filename).read_text())
             result = build_flat_selection(source, nodes=[NODE])
@@ -56,7 +56,7 @@ class PolicyGroupParityTests(unittest.TestCase):
             profile = yaml.safe_load((ROOT / filename).read_text())
             groups = {g['name']: g for g in profile['proxy-groups']}
             self.assertEqual(list(groups), [row[0] for row in expected])
-            self.assertEqual(len(groups), 39)
+            self.assertEqual(len(groups), 40)
             self.assertEqual(list(profile['proxy-providers']), ['Airport'])
             self.assertNotIn('proxies', profile)
             for name, kind, choices in expected:
@@ -83,7 +83,7 @@ class PolicyGroupParityTests(unittest.TestCase):
         for name in ('Apple', 'Microsoft', 'Bilibili', 'Line', 'Speedtest'):
             self.assertEqual(groups[name]['proxies'][0], 'DIRECT')
         self.assertEqual(groups['Steam']['proxies'][:4], ['Proxy', 'Auto', 'Fallback', 'DIRECT'])
-        for name in ('Proxy', 'AI', 'ChatGPT', 'Gemini', 'Claude', 'Netflix'):
+        for name in ('Proxy', 'AI', 'ChatGPT', 'Gemini', 'Claude', 'Netflix', 'Crypto'):
             self.assertNotIn('DIRECT', groups[name]['proxies'])
         self.assertEqual(groups['AdBlock']['proxies'], ['REJECT', 'DIRECT', 'Proxy'])
         self.assertEqual(groups['Final']['proxies'], ['Proxy', 'Auto', 'Fallback', 'DIRECT'])

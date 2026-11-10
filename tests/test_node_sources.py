@@ -137,7 +137,7 @@ class NodeSourceTests(unittest.TestCase):
             success = subprocess.run(command, capture_output=True, text=True)
             self.assertEqual(success.returncode, 0, success.stderr)
             result = yaml.safe_load(output.read_text())
-            self.assertEqual(len(result['proxy-groups']), 39)
+            self.assertEqual(len(result['proxy-groups']), 40)
             self.assertEqual(os.stat(output).st_mode & 0o777, 0o600)
             self.assertNotIn('SECRET', success.stdout + success.stderr)
             previous = output.read_bytes()

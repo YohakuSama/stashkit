@@ -1,4 +1,4 @@
-"""Check the directly editable provider profile retains the canonical 39 policies."""
+"""Check the directly editable provider profile retains the canonical 40 policies."""
 import sys
 import unittest
 from pathlib import Path
@@ -23,7 +23,7 @@ class SubscriptionProfileTests(unittest.TestCase):
         for key in ("dns", "rules", "rule-providers"):
             self.assertEqual(data[key], canonical[key])
         groups = {item["name"]: item for item in data["proxy-groups"]}
-        self.assertEqual(len(groups), 39)
+        self.assertEqual(len(groups), 40)
         self.assertEqual(groups["Proxy"]["proxies"], ["Auto", "Fallback", "REJECT"])
         self.assertEqual(groups["Auto"]["proxies"], [])
         self.assertEqual(groups["Fallback"]["proxies"], [])

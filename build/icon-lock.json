@@ -1,8 +1,8 @@
 {
   "version": 1,
   "source_repository": "YohakuSama/loonkit",
-  "source_commit": "d82214d057b27a68d6b9c07c61fb126a69adc903",
-  "icons_commit": "3778671c7d4141ac49d734a8dfd45452a5147949",
+  "source_commit": "edbfedad1b568578edc1a6dcebf422867a36a3ed",
+  "icons_commit": "20c801ef91c4395a1535c3bd83c51034c0a3648f",
   "group_icons": {
     "Proxy": "Proxy.png",
     "Auto": "Auto.png",
@@ -19,6 +19,7 @@
     "Apple": "Apple.png",
     "Cloudflare": "Cloudflare.png",
     "Speedtest": "Speedtest.png",
+    "Crypto": "Crypto.png",
     "YouTube": "YouTube.png",
     "Netflix": "Netflix.png",
     "Disney": "Disney.png",
@@ -56,6 +57,7 @@
     "ChatGPT.png": "e0f024155f1dd8095dd462e2f1b8aa25d725f6ee",
     "Claude.png": "0065684b6054ab63a8765933d758851811c9929b",
     "Cloudflare.png": "a0cc6fef5ce47edecf733fe6fd4d6e0a6b0e9a77",
+    "Crypto.png": "dfbba909873ed0c86f6c058d52a249ad36655dcf",
     "Dazn.png": "ac00415dbd0d9a2a7e3d2e98f172a907e7953620",
     "Discord.png": "c653a26a68e63f893a62288d59c970ebc48f644c",
     "Disney.png": "c04990bc8fc9b9c062e4cce37e3f40c99a89175d",

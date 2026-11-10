@@ -48,7 +48,7 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(by_name["ChatGPT"]["use"], ["Airport"])
         self.assertNotIn("include-all", by_name["ChatGPT"])
         self.assertNotIn("filter", by_name["ChatGPT"])
-        self.assertEqual(len(by_name), 39)
+        self.assertEqual(len(by_name), 40)
         self.assertNotIn("ALL", by_name)
         self.assertNotIn("Manual", by_name)
         self.assertEqual(by_name["Final"]["proxies"][0], "Proxy")
@@ -66,9 +66,9 @@ class ConfigTests(unittest.TestCase):
         import hashlib
         import json
         lock = json.loads((ROOT / "build/icon-lock.json").read_text())
-        self.assertEqual(len(lock["group_icons"]), 39)
+        self.assertEqual(len(lock["group_icons"]), 40)
         self.assertNotIn("Manual", lock["group_icons"])
-        self.assertEqual(len(lock["asset_git_blob_shas"]), 39)
+        self.assertEqual(len(lock["asset_git_blob_shas"]), 40)
         self.assertNotIn("ALL", lock["group_icons"])
         for name, filename in lock["group_icons"].items():
             group = next(g for g in self.profile["proxy-groups"] if g["name"] == name)

@@ -1,12 +1,12 @@
 # 无 ALL 的动态订阅绑定
 
-默认 `native` 输出 39 个与 LoonKit 对应的策略组。Proxy 和业务组直接引用节点 Provider，保留 Auto/Fallback 和原有 DIRECT 选项。真实节点由 Stash 的 `use` 或 `use-url` 加载，订阅更新后不需要重新生成节点列表。
+默认 `native` 输出 40 个与 LoonKit 对应的策略组。Proxy 和业务组直接引用节点 Provider，保留 Auto/Fallback 和原有 DIRECT 选项。真实节点由 Stash 的 `use` 或 `use-url` 加载，订阅更新后不需要重新生成节点列表。
 
 ## 无需生成器：直接编辑 YAML
 
 正式主配置现在直接填写订阅链接：下载 [StashKit.yaml](../StashKit.yaml) 到本地，把 `proxy-providers.Airport.url` 的 `example.invalid` URL 改成 HTTPS Clash/Stash YAML 节点订阅，再在 Stash 从文件导入。无需可视化编辑或 Python。
 
-所有 37 个需要节点的组显式使用 `use: [Airport]`，保留 `Proxy` 内的 `Auto`、`Fallback` 和 `REJECT`，每 3600 秒自动更新 Provider。若添加多个机场，请增加 `proxy-providers` 条目，并将名称加入需要节点的策略组 `use`。私人订阅可能含 Token，**切勿推送到公开 GitHub**。导入后要确认节点非空并检查实际策略选择。
+所有 38 个需要节点的组显式使用 `use: [Airport]`，保留 `Proxy` 内的 `Auto`、`Fallback` 和 `REJECT`，每 3600 秒自动更新 Provider。若添加多个机场，请增加 `proxy-providers` 条目，并将名称加入需要节点的策略组 `use`。私人订阅可能含 Token，**切勿推送到公开 GitHub**。导入后要确认节点非空并检查实际策略选择。
 
 下文的生成器方法继续适合复杂、多机场和高级绑定需求；StashKit-Subscription.yaml 仅为兼容别名。
 
@@ -54,7 +54,7 @@ Provider 的 URL、interval、headers、filter、path 和测速参数原样保�
 ## 导入与验证
 
 1. 在 Stash 中从文件导入完整的 `dist/StashKit-Personal.yaml`。
-2. 检查总计 39 个策略组，无 ALL/Manual。Proxy 同时显示 Auto、Fallback 与真实节点；ChatGPT 等业务组同时显示策略和节点；Apple 等直连组的 DIRECT 顺序保持不变。
+2. 检查总计 40 个策略组，无 ALL/Manual。Proxy 同时显示 Auto、Fallback 与真实节点；ChatGPT 等业务组同时显示策略和节点；Apple 等直连组的 DIRECT 顺序保持不变。
 3. 更新订阅，检查节点新增、移除或更名是否同步到 Auto/Fallback、Proxy 和业务组，无需重新生成。修改订阅 URL、认证或 Provider 名称时才需要重新绑定。
 4. 启用 Tunnel，查看请求记录并测试 Fallback 断线切换；通过[运行时审计](./VALIDATION.md)逐组核对实际成员，不能只看 Auto 能用。
 
@@ -72,7 +72,7 @@ python scripts/stash_runtime_audit.py \
 
 ## 显式兼容选项
 
-- `--layout flat`：下载或读取真实节点并展开为 39 组静态列表。空源、过滤后为空或下载失败时保留旧输出；节点变化后需重新生成。
+- `--layout flat`：下载或读取真实节点并展开为 40 组静态列表。空源、过滤后为空或下载失败时保留旧输出；节点变化后需重新生成。
 - `--layout nested`：保留旧的 ALL 中间入口。`StashKit-ALL.yaml` 等文件只为主动选择旧布局的用户保留，正式默认不用它们。
 
 两份 Preview 仅是需要自行声明 personal Provider 的旧参考配置。正式使用直接运行默认生成器即可，不需要先经过 Preview。
