@@ -83,7 +83,7 @@ def subscription_profile(config=None):
 
 
 def self_hosted_profile(config=None):
-    """Build a self-contained static node profile without Airport bindings."""
+    """Bind all locally declared nodes to 38 policies using Stash include-all."""
     content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
     if content.count("      - Airport\n") != 38:
         raise ValueError("Expected exactly 38 node-capable groups bound to Airport")
@@ -106,24 +106,15 @@ def self_hosted_profile(config=None):
         block = groups_text[match.start():next_index]
         if name not in {"AdBlock", "Final"}:
             count += 1
-            block = replace_once(block, "    use:\n      - Airport\n", "", name + " binding")
-            if name in {"Auto", "Fallback"}:
-                block = replace_once(block, "    proxies: []\n",
-                                     "    proxies:\n      - SelfHosted\n", name + " node pool")
-            elif name == "Proxy":
-                block = replace_once(block, "      - REJECT\n",
-                                     "      - SelfHosted\n      - REJECT\n", name + " node choice")
-            elif name == "Steam":
-                block = replace_once(block, '      - "DIRECT"\n',
-                                     '      - SelfHosted\n      - "DIRECT"\n', name + " node choice")
-            else:
-                block = replace_once(block, "    icon: ",
-                                     "      - SelfHosted\n    icon: ", name + " node choice")
+            block = replace_once(
+                block, "    use:\n      - Airport\n", "    include-all: true\n",
+                name + " static node discovery"
+            )
         result_groups.append(block)
     if count != 38:
         raise ValueError("Expected 38 node-capable groups")
     result = begin + "proxy-groups:\n" + "".join(result_groups) + "\nrule-providers:\n" + ending
-    if "      - Airport\n" in result or "proxy-providers:" in result:
+    if "      - Airport\n" in result or "proxy-providers:" in result or "      - SelfHosted\n" in result:
         raise ValueError("Subscription binding leaked into self-hosted profile")
     return result
 
