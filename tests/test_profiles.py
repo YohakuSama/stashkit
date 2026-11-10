@@ -28,13 +28,13 @@ class ProfileVariantTests(unittest.TestCase):
                 validate_profile(yaml.safe_load(result))
 
     def test_official_profiles_stay_compact_and_remote_rule_backed(self):
-        # Prevent the previous 900+ line configuration regression.
+        # Keep file providers remote; legible strategy groups may occupy more lines.
         for name in ("StashKit.yaml", "StashKit-Subscription.yaml",
                      "StashKit-Privacy.yaml", "StashKit-Local.yaml",
                      "StashKit-SelfHosted.yaml"):
             with self.subTest(name=name):
                 content = (ROOT / name).read_text(encoding="utf-8")
-                self.assertLessEqual(len(content.splitlines()), 300)
+                self.assertLessEqual(len(content.splitlines()), 700)
                 data = yaml.safe_load(content)
                 self.assertEqual(len(data["proxy-groups"]), 40)
                 self.assertEqual(len(data["rule-providers"]), 56)
@@ -50,6 +50,24 @@ class ProfileVariantTests(unittest.TestCase):
         self.assertEqual(source["rule-providers"]["Crypto-domain"]["behavior"], "domain")
         self.assertLess(source["rules"].index("RULE-SET,AdBlockBalanced-domain,AdBlock"),
                         source["rules"].index("RULE-SET,Crypto-domain,Crypto"))
+
+    def test_selectors_place_fixed_choices_before_dynamic_nodes(self):
+        for name in ("StashKit.yaml", "StashKit-Subscription.yaml",
+                     "StashKit-Privacy.yaml", "StashKit-Local.yaml",
+                     "StashKit-SelfHosted.yaml"):
+            with self.subTest(profile=name):
+                data = yaml.safe_load((ROOT / name).read_text(encoding="utf-8"))
+                for group in data["proxy-groups"]:
+                    if group["name"] in {"AdBlock", "Final"}:
+                        continue
+                    expected_source = "include-all" if name == "StashKit-SelfHosted.yaml" else "use"
+                    self.assertLess(list(group).index("proxies"),
+                                    list(group).index(expected_source),
+                                    f"{name}: {group['name']}: fixed options must appear before node sources")
+                proxy = data["proxy-groups"][0]
+                self.assertEqual(proxy["proxies"], ["Auto", "Fallback", "REJECT"])
+                self.assertEqual(data["proxy-groups"][1]["proxies"], [])
+                self.assertEqual(data["proxy-groups"][2]["proxies"], [])
 
     def test_privacy_variant_changes_only_documented_dns_and_route(self):
         original = yaml.safe_load(self.source)
