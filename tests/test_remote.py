@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from check_remote import PREFIX, published_url
+from check_remote import PREFIX, CRYPTO_REMOTE_URL, published_url
 
 
 class RemoteURLTests(unittest.TestCase):
@@ -19,6 +19,17 @@ class RemoteURLTests(unittest.TestCase):
         url, name = published_url({"url": PREFIX + "ChatGPT.domain.txt"}, ref)
         self.assertEqual(url, f"https://raw.githubusercontent.com/YohakuSama/stashkit/{ref}/rules/ChatGPT.domain.txt")
         self.assertEqual(name, "ChatGPT.domain.txt")
+
+    def test_crypto_asset_is_independently_pinned(self):
+        self.assertEqual(
+            published_url({"url": CRYPTO_REMOTE_URL}),
+            (CRYPTO_REMOTE_URL, "extra/Crypto.domain.txt"),
+        )
+        # Candidate verification must not silently repin the separately published Crypto file.
+        self.assertEqual(
+            published_url({"url": CRYPTO_REMOTE_URL}, "a" * 40),
+            (CRYPTO_REMOTE_URL, "extra/Crypto.domain.txt"),
+        )
 
     def test_unsafe_refs_are_rejected(self):
         for ref in ("main", "../main", "a" * 39, "a" * 40 + "/extra"):
