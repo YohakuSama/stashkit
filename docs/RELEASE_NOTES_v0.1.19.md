@@ -10,3 +10,5 @@
 **必须真机确认：** YAML 的 Flow Mapping 与 Block Mapping 语义相同，格式回退不保证能修复 Stash 在 VPN 启动后的动态组加载故障。请实际对比 VPN 开启前/后的 Proxy 成员及 Stash 网络设置中的排序方式；若运行时只剩节点，仍须继续定位 App 具体行为。
 
 [验收方法](./VALIDATION.md) · [路由与架构](./ARCHITECTURE_AUDIT.md)
+
+**兼容回退**：如果动态 Provider 混用的运行时问题仍存在，可以按 README 使用 `--layout flat` 从自己的节点来源生成明确选项的个人配置。此方法只将个人节点明确列在配置中，55 份业务规则仍为远程引用。静态节点需手动重新生成，不要把生成的私人配置提交到公共仓库。

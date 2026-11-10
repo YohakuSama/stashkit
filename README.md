@@ -100,6 +100,8 @@ proxies:
 - **部分流媒体或 App 不可用**：先查看实际请求记录，尤其共享 CDN、登录、支付与统计接口，不应随意将大型公共根域归入特定服务。
 - **DNS / WebRTC**：默认使用 AliDNS DoH、Fake-IP 和常见 STUN/TURN 端口防护；它们不能保证未由 Tunnel 接管的所有流量也不会泄露。公共 DoH 的选路与系统 DNS 需要真机核验。
 
+当 Stash 运行时持续把动态节点覆盖到 `Proxy`、导致固定策略消失时，可以使用**明确列出节点的个人快照方案**：在本地准备一个含自己节点或真实 Provider 的 `dist/source.yaml`，运行 `python scripts/build_loon_selection.py --layout flat --nodes-from dist/source.yaml --output dist/StashKit-Personal.yaml`。生成后的 `Proxy` 明确列出 Auto、Fallback、REJECT、实际节点；**55 份规则仍远程引用**，仅个人节点需要在变更时重新生成。个人文件包含密钥，不能上传仓库。此方法是可选兼容方案，不会覆盖默认订阅配置。
+
 ## 常见问题
 
 <details>
