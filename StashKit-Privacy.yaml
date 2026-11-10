@@ -1,4 +1,4 @@
-# StashKit v0.1.18 — privacy DNS
+# StashKit v0.1.19 — privacy DNS
 mode: rule
 log-level: warning
 
@@ -40,47 +40,366 @@ proxy-providers:
     interval: 3600
 
 proxy-groups:
-  - {name: "Proxy", type: select, use: [ Airport ], proxies: [ Auto, Fallback, REJECT ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Proxy.png}
-  - {name: "Auto", type: url-test, use: [ Airport ], proxies: [], interval: 600, tolerance: 60, icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Auto.png}
-  - {name: "Fallback", type: fallback, use: [ Airport ], proxies: [], interval: 900, icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Fallback.png}
-  - {name: "AdBlock", type: select, proxies: [ "REJECT", "DIRECT", "Proxy" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AdBlock.png}
-  - {name: "Final", type: select, proxies: [ "Proxy", "Auto", "Fallback", "DIRECT" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Final.png}
-  - {name: "AI", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AI.png}
-  - {name: "ChatGPT", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/ChatGPT.png}
-  - {name: "Gemini", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Gemini.png}
-  - {name: "Claude", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Claude.png}
-  - {name: "GitHub", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/GitHub.png}
-  - {name: "Google", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Google.png}
-  - {name: "Microsoft", type: select, use: [ Airport ], proxies: [ "DIRECT", "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Microsoft.png}
-  - {name: "Apple", type: select, use: [ Airport ], proxies: [ "DIRECT", "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Apple.png}
-  - {name: "Cloudflare", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Cloudflare.png}
-  - {name: "Speedtest", type: select, use: [ Airport ], proxies: [ "DIRECT", "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Speedtest.png}
-  - {name: "Crypto", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Crypto.png}
-  - {name: "Paypal", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Paypal.png}
-  - {name: "YouTube", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/YouTube.png}
-  - {name: "Netflix", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Netflix.png}
-  - {name: "Disney", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Disney.png}
-  - {name: "PrimeVideo", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/PrimeVideo.png}
-  - {name: "Spotify", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Spotify.png}
-  - {name: "TikTok", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/TikTok.png}
-  - {name: "Twitch", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Twitch.png}
-  - {name: "HBO", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/HBO.png}
-  - {name: "Abema", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Abema.png}
-  - {name: "動畫瘋", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AnimeCrazy.png}
-  - {name: "Dazn", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Dazn.png}
-  - {name: "BBC", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/BBC.png}
-  - {name: "Bilibili", type: select, use: [ Airport ], proxies: [ "DIRECT", "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Bilibili.png}
-  - {name: "Telegram", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Telegram.png}
-  - {name: "Whatsapp", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Whatsapp.png}
-  - {name: "Instagram", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Instagram.png}
-  - {name: "Facebook", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Facebook.png}
-  - {name: "Twitter", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Twitter.png}
-  - {name: "Discord", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Discord.png}
-  - {name: "Line", type: select, use: [ Airport ], proxies: [ "DIRECT", "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Line.png}
-  - {name: "Reddit", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Reddit.png}
-  - {name: "Linkedin", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Linkedin.png}
-  - {name: "Steam", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback", "DIRECT" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Steam.png}
-
+  - name: "Proxy"
+    type: select
+    proxies:
+      - Auto
+      - Fallback
+      - REJECT
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Proxy.png
+  - name: "Auto"
+    type: url-test
+    proxies: []
+    use:
+      - Airport
+    interval: 600
+    tolerance: 60
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Auto.png
+  - name: "Fallback"
+    type: fallback
+    proxies: []
+    use:
+      - Airport
+    interval: 900
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Fallback.png
+  - name: "AdBlock"
+    type: select
+    proxies:
+      - "REJECT"
+      - "DIRECT"
+      - "Proxy"
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AdBlock.png
+  - name: "Final"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "DIRECT"
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Final.png
+  - name: "AI"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AI.png
+  - name: "ChatGPT"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/ChatGPT.png
+  - name: "Gemini"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Gemini.png
+  - name: "Claude"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Claude.png
+  - name: "GitHub"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/GitHub.png
+  - name: "Google"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Google.png
+  - name: "Microsoft"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Microsoft.png
+  - name: "Apple"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Apple.png
+  - name: "Cloudflare"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Cloudflare.png
+  - name: "Speedtest"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Speedtest.png
+  - name: "Crypto"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Crypto.png
+  - name: "Paypal"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Paypal.png
+  - name: "YouTube"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/YouTube.png
+  - name: "Netflix"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Netflix.png
+  - name: "Disney"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Disney.png
+  - name: "PrimeVideo"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/PrimeVideo.png
+  - name: "Spotify"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Spotify.png
+  - name: "TikTok"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/TikTok.png
+  - name: "Twitch"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Twitch.png
+  - name: "HBO"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/HBO.png
+  - name: "Abema"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Abema.png
+  - name: "動畫瘋"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AnimeCrazy.png
+  - name: "Dazn"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Dazn.png
+  - name: "BBC"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/BBC.png
+  - name: "Bilibili"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Bilibili.png
+  - name: "Telegram"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Telegram.png
+  - name: "Whatsapp"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Whatsapp.png
+  - name: "Instagram"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Instagram.png
+  - name: "Facebook"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Facebook.png
+  - name: "Twitter"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Twitter.png
+  - name: "Discord"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Discord.png
+  - name: "Line"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Line.png
+  - name: "Reddit"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Reddit.png
+  - name: "Linkedin"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Linkedin.png
+  - name: "Steam"
+    type: select
+    proxies:
+      - "Proxy"
+      - "Auto"
+      - "Fallback"
+      - "DIRECT"
+    use:
+      - Airport
+    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Steam.png
 rule-providers:
   # Embed private DNS matchers to avoid cold-start remote dependency.
   Private-local:
