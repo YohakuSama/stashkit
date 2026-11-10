@@ -13,6 +13,27 @@ ROOT = Path(__file__).resolve().parents[1]
 HEADER = f"# StashKit {PROFILE_VERSION}\n"
 PRIVACY_HEADER = f"# StashKit {PROFILE_VERSION} — privacy DNS\n"
 LOCAL_HEADER = f"# StashKit {PROFILE_VERSION} — local rule providers\n"
+SELF_HOSTED_HEADER = f"# StashKit {PROFILE_VERSION} — self-hosted node\n"
+SUBSCRIPTION_BLOCK = (
+    "# Edit the subscription URL locally; never publish private subscription credentials.\n"
+    "proxy-providers:\n"
+    "  Airport:\n"
+    "    # Replace this URL with your private Clash/Stash YAML subscription.\n"
+    "    url: 'https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION'\n"
+    "    path: ./providers/stashkit-airport.yaml\n"
+    "    interval: 3600\n"
+)
+SELF_HOSTED_BLOCK = (
+    "# Replace this local node definition; keep the name SelfHosted for group references.\n"
+    "proxies:\n"
+    "  - name: SelfHosted\n"
+    "    type: ss\n"
+    "    server: replace-me.invalid\n"
+    "    port: 443\n"
+    "    cipher: aes-128-gcm\n"
+    "    password: 'REPLACE-WITH-YOUR-PASSWORD'\n"
+)
+
 PRIVACY_DNS_RULE = '  - "DOMAIN,dns.alidns.com,Proxy"\n'
 URL_LINE = re.compile(
     r"^    url: https://raw\.githubusercontent\.com/YohakuSama/stashkit/"
@@ -57,14 +78,61 @@ def subscription_profile(config=None):
     """Keep the old Subscription filename as an alias of the official main profile."""
     content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
     if content.count("      - Airport\n") != 38 or content.count("proxy-providers:\n") != 1:
-        raise ValueError("Expected 37 policy groups bound to the official Airport provider")
+        raise ValueError("Expected 38 policy groups bound to the official Airport provider")
     return content
+
+
+def self_hosted_profile(config=None):
+    """Build a self-contained static node profile without Airport bindings."""
+    content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
+    if content.count("      - Airport\n") != 38:
+        raise ValueError("Expected exactly 38 node-capable groups bound to Airport")
+    content = replace_once(content, HEADER, SELF_HOSTED_HEADER, "self-hosted profile header")
+    content = replace_once(content, SUBSCRIPTION_BLOCK, SELF_HOSTED_BLOCK, "node source block")
+    begin, marker, rest = content.partition("proxy-groups:\n")
+    if not marker:
+        raise ValueError("Missing proxy-groups section")
+    groups_text, marker, ending = rest.partition("\nrule-providers:\n")
+    if not marker:
+        raise ValueError("Missing rule-providers section")
+    matches = list(re.finditer(r'^  - name: "([^"]+)"', groups_text, re.M))
+    if len(matches) != 40 or len({match.group(1) for match in matches}) != 40:
+        raise ValueError("Expected 40 unique canonical policy groups")
+    result_groups = []
+    count = 0
+    for index, match in enumerate(matches):
+        name = match.group(1)
+        next_index = matches[index + 1].start() if index + 1 < len(matches) else len(groups_text)
+        block = groups_text[match.start():next_index]
+        if name not in {"AdBlock", "Final"}:
+            count += 1
+            block = replace_once(block, "    use:\n      - Airport\n", "", name + " binding")
+            if name in {"Auto", "Fallback"}:
+                block = replace_once(block, "    proxies: []\n",
+                                     "    proxies:\n      - SelfHosted\n", name + " node pool")
+            elif name == "Proxy":
+                block = replace_once(block, "      - REJECT\n",
+                                     "      - SelfHosted\n      - REJECT\n", name + " node choice")
+            elif name == "Steam":
+                block = replace_once(block, '      - "DIRECT"\n',
+                                     '      - SelfHosted\n      - "DIRECT"\n', name + " node choice")
+            else:
+                block = replace_once(block, "    icon: ",
+                                     "      - SelfHosted\n    icon: ", name + " node choice")
+        result_groups.append(block)
+    if count != 38:
+        raise ValueError("Expected 38 node-capable groups")
+    result = begin + "proxy-groups:\n" + "".join(result_groups) + "\nrule-providers:\n" + ending
+    if "      - Airport\n" in result or "proxy-providers:" in result:
+        raise ValueError("Subscription binding leaked into self-hosted profile")
+    return result
 
 
 def derived_profiles(config):
     outputs = {
         "StashKit-Privacy.yaml": privacy_profile(config),
         "StashKit-Subscription.yaml": subscription_profile(config),
+        "StashKit-SelfHosted.yaml": self_hosted_profile(config),
         "StashKit-Local.yaml": local_profile(config),
     }
     # ALL remains an explicit compatibility variant, never a default alias.
@@ -107,7 +175,7 @@ def main():
                       if (ROOT / name).read_bytes() != value.encode("utf-8")]
         if mismatches:
             raise ValueError(f"Derived profiles differ from canonical source: {mismatches}")
-        print("PASS: 40-group editable subscription defaults and compatibility variants match canonical source")
+        print("PASS: 40-group subscription, self-hosted, and compatibility variants match canonical source")
     else:
         for name, value in outputs.items():
             (ROOT / name).write_text(value, encoding="utf-8")

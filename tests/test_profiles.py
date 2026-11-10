@@ -9,7 +9,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from build_profiles import local_profile, privacy_profile
+from build_profiles import local_profile, privacy_profile, self_hosted_profile
 from validate_config import validate_profile
 
 
@@ -20,7 +20,8 @@ class ProfileVariantTests(unittest.TestCase):
 
     def test_generated_variants_match_committed_files(self):
         for name, render in (("StashKit-Privacy.yaml", privacy_profile),
-                             ("StashKit-Local.yaml", local_profile)):
+                             ("StashKit-Local.yaml", local_profile),
+                             ("StashKit-SelfHosted.yaml", self_hosted_profile)):
             with self.subTest(profile=name):
                 result = render(self.source)
                 self.assertEqual(result.encode("utf-8"), (ROOT / name).read_bytes())
@@ -55,7 +56,7 @@ class ProfileVariantTests(unittest.TestCase):
                     render(bad)
 
     def test_yaml_comments_are_concise_and_english(self):
-        for name in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+        for name in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml", "StashKit-SelfHosted.yaml"):
             comments = [line.strip() for line in (ROOT / name).read_text().splitlines()
                         if line.lstrip().startswith("#")]
             with self.subTest(profile=name):

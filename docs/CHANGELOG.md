@@ -1,5 +1,13 @@
 # 变更记录
 
+## v0.1.15 — 订阅和自建节点双配置
+
+- README 改为两个主入口，直观说明机场订阅修改 proxy-providers.Airport.url、自建修改顶层 proxies.SelfHosted 节点。
+- 新增单文件 StashKit-SelfHosted.yaml：静态单节点供 38 个需节点的策略组直接引用，保留 Auto/Fallback 与 40 个原生组，不需要订阅或另一个 Provider 文件。
+- 订阅入口 StashKit-Subscription.yaml 保持与 StashKit.yaml 一致；其余派生配置只变更版本头，不修改原有路由规则、DNS、Crypto、图标或固定规则资源。
+- 补充自建模板的一致性及敏感占位字段测试，发布说明见[RELEASE_NOTES_v0.1.15](./RELEASE_NOTES_v0.1.15.md)。
+
+
 ## v0.1.14 — 同步 LoonKit v7.0.12 Crypto 策略
 
 - 新增 Crypto 代理策略组，39 → 40 个正式组；与 Paypal 共同移到基础平台策略后、流媒体前，保留 Proxy / Auto / Fallback 和同层动态订阅节点，不提供 DIRECT。

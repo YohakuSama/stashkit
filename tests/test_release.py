@@ -18,6 +18,7 @@ class ReleaseMetadataTests(unittest.TestCase):
             ("StashKit.yaml", f"# StashKit {PROFILE_VERSION}"),
             ("StashKit-Privacy.yaml", f"# StashKit {PROFILE_VERSION} — privacy DNS"),
             ("StashKit-Local.yaml", f"# StashKit {PROFILE_VERSION} — local rule providers"),
+            ("StashKit-SelfHosted.yaml", f"# StashKit {PROFILE_VERSION} — self-hosted node"),
         )
         for name, header in names:
             with self.subTest(file=name):
