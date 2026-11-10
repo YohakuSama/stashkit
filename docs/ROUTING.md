@@ -4,16 +4,18 @@
 
 ## 服务直连与代理选择
 
-LoonKit v7.0.10 的直连能力在 StashKit 保持为两层：
+LoonKit v7.0.12 的直连能力在 StashKit 保持为两层：
 
 - **规则直接直连**：`DomesticCore`、`DomesticSupplement`、`DomesticAI`、`SteamCN` 和国内 IP 命中对应规则后直接走 `DIRECT`，独立于 `Proxy` 当前选中什么。
 - **服务策略可以直连**：`Apple`、`Microsoft`、`Bilibili`、`Line`、`Speedtest` 的首选项为 `DIRECT`；`Steam` 可手动选 `DIRECT`，但默认仍为 `Proxy`。这些组还能直接选择 `Auto`、`Fallback` 或订阅节点。
+- **加密货币代理优先**：Crypto 新增 29 条明确的交易平台、钱包和行情域名后缀规则，在 ChinaDirect / GEOIP CN 之前匹配，且不提供 DIRECT 选项。
 - **海外服务不自动直连**：`ChatGPT`、`Gemini`、`Claude` 等保留 LoonKit 的默认代理逻辑。`Proxy` 不添加 `DIRECT` 选项，避免把多个海外服务一次性切成直连。
 
 策略组选择仅对**实际命中该策略组的请求**有效。例如广告规则先命中 `AdBlock`、国内服务先命中 `DIRECT` 时，之后的 Apple / Steam 组不会再覆盖它们。Stash 可能保留更新前设备上的旧选择，需在策略界面明确检查当前选中项。
 
 | 目标 | 策略 | 原因 |
 | --- | --- | --- |
+| api.binance.com、www.okx.com、wallet.metamask.io | Crypto | 29 条 LoonKit v7.0.12 精确后缀规则，避免被 ChinaDirect / CN GeoIP 兜底直连 |
 | 私有域名、LAN 地址 | DIRECT | Private-local 内嵌精确域名、后缀与单标签匹配，不依赖首次下载 GeoSite；Fake-IP 过滤不等于直连 |
 | raw.githubusercontent.com | GitHub | 默认仍经 Proxy，手动切换 GitHub 组时同时生效 |
 | alibaba.cdn.steampipe.steamcontent.com | DIRECT | 将 ChinaDirect 已有的精确国内 CDN 规则前移到 SteamCN |

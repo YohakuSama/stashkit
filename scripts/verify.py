@@ -56,7 +56,7 @@ def main():
     policy_bytes = POLICY_PROFILE_PATH.read_bytes()
     assert hashlib.sha256(policy_bytes).hexdigest() == POLICY_SHA256, "Policy baseline changed"
     policy_profile = policy_bytes.decode("utf-8")
-    assert policy_profile.startswith("# LoonKit v7.0.12\\n".replace("\\n", "\n"))
+    assert policy_profile.startswith("# LoonKit v7.0.12\n")
     assert (policy_profile.split("[Remote Rule]", 1)[1].split("[Rule]", 1)[0] ==
             original.split("[Remote Rule]", 1)[1].split("[Rule]", 1)[0]), "Frozen rule source references changed"
     profile = yaml.load((KIT / "StashKit.yaml").read_text(encoding="utf-8"), Loader=UniqueKeysLoader)

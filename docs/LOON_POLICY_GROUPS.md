@@ -1,6 +1,6 @@
 # LoonKit 策略组在 Stash 中的适配
 
-正式默认保留 LoonKit 的 39 个对应策略组，无 ALL、Manual 或改名后的中间节点选择组。Provider 直接绑定到 Proxy、Auto、Fallback 和业务组。
+正式默认保留 LoonKit 的 40 个对应策略组，无 ALL、Manual 或改名后的中间节点选择组。Provider 直接绑定到 Proxy、Auto、Fallback 和业务组。
 
 ## 默认 native 布局
 
@@ -23,7 +23,7 @@
 
 ## 公开模板与首次绑定
 
-三份公开 YAML 的 `use: []` 有意留空，仓库没有私人节点、订阅地址或虚构的本地 Provider 文件。第一次使用必须按[绑定说明](./NATIVE_PROVIDER_TRIAL.md)生成包含真实来源的完整配置；只导入公开模板不能获得节点，另一个独立配置中的订阅也不会自动合入。
+三份正式公开 YAML 使用同一个 `Airport` Provider，其订阅 URL 为故意无效的 `example.invalid` 占位符。第一次使用须在本地填写自己的 HTTPS Clash/Stash YAML 订阅地址，再导入 Stash；也可通过[绑定说明](./NATIVE_PROVIDER_TRIAL.md)使用高级生成器，不能指望另一个独立配置中的订阅自动合入。
 
 默认 native 不会提前下载私人订阅。生成成功说明引用与结构有效，Provider 是否非空、实际节点是否连通需要在 Stash 中检查。空组或空 Provider 可能按 DIRECT 处理，手动 REJECT 选项不能保证自动阻断。
 
@@ -31,11 +31,13 @@
 
 | 选择 | 组数 | 节点更新 |
 | --- | --- | --- |
-| native（默认） | 39，无 ALL | Provider / use-url 由 Stash 更新 |
-| flat（显式选择） | 39，无 ALL | 静态节点快照，节点变化后重新生成 |
-| nested / -ALL 文件（旧版兼容） | 40，额外 ALL 入口 | 可保留 Provider 更新；需要多进一层手动选节点 |
+| native（默认） | 40，无 ALL | Provider / use-url 由 Stash 更新 |
+| flat（显式选择） | 40，无 ALL | 静态节点快照，节点变化后重新生成 |
+| nested / -ALL 文件（旧版兼容） | 41，额外 ALL 入口 | 可保留 Provider 更新；需要多进一层手动选节点 |
 
 旧兼容文件不再是默认模板的别名，不会因运行默认生成器而重新插入 ALL。
+
+Crypto 的 29 条域名后缀规则从 LoonKit v7.0.12 直接适配，组位于 Speedtest 后、Paypal 前，默认 Proxy，无 DIRECT；兼容版的额外 ALL 入口只用于主动选择。
 
 ## 适配边界
 

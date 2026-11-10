@@ -1,5 +1,13 @@
 # 变更记录
 
+## v0.1.14 — 同步 LoonKit v7.0.12 Crypto 策略
+
+- 新增 Crypto 代理策略组，39 → 40 个正式组；与 Paypal 共同移到基础平台策略后、流媒体前，保留 Proxy / Auto / Fallback 和同层动态订阅节点，不提供 DIRECT。
+- 将 LoonKit 的 29 条加密货币域名后缀规则加入 Stash 原生配置，放在国内直连/广告远程资源之前，确保相关交易平台和钱包域名优先进入 Crypto。
+- 原样自托管 Crypto BTC 专属图标，全部 40 张图标重新固定到不可变提交；同步九套正式、兼容和预览配置。
+- 策略及本地规则校验锁定到 LoonKit v7.0.12；43 份未变远程规则继续使用原 v7.0.10 / StashKit v0.1.4 冻结资源，以免无必要地重置缓存。参见[发布说明](./RELEASE_NOTES_v0.1.14.md)。
+
+
 ## v0.1.13 — 正式 YAML 直接填写机场订阅
 
 - `StashKit.yaml`、Privacy 与 Local 正式配置统一声明 `proxy-providers.Airport`，通过单个 YAML URL 填入私人 Clash/Stash 订阅，无需可视化编辑或 Python。

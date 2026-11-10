@@ -8,7 +8,9 @@
 
 **服务分流** — 40 个与 LoonKit 对应的业务与策略组，无 `ALL`、`Manual` 或其他中间选择组，覆盖 AI、流媒体、社交、开发平台和国内常用服务。广告由 `AdBlock` 处理。
 
-**加密货币分流** — 新增独立 Crypto 组及 29 条靠前匹配的交易平台、钱包与行情域名后缀规则；Crypto 默认 Proxy，不提供 DIRECT，排序紧邻 Paypal。\n\n**服务直连** — Apple、Microsoft、Bilibili、Line、Speedtest 可以默认选 `DIRECT`，Steam 可手动选 `DIRECT`；国内核心、国内 AI、SteamCN CDN 仍由规则直连。国际 AI 服务不自动增加直连。
+**加密货币分流** — 新增独立 Crypto 组及 29 条靠前匹配的交易平台、钱包与行情域名后缀规则；Crypto 默认 Proxy，不提供 DIRECT，排序紧邻 Paypal。
+
+**服务直连** — Apple、Microsoft、Bilibili、Line、Speedtest 可以默认选 `DIRECT`，Steam 可手动选 `DIRECT`；国内核心、国内 AI、SteamCN CDN 仍由规则直连。国际 AI 服务不自动增加直连。
 
 **无 ALL 的同层选路（默认）** — 正式配置直接使用具名 `Airport` 远程代理集，将订阅节点绑定到 `Proxy`、`Auto`、`Fallback` 与业务组。高级[生成器](./docs/NATIVE_PROVIDER_TRIAL.md)仍可生成多来源配置。`Proxy` 保留 Auto/Fallback，业务组保留 Loon 的默认策略及 DIRECT 选项，具体节点从同一动态来源导入。没有二层 ALL 入口，也不使用 include-all 混合选择。
 
@@ -77,7 +79,9 @@
 git clone https://github.com/YohakuSama/stashkit.git
 cd stashkit
 git clone https://github.com/YohakuSama/loonkit.git upstream/loonkit
-git -C upstream/loonkit checkout 5f272104fc1207612c1cbd18f3e19d861d459ed9\ngit clone https://github.com/YohakuSama/loonkit.git upstream/policy-loonkit\ngit -C upstream/policy-loonkit checkout edbfedad1b568578edc1a6dcebf422867a36a3ed
+git -C upstream/loonkit checkout 5f272104fc1207612c1cbd18f3e19d861d459ed9
+git clone https://github.com/YohakuSama/loonkit.git upstream/policy-loonkit
+git -C upstream/policy-loonkit checkout edbfedad1b568578edc1a6dcebf422867a36a3ed
 python -m pip install -r requirements-dev.txt
 python scripts/build_profiles.py --check
 python scripts/build_rules.py --check
