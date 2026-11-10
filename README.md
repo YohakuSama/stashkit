@@ -1,14 +1,14 @@
 # StashKit
 
-面向 [Stash](https://stash.wiki/) 的规则分流配置。国内常用服务直连，AI、开发平台、流媒体与社交服务可独立选路。规则基于 [LoonKit v7.0.10 固定版本](https://github.com/YohakuSama/loonkit/tree/5f272104fc1207612c1cbd18f3e19d861d459ed9) 转换，产物由本仓库托管。
+面向 [Stash](https://stash.wiki/) 的规则分流配置。国内常用服务直连，AI、开发平台、流媒体与社交服务可独立选路。策略和本地规则基于 [LoonKit v7.0.12 固定版本](https://github.com/YohakuSama/loonkit/tree/edbfedad1b568578edc1a6dcebf422867a36a3ed) 转换；43 份未改变的远程规则沿用原有 v7.0.10 固定快照，产物由本仓库托管。
 
-当前配置：**v0.1.13** · [发布说明](./docs/RELEASE_NOTES_v0.1.13.md) · [变更记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
+当前配置：**v0.1.14** · [发布说明](./docs/RELEASE_NOTES_v0.1.14.md) · [变更记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
 
 ## 功能概览
 
-**服务分流** — 39 个与 LoonKit 对应的业务与策略组，无 `ALL`、`Manual` 或其他中间选择组，覆盖 AI、流媒体、社交、开发平台和国内常用服务。广告由 `AdBlock` 处理。
+**服务分流** — 40 个与 LoonKit 对应的业务与策略组，无 `ALL`、`Manual` 或其他中间选择组，覆盖 AI、流媒体、社交、开发平台和国内常用服务。广告由 `AdBlock` 处理。
 
-**服务直连** — Apple、Microsoft、Bilibili、Line、Speedtest 可以默认选 `DIRECT`，Steam 可手动选 `DIRECT`；国内核心、国内 AI、SteamCN CDN 仍由规则直连。国际 AI 服务不自动增加直连。
+**加密货币分流** — 新增独立 Crypto 组及 29 条靠前匹配的交易平台、钱包与行情域名后缀规则；Crypto 默认 Proxy，不提供 DIRECT，排序紧邻 Paypal。\n\n**服务直连** — Apple、Microsoft、Bilibili、Line、Speedtest 可以默认选 `DIRECT`，Steam 可手动选 `DIRECT`；国内核心、国内 AI、SteamCN CDN 仍由规则直连。国际 AI 服务不自动增加直连。
 
 **无 ALL 的同层选路（默认）** — 正式配置直接使用具名 `Airport` 远程代理集，将订阅节点绑定到 `Proxy`、`Auto`、`Fallback` 与业务组。高级[生成器](./docs/NATIVE_PROVIDER_TRIAL.md)仍可生成多来源配置。`Proxy` 保留 Auto/Fallback，业务组保留 Loon 的默认策略及 DIRECT 选项，具体节点从同一动态来源导入。没有二层 ALL 入口，也不使用 include-all 混合选择。
 
@@ -22,7 +22,7 @@
 
 先下载正式版 [StashKit.yaml](./StashKit.yaml) 到**本地**，将文件里的 `proxy-providers → Airport → url` 从 `https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION` 改为自己的 HTTPS **Clash/Stash YAML 节点订阅地址**（保留单引号），然后在 Stash **从文件导入**并启用。不要导入还带占位 URL 的公开模板。
 
-正式版将 `Proxy` 中的 **Auto、Fallback、REJECT 和真实节点**放在同一层；`Auto`、`Fallback` 和其他 35 个节点策略组通过 `use: [Airport]` 引用同一个 Provider。节点每 3600 秒自动更新，39 个原有策略组、分流规则及默认顺序不变，无需可视化编辑或 Python。机场返回的必须是含 `proxies` 的 Clash/Stash YAML；如果返回 URI/Base64 文本，需先切换为 YAML 格式。
+正式版将 `Proxy` 中的 **Auto、Fallback、REJECT 和真实节点**放在同一层；`Auto`、`Fallback` 和其他 35 个节点策略组通过 `use: [Airport]` 引用同一个 Provider。节点每 3600 秒自动更新，40 个原有策略组、分流规则及默认顺序不变，无需可视化编辑或 Python。机场返回的必须是含 `proxies` 的 Clash/Stash YAML；如果返回 URI/Base64 文本，需先切换为 YAML 格式。
 
 **请勿将带 Token 的私人订阅 URL 提交到公开 GitHub 仓库。** 填写订阅后先确认 Stash 确实加载了实际节点；空远程代理集可能被当作 DIRECT。
 
@@ -31,7 +31,7 @@
 
 1. 备份现有配置，将包含 `proxy-providers` 的 Clash/Stash YAML 保存为 Git 忽略的 `dist/source.yaml`；或者将 HTTPS 订阅逐行保存为 `dist/subscriptions.txt`。
 2. 执行 `python scripts/build_loon_selection.py --nodes-from dist/source.yaml --output dist/StashKit-Personal.yaml`；只有 URL 时将 `--nodes-from dist/source.yaml` 替换为 `--subscription-file dist/subscriptions.txt`。默认 native 保留动态更新。
-3. 在 Stash 中从文件导入生成结果，检查 Proxy 和业务组是否同时列出 Auto/Fallback 与真实节点；确认总计 39 组且无 ALL。
+3. 在 Stash 中从文件导入生成结果，检查 Proxy 和业务组是否同时列出 Auto/Fallback 与真实节点；确认总计 40 组且无 ALL。
 4. 更新订阅并检查节点增删；启用 Tunnel 后在请求记录核对实际出口。使用[运行时审计](./docs/VALIDATION.md)检查每个组是否包含当前订阅的节点。
 
 `--layout flat` 是明确选择的静态快照模式，节点变化后才需要重新生成。`StashKit-ALL.yaml` 等旧版兼容配置保留供主动选择，正式默认不再使用它们。完整步骤见[订阅绑定说明](./docs/NATIVE_PROVIDER_TRIAL.md)。
@@ -47,7 +47,7 @@
 | [StashKit-Subscription.yaml](./StashKit-Subscription.yaml) | 保留的兼容别名，内容与正式主配置一致 |
 | [StashKit-Privacy.yaml](./StashKit-Privacy.yaml) | 公共 DoH 请求跟随路由并优先走 `Proxy`；须先选择可用节点 |
 | [StashKit-Local.yaml](./StashKit-Local.yaml) | 离线规则版；须先把 54 份文件规则放入 Stash 资源目录 |
-| [StashKit-ALL.yaml](./StashKit-ALL.yaml) | 可选的旧版 ALL 兼容布局；不属于默认 39 组方案 |
+| [StashKit-ALL.yaml](./StashKit-ALL.yaml) | 可选的旧版 ALL 兼容布局；不属于默认 40 组方案 |
 
 离线文件包可从 [CI 产物](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) 获取。ZIP 不会自动安装到 Stash 的规则目录；详见[安装及验收说明](./docs/VALIDATION.md)。
 
@@ -61,7 +61,7 @@
 
 | 目录 | 内容 |
 | --- | --- |
-| `StashKit.yaml` | 39 组正式主配置：直接填写机场订阅 URL |
+| `StashKit.yaml` | 40 组正式主配置：直接填写机场订阅 URL |
 | `StashKit-Subscription.yaml` | 与正式主配置同步的兼容副本 |
 | `StashKit-Privacy.yaml`、`StashKit-Local.yaml` | 由主配置确定性生成 |
 | `rules/` | 54 份固定版本的 Stash 原生规则文件 |
@@ -77,7 +77,7 @@
 git clone https://github.com/YohakuSama/stashkit.git
 cd stashkit
 git clone https://github.com/YohakuSama/loonkit.git upstream/loonkit
-git -C upstream/loonkit checkout 5f272104fc1207612c1cbd18f3e19d861d459ed9
+git -C upstream/loonkit checkout 5f272104fc1207612c1cbd18f3e19d861d459ed9\ngit clone https://github.com/YohakuSama/loonkit.git upstream/policy-loonkit\ngit -C upstream/policy-loonkit checkout edbfedad1b568578edc1a6dcebf422867a36a3ed
 python -m pip install -r requirements-dev.txt
 python scripts/build_profiles.py --check
 python scripts/build_rules.py --check
