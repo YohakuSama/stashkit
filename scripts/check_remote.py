@@ -21,10 +21,17 @@ from release_meta import RULES_REF, RULES_URL_PREFIX
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "StashKit.yaml"
 PREFIX = RULES_URL_PREFIX
+CRYPTO_REF = "e2ced4ba62cba874b3a37f8338074f40518758d1"
+CRYPTO_REMOTE_URL = (
+    "https://raw.githubusercontent.com/YohakuSama/stashkit/"
+    + CRYPTO_REF + "/rules/extra/Crypto.domain.txt"
+)
 
 
 def published_url(spec, ref=None):
     url = spec["url"]
+    if url == CRYPTO_REMOTE_URL:
+        return url, "extra/Crypto.domain.txt"
     if not url.startswith(PREFIX):
         raise ValueError(f"Unexpected host/path: {url}")
     basename = url[len(PREFIX):]
@@ -71,8 +78,8 @@ def check(item, ref=None):
 def main(ref=None):
     config = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
     items = [(name, spec) for name, spec in config["rule-providers"].items() if "url" in spec]
-    if len(items) != 54:
-        raise AssertionError(f"Expected 54 providers, got {len(items)}")
+    if len(items) != 55 or not any(name == "Crypto-domain" for name, _ in items):
+        raise AssertionError(f"Expected 54 frozen providers plus Crypto, got {len(items)}")
     total_bytes = 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         futures = {executor.submit(check, item, ref): item[0] for item in items}
@@ -80,7 +87,7 @@ def main(ref=None):
             name, size = future.result()
             total_bytes += size
             print(f"PASS: {name} HTTP 200, {size} bytes, exact byte-for-byte match")
-    print(f"PASS: all 54 pinned GitHub Raw URLs verified at {ref or RULES_REF}, {total_bytes:,} total bytes")
+    print(f"PASS: 54 frozen + 1 Crypto immutable GitHub Raw URLs, {total_bytes:,} bytes")
 
 
 if __name__ == "__main__":

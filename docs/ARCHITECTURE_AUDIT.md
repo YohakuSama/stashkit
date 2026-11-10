@@ -20,7 +20,7 @@
 
 ## 固定的行为与资源
 
-- 54 个文件规则 provider（43 domain、7 ipcidr、4 classical ASN），另有 1 个内嵌 `Private-local` provider。
+- 54 个冻结文件规则 provider（43 domain、7 ipcidr、4 classical ASN），另有独立 Crypto-domain（domain，29 后缀）和 1 个内嵌 `Private-local`，合计 56 个 provider。
 - 原上游 43 份输入经人工审查的 [adjustments.json](../build/adjustments.json) 转换。规则资源固定到 [release-lock.json](../build/release-lock.json) 指向的不可变提交，不跟随远程 `main`。
 - 三份正式配置和默认 native 输出均保留 LoonKit 的 40 个策略组，无 ALL/Manual 中间组。正式 YAML 使用 `Airport` 具名 Provider 和无效占位 URL，可直接在本地改为私人订阅；高级生成器仍可将其替换为多 Provider/use-url 来源，保留 Stash 的后台节点更新，不下载成静态快照。旧 ALL 仅为显式兼容选项，flat 仅为静态快照选项。运行时审计逐组核对当前订阅节点，CI 不启动 Stash iOS，详见[订阅绑定说明](./NATIVE_PROVIDER_TRIAL.md)。
 - STUN 和常用 TURN 端口拦截位于 LAN/CN 直连之前，所有三套配置保持一致。此次架构调整**不修改**这些网络规则。
@@ -38,3 +38,7 @@
 普通配置的公共 DNS 是 AliDNS DoH，默认不强制走代理；Privacy 版启用 `follow-rule` 并前置 DoH 路由规则。节点 DNS 和局域网 `system` DNS 使用各自的解析路径。WebRTC 限制可能影响原生 App、网页的通话及游戏连接。IPv6 Tunnel 选项应按实际网络验证；`Auto` 已通过真实出口测试时不需要强制改为 Always。
 
 CI 成功表示仓库生成与静态约束通过，不等于对所有设备、网络和服务的无故障保证。设备验收步骤和只读 HTTP API 审计见 [VALIDATION.md](./VALIDATION.md)，变更历史见 [CHANGELOG.md](./CHANGELOG.md)。
+
+## v0.1.17 配置格式精简
+
+正式主配置约 280 行，仍声明全部 40 个策略组和 55 个远程文件规则 Provider。传统多行 YAML 组 / Provider 映射改为 YAML Flow Mapping；Stash 解析后的策略名、顺序、图标、节点来源、规则先后关系没有改变。Private-local 本地规则保持原始 133 条，仅压缩到 YAML Flow Sequence，保留首次启动的私网与 DNS 保护。Crypto 29 条后缀在独立冻结文件中，以一个 `RULE-SET,Crypto-domain,Crypto` 路由，无需将每个域名写到主配置。旧 ALL 和 Preview 文件维持展开布局供兼容使用。

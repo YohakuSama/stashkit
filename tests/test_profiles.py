@@ -27,6 +27,28 @@ class ProfileVariantTests(unittest.TestCase):
                 self.assertEqual(result.encode("utf-8"), (ROOT / name).read_bytes())
                 validate_profile(yaml.safe_load(result))
 
+    def test_official_profiles_stay_compact_and_remote_rule_backed(self):
+        # Prevent the previous 900+ line configuration regression.
+        for name in ("StashKit.yaml", "StashKit-Subscription.yaml",
+                     "StashKit-Privacy.yaml", "StashKit-Local.yaml",
+                     "StashKit-SelfHosted.yaml"):
+            with self.subTest(name=name):
+                content = (ROOT / name).read_text(encoding="utf-8")
+                self.assertLessEqual(len(content.splitlines()), 300)
+                data = yaml.safe_load(content)
+                self.assertEqual(len(data["proxy-groups"]), 40)
+                self.assertEqual(len(data["rule-providers"]), 56)
+                self.assertEqual(len(data["rule-providers"]["Private-local"]["payload"]), 133)
+                self.assertEqual(
+                    [row for row in data["rules"] if row.endswith(",Crypto")],
+                    ["RULE-SET,Crypto-domain,Crypto"],
+                )
+        source = yaml.safe_load(self.source)
+        remote = [name for name, spec in source["rule-providers"].items()
+                  if "url" in spec]
+        self.assertEqual(len(remote), 55)
+        self.assertEqual(source["rule-providers"]["Crypto-domain"]["behavior"], "domain")
+
     def test_privacy_variant_changes_only_documented_dns_and_route(self):
         original = yaml.safe_load(self.source)
         private = yaml.safe_load(privacy_profile(self.source))
@@ -49,7 +71,7 @@ class ProfileVariantTests(unittest.TestCase):
             (self.source.replace("  follow-rule: false\n", ""), privacy_profile),
             (self.source.replace("rules:\n", "routes:\n"), privacy_profile),
             (self.source.replace("rule-providers:\n", "providers:\n"), local_profile),
-            (self.source.replace("    interval: 86400\n", "", 1), local_profile),
+            (self.source.replace("interval: 86400}", "interval: 1}", 1), local_profile),
         ):
             with self.subTest(render=render.__name__):
                 with self.assertRaises(ValueError):

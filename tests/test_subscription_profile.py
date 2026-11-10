@@ -44,7 +44,7 @@ class SubscriptionProfileTests(unittest.TestCase):
     def test_does_not_silently_omit_a_binding(self):
         source = (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
         with self.assertRaises(ValueError):
-            subscription_profile(source.replace("      - Airport\n", "", 1))
+            subscription_profile(source.replace("use: [ Airport ], ", "", 1))
 
 
 if __name__ == "__main__":

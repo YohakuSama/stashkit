@@ -1,4 +1,4 @@
-# StashKit v0.1.16 — local rule providers
+# StashKit v0.1.17 — local rule providers
 mode: rule
 log-level: warning
 
@@ -40,721 +40,154 @@ proxy-providers:
     interval: 3600
 
 proxy-groups:
-  - name: "Proxy"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - Auto
-      - Fallback
-      - REJECT
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Proxy.png
-  - name: "Auto"
-    type: url-test
-    use:
-      - Airport
-    proxies: []
-    interval: 600
-    tolerance: 60
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Auto.png
-  - name: "Fallback"
-    type: fallback
-    use:
-      - Airport
-    proxies: []
-    interval: 900
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Fallback.png
-  - name: "AdBlock"
-    type: select
-    proxies:
-      - "REJECT"
-      - "DIRECT"
-      - "Proxy"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AdBlock.png
-  - name: "Final"
-    type: select
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-      - "DIRECT"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Final.png
-  - name: "AI"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AI.png
-  - name: "ChatGPT"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/ChatGPT.png
-  - name: "Gemini"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Gemini.png
-  - name: "Claude"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Claude.png
-  - name: "GitHub"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/GitHub.png
-  - name: "Google"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Google.png
-  - name: "Microsoft"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "DIRECT"
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Microsoft.png
-  - name: "Apple"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "DIRECT"
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Apple.png
-  - name: "Cloudflare"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Cloudflare.png
-  - name: "Speedtest"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "DIRECT"
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Speedtest.png
-  - name: "Crypto"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Crypto.png
-  - name: "Paypal"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Paypal.png
-  - name: "YouTube"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/YouTube.png
-  - name: "Netflix"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Netflix.png
-  - name: "Disney"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Disney.png
-  - name: "PrimeVideo"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/PrimeVideo.png
-  - name: "Spotify"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Spotify.png
-  - name: "TikTok"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/TikTok.png
-  - name: "Twitch"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Twitch.png
-  - name: "HBO"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/HBO.png
-  - name: "Abema"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Abema.png
-  - name: "動畫瘋"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AnimeCrazy.png
-  - name: "Dazn"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Dazn.png
-  - name: "BBC"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/BBC.png
-  - name: "Bilibili"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "DIRECT"
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Bilibili.png
-  - name: "Telegram"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Telegram.png
-  - name: "Whatsapp"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Whatsapp.png
-  - name: "Instagram"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Instagram.png
-  - name: "Facebook"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Facebook.png
-  - name: "Twitter"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Twitter.png
-  - name: "Discord"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Discord.png
-  - name: "Line"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "DIRECT"
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Line.png
-  - name: "Reddit"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Reddit.png
-  - name: "Linkedin"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Linkedin.png
-  - name: "Steam"
-    type: select
-    use:
-      - Airport
-    proxies:
-      - "Proxy"
-      - "Auto"
-      - "Fallback"
-      - "DIRECT"
-    icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Steam.png
+  - {name: "Proxy", type: select, use: [ Airport ], proxies: [ Auto, Fallback, REJECT ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Proxy.png}
+  - {name: "Auto", type: url-test, use: [ Airport ], proxies: [], interval: 600, tolerance: 60, icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Auto.png}
+  - {name: "Fallback", type: fallback, use: [ Airport ], proxies: [], interval: 900, icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Fallback.png}
+  - {name: "AdBlock", type: select, proxies: [ "REJECT", "DIRECT", "Proxy" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AdBlock.png}
+  - {name: "Final", type: select, proxies: [ "Proxy", "Auto", "Fallback", "DIRECT" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Final.png}
+  - {name: "AI", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AI.png}
+  - {name: "ChatGPT", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/ChatGPT.png}
+  - {name: "Gemini", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Gemini.png}
+  - {name: "Claude", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Claude.png}
+  - {name: "GitHub", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/GitHub.png}
+  - {name: "Google", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Google.png}
+  - {name: "Microsoft", type: select, use: [ Airport ], proxies: [ "DIRECT", "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Microsoft.png}
+  - {name: "Apple", type: select, use: [ Airport ], proxies: [ "DIRECT", "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Apple.png}
+  - {name: "Cloudflare", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Cloudflare.png}
+  - {name: "Speedtest", type: select, use: [ Airport ], proxies: [ "DIRECT", "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Speedtest.png}
+  - {name: "Crypto", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Crypto.png}
+  - {name: "Paypal", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Paypal.png}
+  - {name: "YouTube", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/YouTube.png}
+  - {name: "Netflix", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Netflix.png}
+  - {name: "Disney", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Disney.png}
+  - {name: "PrimeVideo", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/PrimeVideo.png}
+  - {name: "Spotify", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Spotify.png}
+  - {name: "TikTok", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/TikTok.png}
+  - {name: "Twitch", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Twitch.png}
+  - {name: "HBO", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/HBO.png}
+  - {name: "Abema", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Abema.png}
+  - {name: "動畫瘋", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/AnimeCrazy.png}
+  - {name: "Dazn", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Dazn.png}
+  - {name: "BBC", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/BBC.png}
+  - {name: "Bilibili", type: select, use: [ Airport ], proxies: [ "DIRECT", "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Bilibili.png}
+  - {name: "Telegram", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Telegram.png}
+  - {name: "Whatsapp", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Whatsapp.png}
+  - {name: "Instagram", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Instagram.png}
+  - {name: "Facebook", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Facebook.png}
+  - {name: "Twitter", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Twitter.png}
+  - {name: "Discord", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Discord.png}
+  - {name: "Line", type: select, use: [ Airport ], proxies: [ "DIRECT", "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Line.png}
+  - {name: "Reddit", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Reddit.png}
+  - {name: "Linkedin", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Linkedin.png}
+  - {name: "Steam", type: select, use: [ Airport ], proxies: [ "Proxy", "Auto", "Fallback", "DIRECT" ], icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Steam.png}
+
 rule-providers:
-  # Shared by private DNS lookup and LAN routing.
+  # Embed private DNS matchers to avoid cold-start remote dependency.
   Private-local:
     type: inline
     behavior: classical
-    payload:
-    - DOMAIN-SUFFIX,lan
-    - DOMAIN-SUFFIX,localdomain
-    - DOMAIN-SUFFIX,example
-    - DOMAIN-SUFFIX,invalid
-    - DOMAIN-SUFFIX,localhost
-    - DOMAIN-SUFFIX,test
-    - DOMAIN-SUFFIX,local
-    - DOMAIN-SUFFIX,home.arpa
-    - DOMAIN-SUFFIX,internal
-    - DOMAIN-SUFFIX,2.0.192.in-addr.arpa
-    - DOMAIN-SUFFIX,10.in-addr.arpa
-    - DOMAIN-SUFFIX,16.172.in-addr.arpa
-    - DOMAIN-SUFFIX,17.172.in-addr.arpa
-    - DOMAIN-SUFFIX,18.172.in-addr.arpa
-    - DOMAIN-SUFFIX,19.172.in-addr.arpa
-    - DOMAIN-SUFFIX,20.172.in-addr.arpa
-    - DOMAIN-SUFFIX,21.172.in-addr.arpa
-    - DOMAIN-SUFFIX,22.172.in-addr.arpa
-    - DOMAIN-SUFFIX,23.172.in-addr.arpa
-    - DOMAIN-SUFFIX,24.172.in-addr.arpa
-    - DOMAIN-SUFFIX,25.172.in-addr.arpa
-    - DOMAIN-SUFFIX,26.172.in-addr.arpa
-    - DOMAIN-SUFFIX,27.172.in-addr.arpa
-    - DOMAIN-SUFFIX,28.172.in-addr.arpa
-    - DOMAIN-SUFFIX,29.172.in-addr.arpa
-    - DOMAIN-SUFFIX,30.172.in-addr.arpa
-    - DOMAIN-SUFFIX,31.172.in-addr.arpa
-    - DOMAIN-SUFFIX,100.51.198.in-addr.arpa
-    - DOMAIN-SUFFIX,113.0.203.in-addr.arpa
-    - DOMAIN-SUFFIX,127.in-addr.arpa
-    - DOMAIN-SUFFIX,168.192.in-addr.arpa
-    - DOMAIN-SUFFIX,254.169.in-addr.arpa
-    - DOMAIN-SUFFIX,255.255.255.255.in-addr.arpa
-    - DOMAIN-SUFFIX,1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa
-    - DOMAIN-SUFFIX,8.b.d.0.1.0.0.2.ip6.arpa
-    - DOMAIN-SUFFIX,8.e.f.ip6.arpa
-    - DOMAIN-SUFFIX,9.e.f.ip6.arpa
-    - DOMAIN-SUFFIX,a.e.f.ip6.arpa
-    - DOMAIN-SUFFIX,b.e.f.ip6.arpa
-    - DOMAIN-SUFFIX,d.f.ip6.arpa
-    - DOMAIN-SUFFIX,64.100.in-addr.arpa
-    - DOMAIN-SUFFIX,65.100.in-addr.arpa
-    - DOMAIN-SUFFIX,66.100.in-addr.arpa
-    - DOMAIN-SUFFIX,67.100.in-addr.arpa
-    - DOMAIN-SUFFIX,68.100.in-addr.arpa
-    - DOMAIN-SUFFIX,69.100.in-addr.arpa
-    - DOMAIN-SUFFIX,70.100.in-addr.arpa
-    - DOMAIN-SUFFIX,71.100.in-addr.arpa
-    - DOMAIN-SUFFIX,72.100.in-addr.arpa
-    - DOMAIN-SUFFIX,73.100.in-addr.arpa
-    - DOMAIN-SUFFIX,74.100.in-addr.arpa
-    - DOMAIN-SUFFIX,75.100.in-addr.arpa
-    - DOMAIN-SUFFIX,76.100.in-addr.arpa
-    - DOMAIN-SUFFIX,77.100.in-addr.arpa
-    - DOMAIN-SUFFIX,78.100.in-addr.arpa
-    - DOMAIN-SUFFIX,79.100.in-addr.arpa
-    - DOMAIN-SUFFIX,80.100.in-addr.arpa
-    - DOMAIN-SUFFIX,81.100.in-addr.arpa
-    - DOMAIN-SUFFIX,82.100.in-addr.arpa
-    - DOMAIN-SUFFIX,83.100.in-addr.arpa
-    - DOMAIN-SUFFIX,84.100.in-addr.arpa
-    - DOMAIN-SUFFIX,85.100.in-addr.arpa
-    - DOMAIN-SUFFIX,86.100.in-addr.arpa
-    - DOMAIN-SUFFIX,87.100.in-addr.arpa
-    - DOMAIN-SUFFIX,88.100.in-addr.arpa
-    - DOMAIN-SUFFIX,89.100.in-addr.arpa
-    - DOMAIN-SUFFIX,90.100.in-addr.arpa
-    - DOMAIN-SUFFIX,91.100.in-addr.arpa
-    - DOMAIN-SUFFIX,92.100.in-addr.arpa
-    - DOMAIN-SUFFIX,93.100.in-addr.arpa
-    - DOMAIN-SUFFIX,94.100.in-addr.arpa
-    - DOMAIN-SUFFIX,95.100.in-addr.arpa
-    - DOMAIN-SUFFIX,96.100.in-addr.arpa
-    - DOMAIN-SUFFIX,97.100.in-addr.arpa
-    - DOMAIN-SUFFIX,98.100.in-addr.arpa
-    - DOMAIN-SUFFIX,99.100.in-addr.arpa
-    - DOMAIN-SUFFIX,100.100.in-addr.arpa
-    - DOMAIN-SUFFIX,101.100.in-addr.arpa
-    - DOMAIN-SUFFIX,102.100.in-addr.arpa
-    - DOMAIN-SUFFIX,103.100.in-addr.arpa
-    - DOMAIN-SUFFIX,104.100.in-addr.arpa
-    - DOMAIN-SUFFIX,105.100.in-addr.arpa
-    - DOMAIN-SUFFIX,106.100.in-addr.arpa
-    - DOMAIN-SUFFIX,107.100.in-addr.arpa
-    - DOMAIN-SUFFIX,108.100.in-addr.arpa
-    - DOMAIN-SUFFIX,109.100.in-addr.arpa
-    - DOMAIN-SUFFIX,110.100.in-addr.arpa
-    - DOMAIN-SUFFIX,111.100.in-addr.arpa
-    - DOMAIN-SUFFIX,112.100.in-addr.arpa
-    - DOMAIN-SUFFIX,113.100.in-addr.arpa
-    - DOMAIN-SUFFIX,114.100.in-addr.arpa
-    - DOMAIN-SUFFIX,115.100.in-addr.arpa
-    - DOMAIN-SUFFIX,116.100.in-addr.arpa
-    - DOMAIN-SUFFIX,117.100.in-addr.arpa
-    - DOMAIN-SUFFIX,118.100.in-addr.arpa
-    - DOMAIN-SUFFIX,119.100.in-addr.arpa
-    - DOMAIN-SUFFIX,120.100.in-addr.arpa
-    - DOMAIN-SUFFIX,121.100.in-addr.arpa
-    - DOMAIN-SUFFIX,122.100.in-addr.arpa
-    - DOMAIN-SUFFIX,123.100.in-addr.arpa
-    - DOMAIN-SUFFIX,124.100.in-addr.arpa
-    - DOMAIN-SUFFIX,125.100.in-addr.arpa
-    - DOMAIN-SUFFIX,126.100.in-addr.arpa
-    - DOMAIN-SUFFIX,127.100.in-addr.arpa
-    - DOMAIN-REGEX,^[a-z]([a-z0-9-]*[a-z0-9])?$
-    - DOMAIN,instant.arubanetworks.com
-    - DOMAIN,setmeup.arubanetworks.com
-    - DOMAIN,asusrouter.com
-    - DOMAIN,router.asus.com
-    - DOMAIN,www.asusrouter.com
-    - DOMAIN,oasisauth.h3c.com
-    - DOMAIN,routerlogin.com
-    - DOMAIN,www.routerlogin.com
-    - DOMAIN-SUFFIX,hiwifi.com
-    - DOMAIN-SUFFIX,leike.cc
-    - DOMAIN-SUFFIX,my.router
-    - DOMAIN-SUFFIX,peiluyou.com
-    - DOMAIN-SUFFIX,phicomm.me
-    - DOMAIN-SUFFIX,router.ctc
-    - DOMAIN-SUFFIX,plex.direct
-    - DOMAIN-SUFFIX,localhost.sec.qq.com
-    - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
-    - DOMAIN,localhost.weixin.qq.com
-    - DOMAIN,localhost.work.weixin.qq.com
-    - DOMAIN-SUFFIX,tendawifi.com
-    - DOMAIN-SUFFIX,tplinkwifi.net
-    - DOMAIN,tplogin.cn
-    - DOMAIN,miwifi.com
-    - DOMAIN,www.miwifi.com
-    - DOMAIN-SUFFIX,zte.home
-    - DOMAIN-SUFFIX,ts.net
-    - DOMAIN,local.adguard.org
-    - DOMAIN-SUFFIX,kis.v2.scr.kaspersky-labs.com
-  "AdBlockBalanced-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/AdBlockBalanced.domain.txt
-  "DomesticCore-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/DomesticCore.domain.txt
-  "DomesticSupplement-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/DomesticSupplement.domain.txt
-  "SteamCN-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/SteamCN.domain.txt
-  "DomesticAI-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/DomesticAI.domain.txt
-  "ChatGPT-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/ChatGPT.domain.txt
-  "Gemini-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Gemini.domain.txt
-  "Claude-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Claude.domain.txt
-  "AIScoped-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/AIScoped.domain.txt
-  "GitHub-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/GitHub.domain.txt
-  "Speedtest-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Speedtest.domain.txt
-  "Cloudflare-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Cloudflare.domain.txt
-  "Service-Spotify-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Service-Spotify.domain.txt
-  "Service-Twitch-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Service-Twitch.domain.txt
-  "Service-BBC-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Service-BBC.domain.txt
-  "Service-Line-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Service-Line.domain.txt
-  "Service-Reddit-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Service-Reddit.domain.txt
-  "Service-Linkedin-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Service-Linkedin.domain.txt
-  "Service-Abema-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Service-Abema.domain.txt
-  "SharedInfrastructure-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/SharedInfrastructure.domain.txt
-  "AppleOTA-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/AppleOTA.domain.txt
-  "SteamGlobal-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/SteamGlobal.domain.txt
-  "YouTube-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/YouTube.domain.txt
-  "YouTube-ipcidr":
-    behavior: ipcidr
-    format: text
-    path: ./rules/v0.1.4/YouTube.ipcidr.txt
-  "Netflix-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Netflix.domain.txt
-  "Netflix-asn":
-    behavior: classical
-    format: text
-    path: ./rules/v0.1.4/Netflix.asn.txt
-  "Disney-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Disney.domain.txt
-  "PrimeVideo-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/PrimeVideo.domain.txt
-  "TikTok-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/TikTok.domain.txt
-  "Bilibili-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Bilibili.domain.txt
-  "AnimeCrazy-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/AnimeCrazy.domain.txt
-  "Dazn-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Dazn.domain.txt
-  "Telegram-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Telegram.domain.txt
-  "Telegram-ipcidr":
-    behavior: ipcidr
-    format: text
-    path: ./rules/v0.1.4/Telegram.ipcidr.txt
-  "Telegram-asn":
-    behavior: classical
-    format: text
-    path: ./rules/v0.1.4/Telegram.asn.txt
-  "Whatsapp-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Whatsapp.domain.txt
-  "Whatsapp-ipcidr":
-    behavior: ipcidr
-    format: text
-    path: ./rules/v0.1.4/Whatsapp.ipcidr.txt
-  "Instagram-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Instagram.domain.txt
-  "Facebook-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Facebook.domain.txt
-  "Facebook-ipcidr":
-    behavior: ipcidr
-    format: text
-    path: ./rules/v0.1.4/Facebook.ipcidr.txt
-  "Facebook-asn":
-    behavior: classical
-    format: text
-    path: ./rules/v0.1.4/Facebook.asn.txt
-  "Twitter-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Twitter.domain.txt
-  "Twitter-ipcidr":
-    behavior: ipcidr
-    format: text
-    path: ./rules/v0.1.4/Twitter.ipcidr.txt
-  "Discord-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Discord.domain.txt
-  "HBO-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/HBO.domain.txt
-  "Google-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Google.domain.txt
-  "Google-ipcidr":
-    behavior: ipcidr
-    format: text
-    path: ./rules/v0.1.4/Google.ipcidr.txt
-  "Microsoft-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Microsoft.domain.txt
-  "Apple-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Apple.domain.txt
-  "Steam-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Steam.domain.txt
-  "Paypal-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/Paypal.domain.txt
-  "ChinaDirect-domain":
-    behavior: domain
-    format: text
-    path: ./rules/v0.1.4/ChinaDirect.domain.txt
-  "ChinaDirect-ipcidr":
-    behavior: ipcidr
-    format: text
-    path: ./rules/v0.1.4/ChinaDirect.ipcidr.txt
-  "ChinaDirect-asn":
-    behavior: classical
-    format: text
-    path: ./rules/v0.1.4/ChinaDirect.asn.txt
+    payload: [
+      "DOMAIN-SUFFIX,lan", "DOMAIN-SUFFIX,localdomain", "DOMAIN-SUFFIX,example",
+      "DOMAIN-SUFFIX,invalid", "DOMAIN-SUFFIX,localhost", "DOMAIN-SUFFIX,test",
+      "DOMAIN-SUFFIX,local", "DOMAIN-SUFFIX,home.arpa", "DOMAIN-SUFFIX,internal",
+      "DOMAIN-SUFFIX,2.0.192.in-addr.arpa", "DOMAIN-SUFFIX,10.in-addr.arpa", "DOMAIN-SUFFIX,16.172.in-addr.arpa",
+      "DOMAIN-SUFFIX,17.172.in-addr.arpa", "DOMAIN-SUFFIX,18.172.in-addr.arpa", "DOMAIN-SUFFIX,19.172.in-addr.arpa",
+      "DOMAIN-SUFFIX,20.172.in-addr.arpa", "DOMAIN-SUFFIX,21.172.in-addr.arpa", "DOMAIN-SUFFIX,22.172.in-addr.arpa",
+      "DOMAIN-SUFFIX,23.172.in-addr.arpa", "DOMAIN-SUFFIX,24.172.in-addr.arpa", "DOMAIN-SUFFIX,25.172.in-addr.arpa",
+      "DOMAIN-SUFFIX,26.172.in-addr.arpa", "DOMAIN-SUFFIX,27.172.in-addr.arpa", "DOMAIN-SUFFIX,28.172.in-addr.arpa",
+      "DOMAIN-SUFFIX,29.172.in-addr.arpa", "DOMAIN-SUFFIX,30.172.in-addr.arpa", "DOMAIN-SUFFIX,31.172.in-addr.arpa",
+      "DOMAIN-SUFFIX,100.51.198.in-addr.arpa", "DOMAIN-SUFFIX,113.0.203.in-addr.arpa", "DOMAIN-SUFFIX,127.in-addr.arpa",
+      "DOMAIN-SUFFIX,168.192.in-addr.arpa", "DOMAIN-SUFFIX,254.169.in-addr.arpa", "DOMAIN-SUFFIX,255.255.255.255.in-addr.arpa",
+      "DOMAIN-SUFFIX,1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa", "DOMAIN-SUFFIX,8.b.d.0.1.0.0.2.ip6.arpa", "DOMAIN-SUFFIX,8.e.f.ip6.arpa",
+      "DOMAIN-SUFFIX,9.e.f.ip6.arpa", "DOMAIN-SUFFIX,a.e.f.ip6.arpa", "DOMAIN-SUFFIX,b.e.f.ip6.arpa",
+      "DOMAIN-SUFFIX,d.f.ip6.arpa", "DOMAIN-SUFFIX,64.100.in-addr.arpa", "DOMAIN-SUFFIX,65.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,66.100.in-addr.arpa", "DOMAIN-SUFFIX,67.100.in-addr.arpa", "DOMAIN-SUFFIX,68.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,69.100.in-addr.arpa", "DOMAIN-SUFFIX,70.100.in-addr.arpa", "DOMAIN-SUFFIX,71.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,72.100.in-addr.arpa", "DOMAIN-SUFFIX,73.100.in-addr.arpa", "DOMAIN-SUFFIX,74.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,75.100.in-addr.arpa", "DOMAIN-SUFFIX,76.100.in-addr.arpa", "DOMAIN-SUFFIX,77.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,78.100.in-addr.arpa", "DOMAIN-SUFFIX,79.100.in-addr.arpa", "DOMAIN-SUFFIX,80.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,81.100.in-addr.arpa", "DOMAIN-SUFFIX,82.100.in-addr.arpa", "DOMAIN-SUFFIX,83.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,84.100.in-addr.arpa", "DOMAIN-SUFFIX,85.100.in-addr.arpa", "DOMAIN-SUFFIX,86.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,87.100.in-addr.arpa", "DOMAIN-SUFFIX,88.100.in-addr.arpa", "DOMAIN-SUFFIX,89.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,90.100.in-addr.arpa", "DOMAIN-SUFFIX,91.100.in-addr.arpa", "DOMAIN-SUFFIX,92.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,93.100.in-addr.arpa", "DOMAIN-SUFFIX,94.100.in-addr.arpa", "DOMAIN-SUFFIX,95.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,96.100.in-addr.arpa", "DOMAIN-SUFFIX,97.100.in-addr.arpa", "DOMAIN-SUFFIX,98.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,99.100.in-addr.arpa", "DOMAIN-SUFFIX,100.100.in-addr.arpa", "DOMAIN-SUFFIX,101.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,102.100.in-addr.arpa", "DOMAIN-SUFFIX,103.100.in-addr.arpa", "DOMAIN-SUFFIX,104.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,105.100.in-addr.arpa", "DOMAIN-SUFFIX,106.100.in-addr.arpa", "DOMAIN-SUFFIX,107.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,108.100.in-addr.arpa", "DOMAIN-SUFFIX,109.100.in-addr.arpa", "DOMAIN-SUFFIX,110.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,111.100.in-addr.arpa", "DOMAIN-SUFFIX,112.100.in-addr.arpa", "DOMAIN-SUFFIX,113.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,114.100.in-addr.arpa", "DOMAIN-SUFFIX,115.100.in-addr.arpa", "DOMAIN-SUFFIX,116.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,117.100.in-addr.arpa", "DOMAIN-SUFFIX,118.100.in-addr.arpa", "DOMAIN-SUFFIX,119.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,120.100.in-addr.arpa", "DOMAIN-SUFFIX,121.100.in-addr.arpa", "DOMAIN-SUFFIX,122.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,123.100.in-addr.arpa", "DOMAIN-SUFFIX,124.100.in-addr.arpa", "DOMAIN-SUFFIX,125.100.in-addr.arpa",
+      "DOMAIN-SUFFIX,126.100.in-addr.arpa", "DOMAIN-SUFFIX,127.100.in-addr.arpa", "DOMAIN-REGEX,^[a-z]([a-z0-9-]*[a-z0-9])?$",
+      "DOMAIN,instant.arubanetworks.com", "DOMAIN,setmeup.arubanetworks.com", "DOMAIN,asusrouter.com",
+      "DOMAIN,router.asus.com", "DOMAIN,www.asusrouter.com", "DOMAIN,oasisauth.h3c.com",
+      "DOMAIN,routerlogin.com", "DOMAIN,www.routerlogin.com", "DOMAIN-SUFFIX,hiwifi.com",
+      "DOMAIN-SUFFIX,leike.cc", "DOMAIN-SUFFIX,my.router", "DOMAIN-SUFFIX,peiluyou.com",
+      "DOMAIN-SUFFIX,phicomm.me", "DOMAIN-SUFFIX,router.ctc", "DOMAIN-SUFFIX,plex.direct",
+      "DOMAIN-SUFFIX,localhost.sec.qq.com", "DOMAIN-SUFFIX,localhost.ptlogin2.qq.com", "DOMAIN,localhost.weixin.qq.com",
+      "DOMAIN,localhost.work.weixin.qq.com", "DOMAIN-SUFFIX,tendawifi.com", "DOMAIN-SUFFIX,tplinkwifi.net",
+      "DOMAIN,tplogin.cn", "DOMAIN,miwifi.com", "DOMAIN,www.miwifi.com",
+      "DOMAIN-SUFFIX,zte.home", "DOMAIN-SUFFIX,ts.net", "DOMAIN,local.adguard.org",
+      "DOMAIN-SUFFIX,kis.v2.scr.kaspersky-labs.com"
+    ]
+  "Crypto-domain": {behavior: domain, format: text, path: ./rules/v0.1.17/Crypto.domain.txt}
+  "AdBlockBalanced-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/AdBlockBalanced.domain.txt}
+  "DomesticCore-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/DomesticCore.domain.txt}
+  "DomesticSupplement-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/DomesticSupplement.domain.txt}
+  "SteamCN-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/SteamCN.domain.txt}
+  "DomesticAI-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/DomesticAI.domain.txt}
+  "ChatGPT-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/ChatGPT.domain.txt}
+  "Gemini-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Gemini.domain.txt}
+  "Claude-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Claude.domain.txt}
+  "AIScoped-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/AIScoped.domain.txt}
+  "GitHub-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/GitHub.domain.txt}
+  "Speedtest-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Speedtest.domain.txt}
+  "Cloudflare-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Cloudflare.domain.txt}
+  "Service-Spotify-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Service-Spotify.domain.txt}
+  "Service-Twitch-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Service-Twitch.domain.txt}
+  "Service-BBC-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Service-BBC.domain.txt}
+  "Service-Line-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Service-Line.domain.txt}
+  "Service-Reddit-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Service-Reddit.domain.txt}
+  "Service-Linkedin-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Service-Linkedin.domain.txt}
+  "Service-Abema-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Service-Abema.domain.txt}
+  "SharedInfrastructure-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/SharedInfrastructure.domain.txt}
+  "AppleOTA-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/AppleOTA.domain.txt}
+  "SteamGlobal-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/SteamGlobal.domain.txt}
+  "YouTube-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/YouTube.domain.txt}
+  "YouTube-ipcidr": {behavior: ipcidr, format: text, path: ./rules/v0.1.4/YouTube.ipcidr.txt}
+  "Netflix-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Netflix.domain.txt}
+  "Netflix-asn": {behavior: classical, format: text, path: ./rules/v0.1.4/Netflix.asn.txt}
+  "Disney-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Disney.domain.txt}
+  "PrimeVideo-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/PrimeVideo.domain.txt}
+  "TikTok-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/TikTok.domain.txt}
+  "Bilibili-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Bilibili.domain.txt}
+  "AnimeCrazy-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/AnimeCrazy.domain.txt}
+  "Dazn-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Dazn.domain.txt}
+  "Telegram-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Telegram.domain.txt}
+  "Telegram-ipcidr": {behavior: ipcidr, format: text, path: ./rules/v0.1.4/Telegram.ipcidr.txt}
+  "Telegram-asn": {behavior: classical, format: text, path: ./rules/v0.1.4/Telegram.asn.txt}
+  "Whatsapp-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Whatsapp.domain.txt}
+  "Whatsapp-ipcidr": {behavior: ipcidr, format: text, path: ./rules/v0.1.4/Whatsapp.ipcidr.txt}
+  "Instagram-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Instagram.domain.txt}
+  "Facebook-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Facebook.domain.txt}
+  "Facebook-ipcidr": {behavior: ipcidr, format: text, path: ./rules/v0.1.4/Facebook.ipcidr.txt}
+  "Facebook-asn": {behavior: classical, format: text, path: ./rules/v0.1.4/Facebook.asn.txt}
+  "Twitter-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Twitter.domain.txt}
+  "Twitter-ipcidr": {behavior: ipcidr, format: text, path: ./rules/v0.1.4/Twitter.ipcidr.txt}
+  "Discord-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Discord.domain.txt}
+  "HBO-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/HBO.domain.txt}
+  "Google-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Google.domain.txt}
+  "Google-ipcidr": {behavior: ipcidr, format: text, path: ./rules/v0.1.4/Google.ipcidr.txt}
+  "Microsoft-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Microsoft.domain.txt}
+  "Apple-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Apple.domain.txt}
+  "Steam-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Steam.domain.txt}
+  "Paypal-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/Paypal.domain.txt}
+  "ChinaDirect-domain": {behavior: domain, format: text, path: ./rules/v0.1.4/ChinaDirect.domain.txt}
+  "ChinaDirect-ipcidr": {behavior: ipcidr, format: text, path: ./rules/v0.1.4/ChinaDirect.ipcidr.txt}
+  "ChinaDirect-asn": {behavior: classical, format: text, path: ./rules/v0.1.4/ChinaDirect.asn.txt}
 
 rules:
   # Block tunneled STUN before any direct route.
@@ -778,35 +211,7 @@ rules:
   - "DOMAIN-SUFFIX,home.arpa,DIRECT"
   - "RULE-SET,Private-local,DIRECT"
   - "GEOIP,LAN,DIRECT,no-resolve"
-  - "DOMAIN-SUFFIX,binance.com,Crypto"
-  - "DOMAIN-SUFFIX,binance.us,Crypto"
-  - "DOMAIN-SUFFIX,okx.com,Crypto"
-  - "DOMAIN-SUFFIX,okex.com,Crypto"
-  - "DOMAIN-SUFFIX,bybit.com,Crypto"
-  - "DOMAIN-SUFFIX,bybit.eu,Crypto"
-  - "DOMAIN-SUFFIX,bitget.com,Crypto"
-  - "DOMAIN-SUFFIX,coinbase.com,Crypto"
-  - "DOMAIN-SUFFIX,coinbasecdn.net,Crypto"
-  - "DOMAIN-SUFFIX,kraken.com,Crypto"
-  - "DOMAIN-SUFFIX,crypto.com,Crypto"
-  - "DOMAIN-SUFFIX,kucoin.com,Crypto"
-  - "DOMAIN-SUFFIX,gate.io,Crypto"
-  - "DOMAIN-SUFFIX,gate.com,Crypto"
-  - "DOMAIN-SUFFIX,mexc.com,Crypto"
-  - "DOMAIN-SUFFIX,htx.com,Crypto"
-  - "DOMAIN-SUFFIX,huobi.com,Crypto"
-  - "DOMAIN-SUFFIX,bingx.com,Crypto"
-  - "DOMAIN-SUFFIX,bitfinex.com,Crypto"
-  - "DOMAIN-SUFFIX,bitstamp.net,Crypto"
-  - "DOMAIN-SUFFIX,gemini.com,Crypto"
-  - "DOMAIN-SUFFIX,uniswap.org,Crypto"
-  - "DOMAIN-SUFFIX,metamask.io,Crypto"
-  - "DOMAIN-SUFFIX,coingecko.com,Crypto"
-  - "DOMAIN-SUFFIX,coinmarketcap.com,Crypto"
-  - "DOMAIN-SUFFIX,etherscan.io,Crypto"
-  - "DOMAIN-SUFFIX,bscscan.com,Crypto"
-  - "DOMAIN-SUFFIX,defillama.com,Crypto"
-  - "DOMAIN-SUFFIX,dexscreener.com,Crypto"
+  - "RULE-SET,Crypto-domain,Crypto"
   - "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
   - "DOMAIN,trae-api-sg.mchost.guru,AI"
   - "DOMAIN,trae-api-us.mchost.guru,AI"

@@ -1,8 +1,17 @@
 # StashKit
 
-为 [Stash](https://stash.wiki/) 提供的规则分流配置。与 [LoonKit v7.0.12](https://github.com/YohakuSama/loonkit/tree/edbfedad1b568578edc1a6dcebf422867a36a3ed) 的 40 个策略组及 Crypto / Paypal 排序保持一致，支持 AI、开发平台、流媒体、社交、游戏和国内服务分流。43 份远程规则继续使用经过验证的冻结快照，不自动追踪上游主分支。
+为 [Stash](https://stash.wiki/) 提供的规则分流配置。与 [LoonKit v7.0.12](https://github.com/YohakuSama/loonkit/tree/edbfedad1b568578edc1a6dcebf422867a36a3ed) 的 40 个策略组及 Crypto / Paypal 排序保持一致，支持 AI、开发平台、流媒体、社交、游戏和国内服务分流。原始 43 份 LoonKit 远程来源已转换为 54 份冻结规则文件，另有独立 Crypto 规则集；所有远程 URL 均固定到不可变提交，不追踪上游主分支。
 
-当前配置：**v0.1.16** · [发布说明](./docs/RELEASE_NOTES_v0.1.16.md) · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [许可证](./LICENSE)
+当前配置：**v0.1.17** · [发布说明](./docs/RELEASE_NOTES_v0.1.17.md) · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [许可证](./LICENSE)
+
+## 规则解耦与精简
+
+**正式主配置约 280 行**（原来 983 行），没有删除 LoonKit 对应的 40 个策略组或业务分流。之所以能变短，是把 YAML 的重复展开改为简洁的 Stash 原生写法，并将 Crypto 的 29 条后缀规则提取成独立远程规则集。
+
+- 原有 **54 份按业务划分的远程规则**继续使用 v0.1.4 固定快照，不追踪可变 main；新 **Crypto-domain** 规则集也固定到不可变提交。共有 55 份远程文件规则集，使用 `rule-providers` 声明及 `RULE-SET` 分流。
+- 40 个策略组、Provider 声明使用**单行 YAML 映射**，缩短文件但仍是同一份 YAML 标准对象；并非将节点或规则数据混入主配置。
+- 133 条 **Private-local** 私网匹配器仍内嵌为短列表，避免局域网 DNS 在冷启动时依赖 Github 下载，防止影响 `localhost`、`.lan`、私有反查等规则。其余路由和节点按需引用远程规则 / 代理来源。
+- `Local` 离线版仍需把 54 份冻结资源和新 Crypto 文件（分别放入 `rules/v0.1.4/`、`rules/v0.1.17/`）安装到 Stash 受管目录。默认在线版从 GitHub Raw 按需下载并缓存。Stash 支持后台静默更新这些 Rule Set，缓存路径固定，详见 [官方规则集合文档](https://stash.wiki/rules/rule-set)。
 
 ## 选一个配置即可
 
@@ -96,8 +105,8 @@ proxies:
 | [StashKit-SelfHosted.yaml](./StashKit-SelfHosted.yaml) | **自建版**，直接填写多个静态节点 |
 | [StashKit.yaml](./StashKit.yaml) | 订阅版兼容主入口 |
 | [StashKit-Privacy.yaml](./StashKit-Privacy.yaml) | 订阅版：公共 DoH 跟随路由并优先走 Proxy |
-| [StashKit-Local.yaml](./StashKit-Local.yaml) | 订阅版：54 份规则文件需要事先安装到 Stash 资源目录 |
-| [StashKit-ALL.yaml](./StashKit-ALL.yaml) | 旧版 ALL 入口兼容方案，非默认推荐 |
+| [StashKit-Local.yaml](./StashKit-Local.yaml) | 订阅版：55 份规则文件需要事先安装到 Stash 资源目录 |
+| [StashKit-ALL.yaml](./StashKit-ALL.yaml) | 旧版 ALL 入口兼容方案，按兼容格式保留较长 YAML，非默认推荐 |
 
 离线资源从 [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) 或 [Releases](https://github.com/YohakuSama/stashkit/releases) 获取；仅下载 ZIP 不会自动将规则放到 Stash 受管目录。
 

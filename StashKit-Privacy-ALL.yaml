@@ -1,4 +1,4 @@
-# StashKit v0.1.16 — privacy DNS — legacy ALL compatibility
+# StashKit v0.1.17 — privacy DNS — legacy ALL compatibility
 mode: rule
 log-level: warning
 dns:
@@ -496,6 +496,12 @@ rule-providers:
     - DOMAIN-SUFFIX,ts.net
     - DOMAIN,local.adguard.org
     - DOMAIN-SUFFIX,kis.v2.scr.kaspersky-labs.com
+  Crypto-domain:
+    behavior: domain
+    format: text
+    url: https://raw.githubusercontent.com/YohakuSama/stashkit/e2ced4ba62cba874b3a37f8338074f40518758d1/rules/extra/Crypto.domain.txt
+    path: ./rules/v0.1.17/Crypto.domain.txt
+    interval: 86400
   AdBlockBalanced-domain:
     behavior: domain
     format: text
@@ -841,35 +847,7 @@ rules:
 - DOMAIN-SUFFIX,home.arpa,DIRECT
 - RULE-SET,Private-local,DIRECT
 - GEOIP,LAN,DIRECT,no-resolve
-- DOMAIN-SUFFIX,binance.com,Crypto
-- DOMAIN-SUFFIX,binance.us,Crypto
-- DOMAIN-SUFFIX,okx.com,Crypto
-- DOMAIN-SUFFIX,okex.com,Crypto
-- DOMAIN-SUFFIX,bybit.com,Crypto
-- DOMAIN-SUFFIX,bybit.eu,Crypto
-- DOMAIN-SUFFIX,bitget.com,Crypto
-- DOMAIN-SUFFIX,coinbase.com,Crypto
-- DOMAIN-SUFFIX,coinbasecdn.net,Crypto
-- DOMAIN-SUFFIX,kraken.com,Crypto
-- DOMAIN-SUFFIX,crypto.com,Crypto
-- DOMAIN-SUFFIX,kucoin.com,Crypto
-- DOMAIN-SUFFIX,gate.io,Crypto
-- DOMAIN-SUFFIX,gate.com,Crypto
-- DOMAIN-SUFFIX,mexc.com,Crypto
-- DOMAIN-SUFFIX,htx.com,Crypto
-- DOMAIN-SUFFIX,huobi.com,Crypto
-- DOMAIN-SUFFIX,bingx.com,Crypto
-- DOMAIN-SUFFIX,bitfinex.com,Crypto
-- DOMAIN-SUFFIX,bitstamp.net,Crypto
-- DOMAIN-SUFFIX,gemini.com,Crypto
-- DOMAIN-SUFFIX,uniswap.org,Crypto
-- DOMAIN-SUFFIX,metamask.io,Crypto
-- DOMAIN-SUFFIX,coingecko.com,Crypto
-- DOMAIN-SUFFIX,coinmarketcap.com,Crypto
-- DOMAIN-SUFFIX,etherscan.io,Crypto
-- DOMAIN-SUFFIX,bscscan.com,Crypto
-- DOMAIN-SUFFIX,defillama.com,Crypto
-- DOMAIN-SUFFIX,dexscreener.com,Crypto
+- RULE-SET,Crypto-domain,Crypto
 - DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub
 - DOMAIN,trae-api-sg.mchost.guru,AI
 - DOMAIN,trae-api-us.mchost.guru,AI

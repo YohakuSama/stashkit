@@ -35,12 +35,13 @@ SELF_HOSTED_BLOCK = (
 )
 
 PRIVACY_DNS_RULE = '  - "DOMAIN,dns.alidns.com,Proxy"\n'
-URL_LINE = re.compile(
-    r"^    url: https://raw\.githubusercontent\.com/YohakuSama/stashkit/"
-    r"[0-9a-f]{40}/rules/[A-Za-z0-9_.-]+\.txt\n", re.M
+REMOTE_PROVIDER_LINE = re.compile(
+    r'^(  "[^"]+": \{behavior: (?:domain|ipcidr|classical), format: text), '
+    r'url: https://raw\.githubusercontent\.com/YohakuSama/stashkit/'
+    r'[0-9a-f]{40}/rules/(?:extra/)?[A-Za-z0-9_.-]+\.txt, '
+    r'path: (\./rules/[A-Za-z0-9_./-]+\.txt), interval: 86400\}\n',
+    re.M,
 )
-INTERVAL_LINE = re.compile(r"^    interval: 86400\n", re.M)
-LOCAL_PATH = re.compile(r"^    path: " + re.escape(RULES_PATH_PREFIX) + r"[\w.-]+\.txt$", re.M)
 
 
 def replace_once(content, old, new, context):
@@ -66,10 +67,9 @@ def local_profile(config=None):
     sections = parts[1].split("\nrules:\n")
     if len(sections) != 2:
         raise ValueError("Expected one rules section after rule-providers")
-    providers, urls = URL_LINE.subn("", sections[0])
-    providers, intervals = INTERVAL_LINE.subn("", providers)
-    if (urls, intervals) != (54, 54) or len(LOCAL_PATH.findall(providers)) != 54:
-        raise ValueError("Expected 54 pinned remote providers with local cache paths")
+    providers, count = REMOTE_PROVIDER_LINE.subn(r'\1, path: \2}' + "\n", sections[0])
+    if count != 55:
+        raise ValueError("Expected 54 frozen remote providers plus 1 pinned Crypto provider")
     return parts[0] + "\nrule-providers:\n" + providers + "\nrules:\n" + sections[1]
 
 
@@ -77,7 +77,7 @@ def local_profile(config=None):
 def subscription_profile(config=None):
     """Keep the old Subscription filename as an alias of the official main profile."""
     content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
-    if content.count("      - Airport\n") != 38 or content.count("proxy-providers:\n") != 1:
+    if content.count("use: [ Airport ]") != 38 or content.count("proxy-providers:\n") != 1:
         raise ValueError("Expected 38 policy groups bound to the official Airport provider")
     return content
 
@@ -85,7 +85,7 @@ def subscription_profile(config=None):
 def self_hosted_profile(config=None):
     """Bind all locally declared nodes to 38 policies using Stash include-all."""
     content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
-    if content.count("      - Airport\n") != 38:
+    if content.count("use: [ Airport ]") != 38:
         raise ValueError("Expected exactly 38 node-capable groups bound to Airport")
     content = replace_once(content, HEADER, SELF_HOSTED_HEADER, "self-hosted profile header")
     content = replace_once(content, SUBSCRIPTION_BLOCK, SELF_HOSTED_BLOCK, "node source block")
@@ -95,7 +95,7 @@ def self_hosted_profile(config=None):
     groups_text, marker, ending = rest.partition("\nrule-providers:\n")
     if not marker:
         raise ValueError("Missing rule-providers section")
-    matches = list(re.finditer(r'^  - name: "([^"]+)"', groups_text, re.M))
+    matches = list(re.finditer(r'^  - \{name: "([^"]+)", type:', groups_text, re.M))
     if len(matches) != 40 or len({match.group(1) for match in matches}) != 40:
         raise ValueError("Expected 40 unique canonical policy groups")
     result_groups = []
@@ -107,14 +107,14 @@ def self_hosted_profile(config=None):
         if name not in {"AdBlock", "Final"}:
             count += 1
             block = replace_once(
-                block, "    use:\n      - Airport\n", "    include-all: true\n",
+                block, "use: [ Airport ], ", "include-all: true, ",
                 name + " static node discovery"
             )
         result_groups.append(block)
     if count != 38:
         raise ValueError("Expected 38 node-capable groups")
     result = begin + "proxy-groups:\n" + "".join(result_groups) + "\nrule-providers:\n" + ending
-    if "      - Airport\n" in result or "proxy-providers:" in result or "      - SelfHosted\n" in result:
+    if "use: [ Airport ]" in result or "proxy-providers:" in result or "      - SelfHosted\n" in result:
         raise ValueError("Subscription binding leaked into self-hosted profile")
     return result
 

@@ -78,14 +78,13 @@ class SelfHostedProfileTests(unittest.TestCase):
         for key in ("mode", "log-level", "dns", "rule-providers", "rules"):
             self.assertEqual(self.self_hosted[key], self.canonical[key])
         self.assertEqual(
-            sum(rule.startswith("DOMAIN-SUFFIX,") and rule.endswith(",Crypto")
-                for rule in self.self_hosted["rules"]),
-            29,
+            [rule for rule in self.self_hosted["rules"] if rule.endswith(",Crypto")],
+            ["RULE-SET,Crypto-domain,Crypto"],
         )
 
     def test_unbound_or_modified_subscription_fails(self):
         with self.assertRaises(ValueError):
-            self_hosted_profile(self.source.replace("      - Airport\n", "", 1))
+            self_hosted_profile(self.source.replace("use: [ Airport ], ", "", 1))
         with self.assertRaises(ValueError):
             self_hosted_profile(self.source.replace(
                 "https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION",

@@ -24,7 +24,11 @@ def make_zip(root=ROOT):
     assets = sorted((root / "rules").glob("*.txt"))
     if len(assets) != 54:
         raise ValueError(f"Expected 54 rule assets, got {len(assets)}")
-    files = {"StashKit-Local.yaml": profile}
+    crypto = root / "rules/extra/Crypto.domain.txt"
+    if not crypto.is_file():
+        raise ValueError("Missing independently pinned Crypto domain rule-set")
+    files = {"StashKit-Local.yaml": profile,
+             "rules/v0.1.17/Crypto.domain.txt": crypto.read_bytes()}
     for path in assets:
         files[f"rules/{RULES_VERSION}/" + path.name] = path.read_bytes()
     manifest = "\n".join(hashlib.sha256(data).hexdigest() + "  " + name
@@ -32,11 +36,11 @@ def make_zip(root=ROOT):
     files["SHA256SUMS.txt"] = manifest.encode()
     files["README-OFFLINE.txt"] = (
         f"StashKit {PROFILE_VERSION} — offline provider bundle\n"
-        "1) StashKit-Local.yaml uses 54 path-only file providers plus 1 embedded private provider.\n"
-        f"2) Copy rules/{RULES_VERSION}/*.txt into the Stash-managed versioned resource directory.\n"
+        "1) StashKit-Local.yaml uses 55 path-only file providers plus 1 embedded private provider.\n"
+        f"2) Install rules/v0.1.4/*.txt AND rules/v0.1.17/Crypto.domain.txt into Stash-managed resource directories.\n"
         "3) Replace the example Airport URL in StashKit-Local.yaml locally before importing.\n"
         "4) Stash does NOT automatically install provider paths when importing a ZIP.\n"
-        "5) Confirm all 55 providers load; otherwise do not use this as an active profile.\n"
+        "5) Confirm all 56 providers load; otherwise do not use this as an active profile.\n"
         "6) StashKit.yaml is the online profile with immutable pinned URLs and cache.\n"
     ).encode("utf-8")
     out = io.BytesIO()
@@ -57,12 +61,12 @@ def main():
     result = make_zip()
     if args.check:
         assert result == make_zip(), "Offline zip creation is not deterministic"
-        print("PASS: offline resource bundle reproducible with all 54 assets")
+        print("PASS: offline resource bundle reproducible with all 55 assets")
     else:
         output = Path(args.output)
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_bytes(result)
-        print(f"PASS: generated {output}, {len(result):,} bytes, 54 local file providers + 1 inline private provider")
+        print(f"PASS: generated {output}, {len(result):,} bytes, 55 local file providers + 1 inline private provider")
 
 
 if __name__ == "__main__":
