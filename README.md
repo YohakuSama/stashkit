@@ -1,6 +1,6 @@
 # StashKit
 
-为 [Stash](https://stash.wiki/) 提供的规则分流配置。与 [LoonKit v7.0.12](https://github.com/YohakuSama/loonkit/tree/edbfedad1b568578edc1a6dcebf422867a36a3ed) 的 40 个策略组及 Crypto / Paypal 排序保持一致，支持 AI、开发平台、流媒体、社交、游戏和国内服务分流。43 份远程规则继续使用经过验证的冻结快照，不自动追踪上游主分支。
+为 [Stash](https://stash.wiki/) 提供的规则分流配置。与 [LoonKit v7.0.12](https://github.com/YohakuSama/loonkit/tree/edbfedad1b568578edc1a6dcebf422867a36a3ed) 的 40 个策略组及 Crypto / Paypal 排序保持一致，支持 AI、开发平台、流媒体、社交、游戏和国内服务分流。原始 43 份 LoonKit 远程来源已转换为 54 份冻结规则文件，另有独立 Crypto 规则集；所有远程 URL 均固定到不可变提交，不追踪上游主分支。
 
 当前配置：**v0.1.17** · [发布说明](./docs/RELEASE_NOTES_v0.1.17.md) · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [许可证](./LICENSE)
 

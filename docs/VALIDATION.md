@@ -15,11 +15,11 @@ python scripts/build_offline_bundle.py --check
 
 回归测试使用离线输入；真实 HTTPS DoH 探测单独运行，遇到证书错误、DNS 错误或不完整消息会失败，不跳过 TLS 身份检查。GitHub CI 的实测不等于每个用户网络都可用。
 
-合并前可运行 `python scripts/check_remote.py --ref 完整候选提交SHA`，逐字节检查该提交的 54 个远程文件；省略参数则检查配置锁定的生产快照，始终不跟随 main。新的规则先在独立提交发布并完成字节校验，随后配置切换 pin 与缓存版本。内嵌 Private-local 由源文件、许可证摘要及三套配置一致性测试验证。
+合并前可运行 `python scripts/check_remote.py --ref 完整候选提交SHA`，逐字节检查该提交原有 54 个远程文件（另检查已单独固定提交的 Crypto 文件）；省略参数则检查配置锁定的生产快照，始终不跟随 main。新的规则先在独立提交发布并完成字节校验，随后配置切换 pin 与缓存版本。内嵌 Private-local 由源文件、许可证摘要及三套配置一致性测试验证。
 
 ## Stash 真机验收
 
-使用 iOS/tvOS 3.6+ 或 macOS 4.3+，在本地将正式 YAML 的 Airport 占位 URL 替换为真实订阅后导入，或通过高级生成器绑定私人来源，确认已加载 54 个文件规则集、1 个内嵌 Private-local 和实际节点。覆写需另存为 `.stoverride`；示例中的 example.invalid 有意不可用。
+使用 iOS/tvOS 3.6+ 或 macOS 4.3+，在本地将正式 YAML 的 Airport 占位 URL 替换为真实订阅后导入，或通过高级生成器绑定私人来源，确认已加载 55 个文件规则集、1 个内嵌 Private-local 和实际节点。覆写需另存为 `.stoverride`；示例中的 example.invalid 有意不可用。
 
 | 项目 | 检查方法与预期 |
 | --- | --- |
@@ -59,8 +59,8 @@ curl --get 'http://127.0.0.1:9090/rules/match' \
 
 ## 离线资源快照与 DNS 隐私验收
 
-- **在线**：检查各规则 URL 含同一固定 40 位 Git commit、provider 缓存路径使用 `build/release-lock.json` 的 `rules_version`（当前 `v0.1.4`，与配置版本 `v0.1.12` 不同）；第一次联网加载成功后切断网络再重启，确认 54 个缓存是否能继续使用（要注意代理本身也可能无法连通）。
-- **离线**：从主分支 CI 下载 ZIP，验 SHA256SUMS，按 Stash 受管资源目录的版本路径部署 54 份文件，并在本地替换 Local 配置里的 Airport URL 后导入；高级用法仍可通过 `--profile local` 生成个人配置。单独导入 YAML 而不部署文件**应失败**，不能标记为正常配置。GitHub Actions 的 ZIP 是备份/安装材料，不是 App 一键导入包。
+- **在线**：检查各规则 URL 含同一固定 40 位 Git commit、provider 缓存路径使用 `build/release-lock.json` 的 `rules_version`（当前 `v0.1.4`，与配置版本 `v0.1.17` 不同）；第一次联网加载成功后切断网络再重启，确认 55 个缓存是否能继续使用（要注意代理本身也可能无法连通）。
+- **离线**：从主分支 CI 下载 ZIP，验 SHA256SUMS，按 Stash 受管资源目录的版本路径部署 54 份 v0.1.4 文件及 1 份 v0.1.17 Crypto 文件，并在本地替换 Local 配置里的 Airport URL 后导入；高级用法仍可通过 `--profile local` 生成个人配置。单独导入 YAML 而不部署文件**应失败**，不能标记为正常配置。GitHub Actions 的 ZIP 是备份/安装材料，不是 App 一键导入包。
 - **隐私**：先在本地填写 Privacy YAML 的 Airport URL，手动切换 Proxy，再导入这份文件（或对普通配置启用 `dns-privacy.stoverride`，不要重复启用）；查看 AliDNS 主机的最终代理链及 DNS 记录。观察 Apple CDN、Wi-Fi/蜂窝切换、节点域名解析。若 DNS 不可用，先禁用覆写，不能断言绝对防泄漏。
 - **图标**：40 张原始 PNG 已迁入 StashKit 自有仓库，40 个正式策略组均指向 StashKit 固定提交；联网更新配置后应看到专用图标。如仍显示默认图标，请重新导入或更新配置，并检查手机是否能访问 StashKit 的图标 PNG URL。
 - **发布流程**：新的规则变更先完成源文件与生成器 CI，在一个包含全部新规则的固定 commit 上发布；配置文件随后单独修改 pin 和缓存版本号，切勿以当前配置 commit 的可变 main 指针做规则订阅。
@@ -75,6 +75,9 @@ python scripts/stash_runtime_audit.py --base-url http://127.0.0.1:9090 \
   --profile dist/StashKit-Personal.yaml
 ```
 
-iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，不要向公共互联网开放控制接口。脚本使用**只读 GET** 检查模式、40 个组的类型/选项/选择、每个业务组是否包含当前 Provider 全部节点、Proxy 递归后的真实节点、55 个预期 provider 的名称和条目数、规则总量、广告及业务哨兵的命中规则与最终出口，并读取内存接口；不会输出 API 密钥、个人节点名、订阅或者整个 DNS 缓存。**运行结果来自你的真实 Stash 才能称为真机验收**，GitHub Actions 无法代替它。DNS 旁路测试还需检查客户端连接记录与第三方 DNS 测试；单次 API 通过不是绝对无泄漏证明。
+iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，不要向公共互联网开放控制接口。脚本使用**只读 GET** 检查模式、40 个组的类型/选项/选择、每个业务组是否包含当前 Provider 全部节点、Proxy 递归后的真实节点、56 个预期 provider 的名称和条目数、规则总量、广告及业务哨兵的命中规则与最终出口，并读取内存接口；不会输出 API 密钥、个人节点名、订阅或者整个 DNS 缓存。**运行结果来自你的真实 Stash 才能称为真机验收**，GitHub Actions 无法代替它。DNS 旁路测试还需检查客户端连接记录与第三方 DNS 测试；单次 API 通过不是绝对无泄漏证明。
 
 私网冷启动应在未缓存 GeoSite 的设备上验证 `router.internal`、NAS 单标签名称、路由器品牌域名与私有反向解析；三套配置不再含 GeoSite 引用。脚本通过只证明控制器返回的规则与出口符合配置，不代替真实业务连通性、播放或 DNS 旁路测试。
+
+
+**当前 v0.1.17 精简版**：正常订阅、自建、Privacy、Local 文件约 280 行，远程规则仍是 54 份冻结业务规则加独立 Crypto 规则集（29 条）；`Private-local` 133 条继续内嵌以保证首次私网 / DNS 处理不依赖网络。检查 Crypto 单独固定的 URL、文件字节和匹配顺序；离线包中 `rules/v0.1.17/Crypto.domain.txt` 必须一并安装。旧 ALL 和 Preview 兼容文件保留展开排版，不属于推荐入口。
