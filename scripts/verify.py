@@ -15,6 +15,8 @@ from rule_sources import (KIT, ROOT, valid_domain, lines_from, generate_source_s
                           load_adjustments, apply_adjustments, load_baseline, render_asset)
 
 SOURCE_URL = RULES_URL_PREFIX
+POLICY_PROFILE_PATH = KIT / "upstream/policy-loonkit/LoonKit.lcf"
+POLICY_SHA256 = "5aaed7c152d45bbcd007a385083358c31d8127ad8777bb82c793c08eb83df077"
 WEBRTC_GUARDS = ["PROTOCOL,STUN,REJECT"] + [
     f"DST-PORT,{port},REJECT"
     for port in (3478, 3479, 5349, 5350, 19302, 19303, 19304, 19305,
@@ -50,6 +52,13 @@ UniqueKeysLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
 def main():
     assert ROOT.is_dir(), "Missing pinned upstream/loonkit checkout"
     manifest, original = load_baseline()
+    assert POLICY_PROFILE_PATH.is_file(), "Missing pinned LoonKit v7.0.12 policy checkout"
+    policy_bytes = POLICY_PROFILE_PATH.read_bytes()
+    assert hashlib.sha256(policy_bytes).hexdigest() == POLICY_SHA256, "Policy baseline changed"
+    policy_profile = policy_bytes.decode("utf-8")
+    assert policy_profile.startswith("# LoonKit v7.0.12\\n".replace("\\n", "\n"))
+    assert (policy_profile.split("[Remote Rule]", 1)[1].split("[Rule]", 1)[0] ==
+            original.split("[Remote Rule]", 1)[1].split("[Rule]", 1)[0]), "Frozen rule source references changed"
     profile = yaml.load((KIT / "StashKit.yaml").read_text(encoding="utf-8"), Loader=UniqueKeysLoader)
     validate_profile(profile)
     example = yaml.load((KIT / "overrides/provider.stoverride.example").read_text(encoding="utf-8"), Loader=UniqueKeysLoader)
@@ -81,11 +90,11 @@ def main():
     assert not (set(profile) & {"hijack-dns", "real-ip", "skip-proxy", "bypass-tun",
                                   "disable-stun", "dns-reject-mode", "domain-reject-mode",
                                   "udp-fallback-mode", "interface-mode"}), "Unsupported Loon-only directives"
-    source_groups = original.split("[Proxy Group]", 1)[1].split("[Remote Rule]", 1)[0]
+    source_groups = policy_profile.split("[Proxy Group]", 1)[1].split("[Remote Rule]", 1)[0]
     group_names = [row.split("=", 1)[0].strip() for row in source_groups.splitlines() if " = " in row]
     groups = profile["proxy-groups"]
     names = [group["name"] for group in groups]
-    assert len(group_names) == len(names) == len(set(names)) == 39
+    assert len(group_names) == len(names) == len(set(names)) == 40
     assert names == group_names, "Native defaults must preserve the LoonKit group order"
     assert not {"ALL", "Manual"} & set(names)
     by_name = {group["name"]: group for group in groups}
@@ -134,7 +143,7 @@ def main():
     icon_ref = icon_lock["icons_commit"]
     assert len(icon_ref) == 40 and all(c in "0123456789abcdef" for c in icon_ref)
     assert set(icon_lock["group_icons"]) == set(group_names)
-    assert len(icon_lock["asset_git_blob_shas"]) == 39
+    assert len(icon_lock["asset_git_blob_shas"]) == 40
     for filename, expected_sha in icon_lock["asset_git_blob_shas"].items():
         asset_path = KIT / "icons" / filename
         assert asset_path.is_file(), f"Missing self-hosted strategy icon: {filename}"
@@ -205,10 +214,13 @@ def main():
     assert profile["rule-providers"] == expected_providers, "Provider names/URL/types are inconsistent"
     assert len(expected_providers) == 55
     assert len(list((KIT / "rules").glob("*.txt"))) == 54
-    source_rule_section = original.split("[Rule]", 1)[1].split("[Plugin]", 1)[0]
+    source_rule_section = policy_profile.split("[Rule]", 1)[1].split("[Plugin]", 1)[0]
     source_rules = [row.strip() for row in source_rule_section.splitlines() if row.strip()]
-    assert source_rules[0] == "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
-    source_rules[0] = "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
+    assert len([row for row in source_rules if row.endswith(",Crypto")]) == 29
+    assert all(row.startswith("DOMAIN-SUFFIX,") and row.endswith(",Crypto")
+               for row in source_rules[:29]), "Crypto routes must remain first in upstream rule order"
+    assert source_rules[29] == "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
+    source_rules[29] = "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
     source_rules.remove("DOMAIN,copilot-telemetry.githubusercontent.com,AI")
     expected_rules = WEBRTC_GUARDS + LOCAL_DIRECT_RULES + source_rules[:-2] + expected_routes + ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"]
     assert profile["rules"] == expected_rules, "Rules changed order, policy, or local precedence"

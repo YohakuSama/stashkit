@@ -153,5 +153,23 @@ class RoutingTests(unittest.TestCase):
                 self.assertEqual(route(target, self.profile), policy)
 
 
+    def test_crypto_routes_take_priority_over_domestic_and_fallback(self):
+        exact = (
+            "binance.com", "api.binance.com", "www.okx.com", "www.bybit.com",
+            "api.coinbase.com", "www.kraken.com", "wallet.metamask.io",
+            "www.coingecko.com", "api.gemini.com", "api.crypto.com",
+            "scan.etherscan.io", "www.dexscreener.com",
+        )
+        unrelated = ("notbinance.com", "binance.com.example.net", "crypto.example.net")
+        for filename in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+            profile = yaml.load((ROOT / filename).read_text(), Loader=UniqueKeysLoader)
+            for target in exact:
+                with self.subTest(filename=filename, target=target):
+                    self.assertEqual(route(target, profile), "Crypto")
+            for target in unrelated:
+                with self.subTest(filename=filename, unrelated=target):
+                    self.assertNotEqual(route(target, profile), "Crypto")
+
+
 if __name__ == "__main__":
     unittest.main()

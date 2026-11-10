@@ -100,7 +100,7 @@ def inspect_strategy_groups(profile, proxies):
         return ["Unbound template: pass the generated private configuration with --profile"]
     for helper in ("ALL", "Manual"):
         if helper not in expected_groups and "all" in proxies.get(helper, {}):
-            failures.append("Unexpected helper group in a configuration that should have 39 groups")
+            failures.append("Unexpected helper group in a configuration that should have 40 groups")
     for expected in profile["proxy-groups"]:
         name = expected["name"]
         actual = proxies.get(name, {})

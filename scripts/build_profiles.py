@@ -56,7 +56,7 @@ def local_profile(config=None):
 def subscription_profile(config=None):
     """Keep the old Subscription filename as an alias of the official main profile."""
     content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
-    if content.count("      - Airport\n") != 37 or content.count("proxy-providers:\n") != 1:
+    if content.count("      - Airport\n") != 38 or content.count("proxy-providers:\n") != 1:
         raise ValueError("Expected 37 policy groups bound to the official Airport provider")
     return content
 
@@ -107,7 +107,7 @@ def main():
                       if (ROOT / name).read_bytes() != value.encode("utf-8")]
         if mismatches:
             raise ValueError(f"Derived profiles differ from canonical source: {mismatches}")
-        print("PASS: 39-group editable subscription defaults and compatibility variants match canonical source")
+        print("PASS: 40-group editable subscription defaults and compatibility variants match canonical source")
     else:
         for name, value in outputs.items():
             (ROOT / name).write_text(value, encoding="utf-8")
