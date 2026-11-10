@@ -113,6 +113,9 @@ def self_hosted_profile(config=None):
             elif name == "Proxy":
                 block = replace_once(block, "      - REJECT\n",
                                      "      - SelfHosted\n      - REJECT\n", name + " node choice")
+            elif name == "Steam":
+                block = replace_once(block, '      - "DIRECT"\\n',
+                                     '      - SelfHosted\\n      - "DIRECT"\\n', name + " node choice")
             else:
                 block = replace_once(block, "    icon: ",
                                      "      - SelfHosted\n    icon: ", name + " node choice")

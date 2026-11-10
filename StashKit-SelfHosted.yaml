@@ -360,8 +360,8 @@ proxy-groups:
       - "Proxy"
       - "Auto"
       - "Fallback"
-      - "DIRECT"
       - SelfHosted
+      - "DIRECT"
     icon: https://raw.githubusercontent.com/YohakuSama/stashkit/20c801ef91c4395a1535c3bd83c51034c0a3648f/icons/Steam.png
 rule-providers:
   # Shared by private DNS lookup and LAN routing.
