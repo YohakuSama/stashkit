@@ -18,7 +18,6 @@ class ReleaseMetadataTests(unittest.TestCase):
             ("StashKit.yaml", f"# StashKit {PROFILE_VERSION}"),
             ("StashKit-Privacy.yaml", f"# StashKit {PROFILE_VERSION} — privacy DNS"),
             ("StashKit-Local.yaml", f"# StashKit {PROFILE_VERSION} — local rule providers"),
-            ("StashKit-SelfHosted.yaml", f"# StashKit {PROFILE_VERSION} — self-hosted node"),
         )
         for name, header in names:
             with self.subTest(file=name):
@@ -28,6 +27,7 @@ class ReleaseMetadataTests(unittest.TestCase):
                       (ROOT / "README.md").read_text(encoding="utf-8"))
         self.assertTrue((ROOT / "docs" / f"RELEASE_NOTES_{PROFILE_VERSION}.md").is_file())
         self.assertEqual(archive_name(), f"StashKit-{PROFILE_VERSION}-offline.zip")
+        self.assertFalse((ROOT / "StashKit-SelfHosted.yaml").exists())
 
     def test_existing_immutable_rule_snapshot_is_reused(self):
         standard = (ROOT / "StashKit.yaml").read_text(encoding="utf-8")

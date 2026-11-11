@@ -2,7 +2,7 @@
 
 项目输出的是 Stash 原生配置和规则文件，不包含浏览器内核、代理节点或 Loon 插件。当前策略组与主要规则基准为固定的 [LoonKit v7.0.12](https://github.com/YohakuSama/loonkit/tree/edbfedad1b568578edc1a6dcebf422867a36a3ed)；43 份原有远程订阅资源继续按 v7.0.10 冻结。Crypto 规则独立按 [LoonKit v7.0.13](https://github.com/YohakuSama/loonkit/tree/66b01bffe8982d6a8153af7b03c897dc1bbab648) 更新，原快照不被覆盖。
 
-自建版 StashKit-SelfHosted.yaml 是独立的**单节点明确引用**派生模板，默认仅声明一个无效的 SelfHosted 占位节点并由 38 个需节点的组显式引用，不再以 include-all 混合固定策略和节点。对任意数量和名称的自建节点，应在本地使用 --layout flat 从个人 proxies 列表生成完整 40 组；规则、DNS、55 份远程规则提供者及固定策略顺序保持不变。生成的个人节点信息不能提交到公开仓库，部署后仍需真机验收。
+v0.1.21 起公开仓库取消独立自建版 YAML，统一以 `StashKit.yaml` 的 `Airport` Provider 为入口。通用静态节点生成器仍可在个人本地使用 `--layout flat` 将完整私人节点展开为 40 个策略组，但不再发布含 `SelfHosted` 占位符的公共模板。静态生成无法代替 Stash iOS 真机验收。
 
 ## 构建流程
 

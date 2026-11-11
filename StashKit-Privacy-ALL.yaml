@@ -1,4 +1,4 @@
-# StashKit v0.1.20 — privacy DNS — legacy ALL compatibility
+# StashKit v0.1.21 — privacy DNS — legacy ALL compatibility
 mode: rule
 log-level: warning
 dns:

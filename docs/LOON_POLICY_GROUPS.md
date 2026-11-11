@@ -27,11 +27,9 @@
 
 默认 native 不会提前下载私人订阅。生成成功说明引用与结构有效，Provider 是否非空、实际节点是否连通需要在 Stash 中检查。空组或空 Provider 可能按 DIRECT 处理，手动 REJECT 选项不能保证自动阻断。
 
-## 自建多节点版
+## 私人节点与旧版兼容
 
-[StashKit-SelfHosted.yaml](../StashKit-SelfHosted.yaml) 是**单节点明确引用模板**：顶层 `proxies` 默认声明占位节点 `SelfHosted`，38 个需节点策略组直接引用它，不使用 `include-all`。如要用任意名称的多个自建节点，使用 `python scripts/build_loon_selection.py --layout flat --nodes-from dist/nodes-source.yaml --output dist/StashKit-Personal.yaml` 从个人节点来源生成显式策略组。Auto/Fallback 的候选仅为实际节点；Proxy 为 Auto、Fallback、REJECT 加实际节点；AdBlock/Final 保持原来的纯策略组。规则仍远程引用。
-
-此版与 v0.1.13 的机场 Provider 模式不同，静态节点变更需重新生成或编辑配置并重新导入。v0.1.16 使用 `include-all` 可在 YAML 中动态收集节点，但已有设备反馈 VPN 启动后固定策略被节点列表覆盖；v0.1.20 改为生成阶段自动枚举用户自己的节点名称，不将它们提交到公开仓库。单纯粘贴第二个节点到公共占位文件不会自动修改引用。
+v0.1.21 起不再发布独立自建模板，统一使用 `StashKit.yaml` 的 `Airport` Provider 引用私人 HTTPS Clash/Stash YAML 订阅。没有订阅 URL、只有完整本地节点定义时，可使用 `python scripts/build_loon_selection.py --layout flat --nodes-from dist/nodes-source.yaml --output dist/StashKit-Personal.yaml` 生成私人静态文件；生成结果不应提交到公开仓库。flat 模式将 Auto、Fallback、REJECT 保留为 Proxy 的固定前三项，再显式列出真实节点，不使用 `include-all` 混合固定选项。
 
 ## 可选布局
 
