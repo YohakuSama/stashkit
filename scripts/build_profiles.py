@@ -24,7 +24,7 @@ SUBSCRIPTION_BLOCK = (
     "    interval: 3600\n"
 )
 SELF_HOSTED_BLOCK = (
-    "# Replace this placeholder with one or more named local nodes; names must be unique.\n"
+    "# Replace this example locally; multiple or renamed nodes need a generated flat profile.\n"
     "proxies:\n"
     "  - name: SelfHosted\n"
     "    type: ss\n"
