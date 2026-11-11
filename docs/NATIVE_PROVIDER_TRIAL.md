@@ -5,9 +5,9 @@
 ## 直接使用单文件配置
 
 - **机场订阅**：[StashKit-Subscription.yaml](../StashKit-Subscription.yaml)：本地替换 proxy-providers.Airport.url，Stash 后台更新节点。
-- **自建多节点**：[StashKit-SelfHosted.yaml](../StashKit-SelfHosted.yaml)：本地替换顶层 proxies 节点列表，可添加任意多个唯一 name 的节点。38 个需节点的组使用 include-all: true 自动纳入所有本地节点，不要修改 proxy-groups 中的 proxies。自建版没有 Airport，也不需要单独的本地 Provider 文件；配置变动需重新导入。
+- **自建单节点占位模板**：[StashKit-SelfHosted.yaml](../StashKit-SelfHosted.yaml)：只替换顶层 `SelfHosted` 的协议和凭据（`name` 保持不变），38 个节点策略组均明确引用它；**不再使用 `include-all`**。要添加更多节点或自行命名，请按下一节从个人 YAML 的 `proxies` 自动生成全部策略组，不能只粘节点而不重新生成。
 
-这两个入口都保留 40 个原生策略组与规则，个人密码和 Token 不能提交到公开仓库。自建版是静态多节点模板，不会自动拉取配置。
+两种模式都保留 40 个原生策略组与规则，个人密码和 Token 不能提交到公开仓库。自建单节点模板是静态占位文件，多节点需生成个人配置，不会从公开仓库拉取任何用户节点。
 
 ## 无需生成器：直接编辑 YAML
 
@@ -16,6 +16,18 @@
 所有 38 个需要节点的组显式使用 `use: [Airport]`，保留 `Proxy` 内的 `Auto`、`Fallback` 和 `REJECT`，每 3600 秒自动更新 Provider。若添加多个机场，请增加 `proxy-providers` 条目，并将名称加入需要节点的策略组 `use`。私人订阅可能含 Token，**切勿推送到公开 GitHub**。导入后要确认节点非空并检查实际策略选择。
 
 下文的生成器方法继续适合复杂、多机场和高级绑定需求；StashKit-Subscription.yaml 仅为兼容别名。
+
+## 自建多个静态节点：显式展开，避免 VPN 启动后固定选项消失
+
+将个人现有自建 YAML 的顶层 `proxies:` 保存为 `dist/nodes-source.yaml`；即使该文件其他部分是完整的 StashKit 配置，生成器也只提取节点来源，不会复制它的规则或业务组。
+
+```sh
+python scripts/build_loon_selection.py --layout flat \
+  --nodes-from dist/nodes-source.yaml \
+  --output dist/StashKit-Personal.yaml
+```
+
+生成器接受任意不冲突的节点名称及数量；`Proxy` 选项依次为 Auto、Fallback、REJECT、用户节点，Auto/Fallback 只有用户节点，所有 38 个需节点组均不含 `include-all`。保留 55 份固定远程规则集，更新静态节点后须重新生成。无法在设备本地运行 Python 时可改用 Airport YAML 订阅的 `use` 方案，不能声称纯 YAML 会自动展开其他用户的节点名。
 
 ## 首次准备
 

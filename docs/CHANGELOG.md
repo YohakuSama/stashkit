@@ -1,5 +1,13 @@
 # 变更记录
 
+## v0.1.20 — 自建版禁用 include-all，恢复明确策略选择
+
+- 以用户确认正常的 v0.1.13 `use: [Airport]` 作为对照，识别后续单文件自建模板 `include-all` 与固定 `proxies` 混用为主要兼容性差异；v0.1.19 的排版调整没有消除实际故障。
+- 自建公开模板现仅含一个不带真实凭据的 `SelfHosted` 占位节点；38 个需节点组明确引用它，不再使用 `include-all`。单节点可保持这个名称并更换完整连接参数。
+- 多个或自定义名称的节点通过通用 `--layout flat --nodes-from` 从用户个人 YAML 自动展开 40 个策略组：Proxy 为 Auto → Fallback → REJECT → 实际节点。**公共仓库不硬编码任何用户的节点名或密钥**，静态节点变化后需重新生成。
+- 保留 v0.1.19 的订阅版和 55 份远程规则资源，Crypto、AdBlock、DNS、LoonKit 40 组次序不变。添加回归断言；**CI 静态通过不代表 VPN 真机已验证**。
+
+
 ## v0.1.19 — 还原策略组可读结构与选择顺序
 
 - 针对 VPN 启动后 `Proxy` 仅显示节点而不显示 Auto / Fallback / REJECT 的反馈，恢复 v0.1.16 使用的多行策略组 YAML，确保 `proxies` 固定选项写在 `use` / `include-all` 动态节点引用前。

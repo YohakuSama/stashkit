@@ -60,14 +60,18 @@ class ProfileVariantTests(unittest.TestCase):
                 for group in data["proxy-groups"]:
                     if group["name"] in {"AdBlock", "Final"}:
                         continue
-                    expected_source = "include-all" if name == "StashKit-SelfHosted.yaml" else "use"
-                    self.assertLess(list(group).index("proxies"),
-                                    list(group).index(expected_source),
-                                    f"{name}: {group['name']}: fixed options must appear before node sources")
+                    if name == "StashKit-SelfHosted.yaml":
+                        self.assertFalse({"use", "use-url", "include-all"} & set(group))
+                        self.assertEqual(group["proxies"][-1], "SelfHosted")
+                    else:
+                        self.assertLess(list(group).index("proxies"),
+                                        list(group).index("use"),
+                                        f"{name}: {group['name']}: fixed options first")
                 proxy = data["proxy-groups"][0]
-                self.assertEqual(proxy["proxies"], ["Auto", "Fallback", "REJECT"])
-                self.assertEqual(data["proxy-groups"][1]["proxies"], [])
-                self.assertEqual(data["proxy-groups"][2]["proxies"], [])
+                suffix = ["SelfHosted"] if name == "StashKit-SelfHosted.yaml" else []
+                self.assertEqual(proxy["proxies"], ["Auto", "Fallback", "REJECT"] + suffix)
+                self.assertEqual(data["proxy-groups"][1]["proxies"], suffix)
+                self.assertEqual(data["proxy-groups"][2]["proxies"], suffix)
 
     def test_privacy_variant_changes_only_documented_dns_and_route(self):
         original = yaml.safe_load(self.source)
