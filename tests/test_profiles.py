@@ -9,7 +9,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from build_profiles import local_profile, privacy_profile, self_hosted_profile
+from build_profiles import local_profile, privacy_profile
 from validate_config import validate_profile
 
 
@@ -20,8 +20,7 @@ class ProfileVariantTests(unittest.TestCase):
 
     def test_generated_variants_match_committed_files(self):
         for name, render in (("StashKit-Privacy.yaml", privacy_profile),
-                             ("StashKit-Local.yaml", local_profile),
-                             ("StashKit-SelfHosted.yaml", self_hosted_profile)):
+                             ("StashKit-Local.yaml", local_profile)):
             with self.subTest(profile=name):
                 result = render(self.source)
                 self.assertEqual(result.encode("utf-8"), (ROOT / name).read_bytes())
@@ -30,8 +29,7 @@ class ProfileVariantTests(unittest.TestCase):
     def test_official_profiles_stay_compact_and_remote_rule_backed(self):
         # Keep file providers remote; legible strategy groups may occupy more lines.
         for name in ("StashKit.yaml", "StashKit-Subscription.yaml",
-                     "StashKit-Privacy.yaml", "StashKit-Local.yaml",
-                     "StashKit-SelfHosted.yaml"):
+                     "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
             with self.subTest(name=name):
                 content = (ROOT / name).read_text(encoding="utf-8")
                 self.assertLessEqual(len(content.splitlines()), 700)
@@ -53,25 +51,20 @@ class ProfileVariantTests(unittest.TestCase):
 
     def test_selectors_place_fixed_choices_before_dynamic_nodes(self):
         for name in ("StashKit.yaml", "StashKit-Subscription.yaml",
-                     "StashKit-Privacy.yaml", "StashKit-Local.yaml",
-                     "StashKit-SelfHosted.yaml"):
+                     "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
             with self.subTest(profile=name):
                 data = yaml.safe_load((ROOT / name).read_text(encoding="utf-8"))
                 for group in data["proxy-groups"]:
                     if group["name"] in {"AdBlock", "Final"}:
                         continue
-                    if name == "StashKit-SelfHosted.yaml":
-                        self.assertFalse({"use", "use-url", "include-all"} & set(group))
-                        self.assertEqual(group["proxies"][-1], "SelfHosted")
-                    else:
-                        self.assertLess(list(group).index("proxies"),
-                                        list(group).index("use"),
-                                        f"{name}: {group['name']}: fixed options first")
+                    self.assertLess(list(group).index("proxies"),
+                                    list(group).index("use"),
+                                    f"{name}: {group['name']}: fixed options first")
+                    self.assertNotIn("include-all", group)
                 proxy = data["proxy-groups"][0]
-                suffix = ["SelfHosted"] if name == "StashKit-SelfHosted.yaml" else []
-                self.assertEqual(proxy["proxies"], ["Auto", "Fallback", "REJECT"] + suffix)
-                self.assertEqual(data["proxy-groups"][1]["proxies"], suffix)
-                self.assertEqual(data["proxy-groups"][2]["proxies"], suffix)
+                self.assertEqual(proxy["proxies"], ["Auto", "Fallback", "REJECT"])
+                self.assertEqual(data["proxy-groups"][1]["proxies"], [])
+                self.assertEqual(data["proxy-groups"][2]["proxies"], [])
 
     def test_privacy_variant_changes_only_documented_dns_and_route(self):
         original = yaml.safe_load(self.source)
@@ -102,7 +95,7 @@ class ProfileVariantTests(unittest.TestCase):
                     render(bad)
 
     def test_yaml_comments_are_concise_and_english(self):
-        for name in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml", "StashKit-SelfHosted.yaml"):
+        for name in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
             comments = [line.strip() for line in (ROOT / name).read_text().splitlines()
                         if line.lstrip().startswith("#")]
             with self.subTest(profile=name):
