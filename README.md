@@ -15,15 +15,14 @@
 </p>
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit-Subscription.yaml"><strong>获取订阅版配置</strong></a> ·
-  <a href="https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit-SelfHosted.yaml"><strong>获取自建版配置</strong></a> ·
+  <a href="https://raw.githubusercontent.com/YohakuSama/stashkit/main/StashKit.yaml"><strong>获取订阅版配置</strong></a> ·
   <a href="#快速开始">快速开始</a> ·
   <a href="./docs/VALIDATION.md">验收与排查</a>
 </p>
 
 <p align="center"><sub>先下载并在本地填写自己的订阅或节点，再导入 Stash；仓库不提供代理节点和订阅。</sub></p>
 
-当前配置：**v0.1.20** · 对齐 [LoonKit v7.0.13](https://github.com/YohakuSama/loonkit/tree/66b01bffe8982d6a8153af7b03c897dc1bbab648) 的 Crypto 远程规则 · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
+当前配置：**v0.1.21** · 对齐 [LoonKit v7.0.13](https://github.com/YohakuSama/loonkit/tree/66b01bffe8982d6a8153af7b03c897dc1bbab648) 的 Crypto 远程规则 · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
 
 ---
 
@@ -33,25 +32,24 @@
 
 **规则按需远程加载** — 正式在线配置引用 **55 份独立、固定提交的远程规则文件**：54 份经审查的 Stash 原生规则集，加一份来自 LoonKit v7.0.13 的 **219 条 Crypto 域名规则集**。规则不铺进主 YAML；Stash 下载并缓存各 Provider，缓存过期可重新拉取相同的不可变快照。
 
-**节点独立管理** — `Proxy` 的固定选择顺序为 **Auto → Fallback → REJECT**，之后才是订阅或自建的具体节点；订阅版通过 `Airport` Provider 自动更新节点；自建版的单节点模板使用明确的 `SelfHosted` 引用；多节点使用构建器读取个人 `proxies` 并显式生成全部节点名称，不再混用 `include-all`。规则、节点和策略组各司其职，不必为更新服务规则重写节点列表。
+**统一节点管理** — 唯一推荐入口为 `StashKit.yaml`，通过具名 `Airport` Provider 绑定私人 Clash/Stash YAML 订阅。`Proxy` 固定选择顺序为 **Auto → Fallback → REJECT**，然后是 Provider 提供的真实节点；不发布独立自建版模板，不使用 `include-all` 混合策略与节点。
 
 ## 快速开始
 
 | 使用场景 | 入口 | 需要填写的内容 |
 | --- | --- | --- |
-| 机场提供 Clash / Stash YAML 节点订阅 | [StashKit-Subscription.yaml](./StashKit-Subscription.yaml) | `proxy-providers.Airport.url` |
-| 自建 VPS / 手动维护 1～N 个节点 | [StashKit-SelfHosted.yaml](./StashKit-SelfHosted.yaml) | 单节点直接改占位参数；多节点按下方命令生成个人文件 |
+| 机场提供 Clash / Stash YAML 节点订阅 | [StashKit.yaml](./StashKit.yaml) | `proxy-providers.Airport.url` |
 | 公共 DoH 希望优先走代理 | [StashKit-Privacy.yaml](./StashKit-Privacy.yaml) | 同订阅版的 `Airport.url` |
 | 事先安装全部规则资源、离线启动 | [StashKit-Local.yaml](./StashKit-Local.yaml) | 本地节点来源与 55 份规则文件 |
 
 1. **备份**：导出你当前的 Stash 配置，确认私人订阅和密钥没有存放在公开仓库。
-2. **选择并下载**：只选上表中与你的节点管理方式对应的一份 YAML，保存为本地文件。
-3. **填入节点来源**：使用编辑器修改下方示例所示字段，**不要**修改 `rule-providers` 的固定远程 URL 或乱改 `proxy-groups` 引用。
+2. **选择并下载**：默认使用 `StashKit.yaml`，Privacy 与 Local 仅供特殊需求，保存为本地文件。
+3. **填入节点来源**：替换 `proxy-providers.Airport.url`，**不要**修改 `rule-providers` 的固定远程 URL 或乱改 `proxy-groups` 引用。
 4. **导入 Stash**：从配置文件管理界面导入本地文件，选中并启用；等待首次远程规则加载完成，再检查 `Proxy`、`Auto`、`Fallback` 及业务组。
 5. **验收流量**：核对请求记录中的规则、策略、节点和最终出口；特别检查国内直连、广告拦截、Crypto 与 DNS。参见[验收清单](./docs/VALIDATION.md)。
 
 > [!IMPORTANT]
-> 公开模板使用 `example.invalid` 作为无效节点占位，**直接导入不等于已经拥有可用节点**。请先填写私人来源。代理中断、空订阅、无缓存规则集都需要单独测试；CI 通过不代表你的设备已验证。
+> 公开模板使用 `example.invalid` 作为无效订阅地址占位，**直接导入不等于已经拥有可用节点**。请先填写私人来源。代理中断、空订阅、无缓存规则集都需要单独测试；CI 通过不代表你的设备已验证。
 
 ### 订阅用户：只改 Airport 的 URL
 
@@ -65,29 +63,13 @@ proxy-providers:
 
 将 `url` 换为**返回顶层 `proxies` 列表的 HTTPS Clash/Stash YAML 订阅**，其他字段保留。普通 Base64 节点文本不是此 Provider 直接支持的 YAML。订阅每 3600 秒可刷新节点；不要把含 Token 的地址提交到 GitHub。`StashKit.yaml` 是订阅版的兼容入口，内容保持相同。
 
-### 自建用户：显式节点引用，不混用 include-all
+### 统一入口与私人节点
 
-**为什么改了？** v0.1.13 正式版使用 `use: [Airport]` 订阅方式，不使用自建模板的 `include-all`。从 v0.1.16 起自建版采用 `include-all: true`，实际已有设备报告 VPN 启动后 `Proxy` 只剩节点、Auto/Fallback/REJECT 消失。v0.1.19 仅调整排版未能解决；v0.1.20 自建版不再依赖这种组合。
+仓库不再发布独立的 `StashKit-SelfHosted.yaml` 自建模板。**只复制 [StashKit.yaml](./StashKit.yaml)，在本地填写 `proxy-providers.Airport.url`**。这个 URL 必须返回包含顶层 `proxies` 的 HTTPS Clash/Stash YAML 节点订阅，不能使用普通 Base64 节点列表或占位地址。
 
-[下载自建模板](./StashKit-SelfHosted.yaml) 的顶层 `proxies:` 默认只有 **`SelfHosted` 一个无效占位节点**，其 38 个节点策略组也明确引用 `SelfHosted`。如果只有一个节点，**保留 `name: SelfHosted` 不变，只替换协议、服务器、端口、密钥等实际字段**，保存后即可导入。不要把带占位值的模板直接启用。
+个人 VPS 节点也可以通过可信的私人 YAML 订阅使用统一入口。如果三个节点只存在于手机本地、没有有效的订阅 URL，不能仅凭节点名称生成完整可用配置；可以在个人设备上使用[高级生成器](./docs/NATIVE_PROVIDER_TRIAL.md)把包含完整连接参数的节点源转换为私人 flat 配置。**个人订阅、节点连接信息与 Token 不要提交到公开仓库。**
 
-**有两个或更多节点、或要使用自己的节点名称**时，不能仅把多个节点粘到公开模板：纯 YAML 无法在不使用 `include-all` 的情况下自动把新增名称写入 38 个策略组。请从仓库运行**通用生成器**：
-
-```sh
-git clone https://github.com/YohakuSama/stashkit.git
-cd stashkit
-python -m pip install -r requirements-dev.txt
-mkdir -p dist
-cp StashKit-SelfHosted.yaml dist/nodes-source.yaml
-# 编辑 dist/nodes-source.yaml，只替换顶层 proxies: 为自己的真实节点列表
-python scripts/build_loon_selection.py --layout flat \
-  --nodes-from dist/nodes-source.yaml \
-  --output dist/StashKit-Personal.yaml
-```
-
-无论节点叫香港、日本、VLESS、Mieru、Hysteria2，生成器都**从输入自动读取实际 `name`**，不会在公开仓库写死任何私人节点。生成结果的 `Proxy` 固定按 **Auto → Fallback → REJECT → 实际节点** 排列，Auto/Fallback 仅列真实节点，业务组也显式引用相同节点；远程分流规则仍是原来 **55 份独立远程 Provider**，不会复制到本地。
-
-将 **`dist/StashKit-Personal.yaml`** 导入 Stash，而不是 `dist/nodes-source.yaml`。每次添加、删除或重命名静态节点后重新生成并导入。个人配置可能包含节点密钥，不要提交到 GitHub。如果只用 iPhone、无法运行 Python，可选择与 v0.1.13 相同的 [Airport YAML 订阅模式](./StashKit-Subscription.yaml)，而不是依赖静态自建模板自动发现多个节点。
+VPN 启动前后，`Proxy` 都应保留 Auto、Fallback、REJECT，再显示实际节点。如发生缺失，请按[运行时验收](./docs/VALIDATION.md)排查，而不是以静态校验通过作为真机修复证明。
 
 ## 规则、优先级与同步边界
 
@@ -99,12 +81,12 @@ python scripts/build_loon_selection.py --layout flat \
 
 ## 使用与排查
 
-- **没有节点或 VPN 启动后选项消失**：先确认用的是订阅版还是自建版，检查实际提供的订阅内容或顶层 `proxies`，重新启用导入的配置。`Proxy` 应同时含 Auto、Fallback、REJECT 与真实节点。若启动前后成员列表改变，先用[运行时验收](./docs/VALIDATION.md)排查，不要将静态 YAML 校验当成真机修复；需要固定排序时在 Stash 网络设置中选择按配置顺序而非延迟排序。
+- **没有节点或 VPN 启动后选项消失**：先确认 `Airport` 订阅可访问且包含真实节点，重新导入并启用完整配置。`Proxy` 应包含 Auto、Fallback、REJECT 与订阅节点；开启 VPN 后如丢失选项，请对照控制器 `/proxies` 数据并按[真机验收](./docs/VALIDATION.md)排查。
 - **Crypto 没走预期出口**：检查域名是否命中 `Crypto-domain`、是否先匹配广告规则，以及 Crypto 策略组选中了哪个节点；`Final` 或国家 IP 规则并不能替代域名匹配。
 - **部分流媒体或 App 不可用**：先查看实际请求记录，尤其共享 CDN、登录、支付与统计接口，不应随意将大型公共根域归入特定服务。
 - **DNS / WebRTC**：默认使用 AliDNS DoH、Fake-IP 和常见 STUN/TURN 端口防护；它们不能保证未由 Tunnel 接管的所有流量也不会泄露。公共 DoH 的选路与系统 DNS 需要真机核验。
 
-自建多节点请使用上方的 **`--layout flat` 通用构建流程**；不要把新增节点直接粘进单节点占位模板后就导入，也不要将个人密钥上传。订阅用户继续使用与 v0.1.13 一致的 `use: [Airport]` 方式。
+仅有本地静态节点的高级用户，可在私人设备上使用 flat 生成器创建完整个人配置；仓库不提供独立公开自建模板或私人凭据。
 
 ## 常见问题
 
@@ -116,9 +98,9 @@ python scripts/build_loon_selection.py --layout flat \
 </details>
 
 <details>
-<summary><strong>订阅版与自建版可以混用吗？</strong></summary>
+<summary><strong>自建 VPS 节点如何接入统一配置？</strong></summary>
 
-两份配置是独立模板。需要多个 Airport、动态 Provider 和静态节点混合管理时，使用[高级节点绑定生成器](./docs/NATIVE_PROVIDER_TRIAL.md)创建自己的配置，不要把两份完整 YAML 拼接。
+把个人 VPS 节点维护为可信的 HTTPS Clash/Stash YAML 订阅，再填入 `Airport.url`；没有 URL 时，可用[高级生成器](./docs/NATIVE_PROVIDER_TRIAL.md)在私人设备上展开完整节点参数。仅凭节点名称不能生成有效代理。
 
 </details>
 
@@ -131,10 +113,10 @@ python scripts/build_loon_selection.py --layout flat \
 
 ## 文档导航
 
-**入门与日常使用** · [策略组与节点绑定](./docs/LOON_POLICY_GROUPS.md) · [高级订阅 / 自建配置](./docs/NATIVE_PROVIDER_TRIAL.md) · [真机验证](./docs/VALIDATION.md)
+**入门与日常使用** · [策略组与节点绑定](./docs/LOON_POLICY_GROUPS.md) · [高级节点绑定](./docs/NATIVE_PROVIDER_TRIAL.md) · [真机验证](./docs/VALIDATION.md)
 
 **规则与技术细节** · [远程规则与来源](./rules/README.md) · [路由优先级](./docs/ROUTING.md) · [DNS/网络边界](./docs/ARCHITECTURE_AUDIT.md)
 
-**项目维护** · [更新记录](./docs/CHANGELOG.md) · [v0.1.20 发布说明](./docs/RELEASE_NOTES_v0.1.20.md) · [依赖与第三方声明](./docs/THIRD_PARTY_NOTICES.md) · [GitHub Actions](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml)
+**项目维护** · [更新记录](./docs/CHANGELOG.md) · [v0.1.21 发布说明](./docs/RELEASE_NOTES_v0.1.21.md) · [依赖与第三方声明](./docs/THIRD_PARTY_NOTICES.md) · [GitHub Actions](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml)
 
 <sub>[Issues](https://github.com/YohakuSama/stashkit/issues) · [GPL-2.0-only](./LICENSE) · 公开仓库不存储个人订阅、节点密钥或运行时凭据</sub>
