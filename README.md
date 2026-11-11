@@ -61,7 +61,7 @@ proxy-providers:
     interval: 3600
 ```
 
-将 `url` 换为**返回顶层 `proxies` 列表的 HTTPS Clash/Stash YAML 订阅**，其他字段保留。普通 Base64 节点文本不是此 Provider 直接支持的 YAML。订阅每 3600 秒可刷新节点；不要把含 Token 的地址提交到 GitHub。`StashKit.yaml` 是订阅版的兼容入口，内容保持相同。
+将 `url` 换为**返回顶层 `proxies` 列表的 HTTPS Clash/Stash YAML 订阅**，其他字段保留。普通 Base64 节点文本不是此 Provider 直接支持的 YAML。订阅每 3600 秒可刷新节点；不要把含 Token 的地址提交到 GitHub。`StashKit.yaml` 是唯一推荐的正式在线入口；`StashKit-Subscription.yaml` 仅作历史兼容别名。
 
 ### 统一入口与私人节点
 
