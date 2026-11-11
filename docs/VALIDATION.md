@@ -80,7 +80,7 @@ iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，�
 私网冷启动应在未缓存 GeoSite 的设备上验证 `router.internal`、NAS 单标签名称、路由器品牌域名与私有反向解析；三套配置不再含 GeoSite 引用。脚本通过只证明控制器返回的规则与出口符合配置，不代替真实业务连通性、播放或 DNS 旁路测试。
 
 
-**当前 v0.1.18 精简版**：正常订阅、自建、Privacy、Local 文件约 280 行，远程规则仍是 54 份冻结业务规则加独立 Crypto 规则集（219 条）；`Private-local` 133 条继续内嵌以保证首次私网 / DNS 处理不依赖网络。检查 Crypto 单独固定的 URL、LoonKit v7.0.13 源 SHA256、219 条转换内容和匹配顺序；离线包中 `rules/v0.1.18/Crypto.v7.0.13.domain.txt` 必须一并安装。旧 ALL 和 Preview 兼容文件保留展开排版，不属于推荐入口。
+**当前 v0.1.20 规则架构**：正常订阅、单节点自建、Privacy、Local 文件采用可读策略组排版，远程规则仍是 54 份冻结业务规则加独立 Crypto 规则集（219 条）；`Private-local` 133 条继续内嵌以保证首次私网 / DNS 处理不依赖网络。检查 Crypto 单独固定的 URL、LoonKit v7.0.13 源 SHA256、219 条转换内容和匹配顺序；离线包中 `rules/v0.1.18/Crypto.v7.0.13.domain.txt` 必须一并安装。旧 ALL 和 Preview 兼容文件保留展开排版，不属于推荐入口。
 
 **Coincheck / 广告优先级验收**：使用 Stash 的 `/rules/match` 分别核对 `coincheck.com` → `DOMAIN,coincheck.com,Crypto`、`trade.coincheck.com` → `RULE-SET,Crypto-domain,Crypto`，并核对广告遥测域名仍先由 `AdBlockBalanced-domain` 处理。前两条是远程快照配合精确例外的预期行为；不要把整个 coincheck.com 后缀设为直连或无条件放行。远程资源未加载时必须先修复 Provider 状态，不能仅根据静态配置判断实际出口。
 
@@ -91,3 +91,12 @@ iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，�
 如可使用 Stash 控制器，读取 `GET /proxies`，检查 `Proxy.all` 同时包含所有固定选项及 `Airport` 实际节点；`scripts/stash_runtime_audit.py --profile 个人配置.yaml` 对缺失或选项错序的运行时列表会报错。**CLI / CI 不启动 iOS VPN，无法证明该界面故障已经解决**。实际选项缺失时先排查 Provider 与已选配置，必要时回退已确认可用的个人配置。
 
 若运行时始终只显示节点、不显示固定策略，且无法通过重新导入或确认配置排序恢复，可在本地使用 `--layout flat` 生成完全展开的策略组选项（只展开个人节点，规则仍从远程 Provider 加载）。示例：`python scripts/build_loon_selection.py --layout flat --nodes-from dist/source.yaml --output dist/StashKit-Personal.yaml`。该模式不再自动同步节点订阅，节点更新时必须重新生成；私人来源及输出均不可上传仓库。
+
+## v0.1.20 自建节点明确引用的验收
+
+v0.1.13 正式版依靠 `use: [Airport]` 读取具名订阅；v0.1.16–v0.1.19 自建版使用 `include-all`，已有用户复现 VPN 开启后 `Proxy` 中 Auto、Fallback、REJECT 消失的现象。**不要以 YAML 语法合法或 CI 通过认定已修复该真机问题**。
+
+- 单节点模板应将 `SelfHosted` 同时列在顶层 `proxies`、`Proxy`、`Auto`、`Fallback` 以及各业务组中；没有 `include-all`。
+- 多节点个人输出使用 `--layout flat`，将实际节点名称逐一写入每个需节点组，`Proxy` 的固定前三项必须为 Auto、Fallback、REJECT。不能将节点名称硬编码到公开模板。
+- 用完全相同的已选配置，在 VPN **关闭、开启、节点测速/刷新之后**依次验证 `Proxy` 和业务组；必要时对照控制器 `/proxies` 和 `/stash/proxy/display/v2`，确认三项固定策略始终显示。运行时仍失效时保留日志与 App 版本继续排查。
+- 远程规则仍为 55 份快照并由 Stash 按需加载，不要求额外粘贴或复制本地规则。

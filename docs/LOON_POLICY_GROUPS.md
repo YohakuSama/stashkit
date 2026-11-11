@@ -29,9 +29,9 @@
 
 ## 自建多节点版
 
-[StashKit-SelfHosted.yaml](../StashKit-SelfHosted.yaml) 将 Airport Provider 替换为顶层静态 `proxies` 节点列表；38 个需节点的策略组均采用 Stash 官方 `include-all: true` 自动纳入**全部本地节点**，任意数量、名称可不同且不能重复。Auto/Fallback 的候选节点来自同一列表，Proxy 与业务组仍保留原有策略选项。AdBlock、Final 不直接加载节点；保留 40 个组，没有 ALL/Manual。
+[StashKit-SelfHosted.yaml](../StashKit-SelfHosted.yaml) 是**单节点明确引用模板**：顶层 `proxies` 默认声明占位节点 `SelfHosted`，38 个需节点策略组直接引用它，不使用 `include-all`。如要用任意名称的多个自建节点，使用 `python scripts/build_loon_selection.py --layout flat --nodes-from dist/nodes-source.yaml --output dist/StashKit-Personal.yaml` 从个人节点来源生成显式策略组。Auto/Fallback 的候选仅为实际节点；Proxy 为 Auto、Fallback、REJECT 加实际节点；AdBlock/Final 保持原来的纯策略组。规则仍远程引用。
 
-此版与机场订阅版不同：节点参数变更需重新编辑、从文件导入并启用新配置，不会自动更新。v0.1.15 自建模板曾硬编码 SelfHosted 引用，新增节点可能不出现在策略组中；v0.1.16 修复此问题。
+此版与 v0.1.13 的机场 Provider 模式不同，静态节点变更需重新生成或编辑配置并重新导入。v0.1.16 使用 `include-all` 可在 YAML 中动态收集节点，但已有设备反馈 VPN 启动后固定策略被节点列表覆盖；v0.1.20 改为生成阶段自动枚举用户自己的节点名称，不将它们提交到公开仓库。单纯粘贴第二个节点到公共占位文件不会自动修改引用。
 
 ## 可选布局
 
