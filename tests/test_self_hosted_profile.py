@@ -1,5 +1,7 @@
 """Ensure the public self-hosted profile cannot lose manual choices on node refresh."""
+import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -73,6 +75,36 @@ class SelfHostedProfileTests(unittest.TestCase):
                     self.assertFalse({"use", "use-url", "include-all"} & set(g))
                     if g["name"] not in {"AdBlock", "Final", "Proxy", "Auto", "Fallback"}:
                         self.assertEqual(g["proxies"][-len(names):], names)
+
+    def test_cli_accepts_full_self_hosted_yaml_with_arbitrary_private_nodes(self):
+        with tempfile.TemporaryDirectory(dir=ROOT.parent) as temp:
+            folder = Path(temp)
+            source_path = folder / "nodes-source.yaml"
+            output_path = folder / "StashKit-Personal.yaml"
+            names = ["test-vless-node", "test-hy2-node", "test-mieru-node"]
+            input_profile = dict(self.self_hosted)
+            input_profile["proxies"] = [fixture_node(name) for name in names]
+            source_path.write_text(yaml.safe_dump(input_profile), encoding="utf-8")
+            run = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/build_loon_selection.py"),
+                 "--layout", "flat", "--nodes-from", str(source_path),
+                 "--output", str(output_path)],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(run.returncode, 0, run.stderr)
+            personal = yaml.safe_load(output_path.read_text(encoding="utf-8"))
+            validate_profile(personal)
+            self.assertEqual(personal["rule-providers"], self.canonical["rule-providers"])
+            self.assertEqual(personal["rules"], self.canonical["rules"])
+            self.assertNotIn("proxy-providers", personal)
+            self.assertEqual([node["name"] for node in personal["proxies"]], names)
+            groups = {g["name"]: g for g in personal["proxy-groups"]}
+            self.assertEqual(groups["Proxy"]["proxies"],
+                             ["Auto", "Fallback", "REJECT"] + names)
+            self.assertEqual(groups["Auto"]["proxies"], names)
+            self.assertEqual(groups["Fallback"]["proxies"], names)
+            self.assertTrue(all("include-all" not in g
+                                for g in personal["proxy-groups"]))
 
     def test_duplicate_private_node_names_are_rejected(self):
         with self.assertRaises(ValueError):
