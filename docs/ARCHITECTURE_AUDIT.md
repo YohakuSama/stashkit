@@ -56,3 +56,7 @@ CI 成功表示仓库生成与静态约束通过，不等于对所有设备、�
 用户实测 v0.1.13 的正式配置可在 VPN 开启后继续选择 Auto、Fallback 和 REJECT；该版仅使用具名 Airport Provider。v0.1.16 新增的自建多节点 include-all 方案在该用户环境中复现 VPN 启动后仅显示节点的问题，v0.1.19 的 YAML 排版变更没有修复。
 
 v0.1.20 的公开自建模板恢复明确的单节点引用，与多个用户节点名称无关；本地通用生成器通过 --layout flat 从个人 `proxies:` 中提取真实名称，输出明确的所有节点组成员，全部 55 份分类规则依旧远程加载。纯 YAML 在不使用动态 include-all 或外部 Provider 的情况下无法自动枚举未知的用户节点；不能向用户承诺只在模板里添加新节点就能自动改变 38 个组。实际 UI 行为仍需 Stash 设备验收。
+
+## v0.1.23 Apple Intelligence 与 Stripe 路由同步
+
+相对于 StashKit v0.1.22，本次只更新 Apple-domain 与 SharedInfrastructure-domain 的 Stash 原生远程规则内容，以及 RULE-SET 的 AppleOTA、Apple、Cloudflare 顺序。LoonKit v7.0.16 作为新增域名和边界调整的审查来源。其余分类资源保留原始内容，全部 54 份基础规则重新固定到单一不可变 StashKit 提交，Crypto 单独沿用 v7.0.13 快照。正式配置保留 40 策略组、55 份远程规则文件与 133 条私网内嵌匹配器。离线版和 Privacy / ALL / Preview 派生配置由 `scripts/build_profiles.py` 生成，主配置仍是唯一可编辑源。

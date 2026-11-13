@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source_commit": "5f272104fc1207612c1cbd18f3e19d861d459ed9",
-  "expected_generated_rule_count": 196587,
+  "expected_generated_rule_count": 196588,
   "changes": [
     {
       "source": "AnimeCrazy",
@@ -72,9 +72,29 @@
         "+.wikiversity.org",
         "+.wikivoyage.org",
         "+.wiktionary.org",
-        "+.wmfusercontent.org"
+        "+.wmfusercontent.org",
+        "+.stripe.com",
+        "+.stripe.network"
       ],
-      "reason": "Reviewed LoonKit v7.0.15 existing-category routing sync, issue #186."
+      "reason": "Reviewed LoonKit v7.0.15 existing-category routing sync, issue #186. Add Stripe-owned payment endpoints from LoonKit v7.0.16, retaining the existing Proxy service boundary.",
+      "reference": "https://support.stripe.com/questions/verify-you-are-on-an-official-stripe-webpage"
+    },
+    {
+      "source": "Apple",
+      "behavior": "domain",
+      "remove": [
+        "lookup-api.apple.com.edgekey.net",
+        "+.gsp4-cn.ls.apple.com.edgekey.net",
+        "+.store.apple.com.edgekey.net",
+        "+.www.apple.com.edgekey.net"
+      ],
+      "add": [
+        "apple-relay.cloudflare.com",
+        "apple-relay.fastly-edge.com",
+        "cp4.cloudflare.com"
+      ],
+      "reason": "LoonKit v7.0.16 reviewed Apple Intelligence and Siri Private Cloud Compute exact endpoints; remove four redundant Apple EdgeKey subrules already covered by the parent suffix.",
+      "reference": "https://support.apple.com/en-us/101555"
     }
   ]
 }

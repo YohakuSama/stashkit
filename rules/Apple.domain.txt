@@ -6,7 +6,6 @@ beatselectronicsllc.tt.omtrdc.net
 e16991.b.akamaiedge.net
 edge.apple
 icons.axm-usercontent-apple.com
-lookup-api.apple.com.edgekey.net
 p-events-delivery.akamaized.net
 +.100beatscheap.com
 +.12diasdepresentesdeitunes.com
@@ -960,7 +959,6 @@ p-events-delivery.akamaized.net
 +.gobeatsye.com
 +.gobuyonlinestore.net
 +.goodsdunk.net
-+.gsp4-cn.ls.apple.com.edgekey.net
 +.headphonepubs.com
 +.headphones-cool.com
 +.headphones-dre.com
@@ -1476,7 +1474,6 @@ p-events-delivery.akamaized.net
 +.specialtyheadphones.com
 +.spektral.cc
 +.spiritclubs.com
-+.store.apple.com.edgekey.net
 +.straightouttasomewhere.com
 +.studiobeatsbydrdre.com
 +.sulwerphoto.com
@@ -1536,7 +1533,6 @@ p-events-delivery.akamaized.net
 +.wuxiapple.com
 +.wwapple.net
 +.www-sms-apple.com
-+.www.apple.com.edgekey.net
 +.wwwapple.com
 +.wwwapple.net
 +.wwwapplemusic.com
@@ -1560,3 +1556,6 @@ p-events-delivery.akamaized.net
 +.apple.com.akadns.net
 +.apple.com.edgekey.net
 +.icloud.com.akadns.net
+apple-relay.cloudflare.com
+apple-relay.fastly-edge.com
+cp4.cloudflare.com

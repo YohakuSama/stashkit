@@ -256,6 +256,14 @@ def main():
     assert source_rules[1] == "DOMAIN-SUFFIX,raw.githubusercontent.com,Proxy"
     source_rules[1] = "DOMAIN-SUFFIX,raw.githubusercontent.com,GitHub"
     source_rules.remove("DOMAIN,copilot-telemetry.githubusercontent.com,AI")
+    # v0.1.23: Both Apple rule providers precede generic Cloudflare
+    # without creating any local DOMAIN override or policy group.
+    apple_routes = ("RULE-SET,AppleOTA-domain,Apple", "RULE-SET,Apple-domain,Apple")
+    for entry in apple_routes:
+        assert expected_routes.count(entry) == 1, entry
+        expected_routes.remove(entry)
+    cloudflare_at = expected_routes.index("RULE-SET,Cloudflare-domain,Cloudflare")
+    expected_routes[cloudflare_at:cloudflare_at] = apple_routes
     assert expected_routes[0] == "RULE-SET,AdBlockBalanced-domain,AdBlock"
     expected_rules = (WEBRTC_GUARDS + LOCAL_DIRECT_RULES + source_rules[:-2]
                       + [expected_routes[0], "RULE-SET,Crypto-domain,Crypto"] + expected_routes[1:]

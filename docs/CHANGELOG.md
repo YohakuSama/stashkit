@@ -1,5 +1,13 @@
 # 变更记录
 
+## v0.1.23 · 同步 LoonKit v7.0.16 Apple Intelligence、Siri 与 Stripe 分流
+
+- Apple 增加三个私有云计算精确主机，保留既有 Siri 的 Apple 后缀覆盖，并移除四条被上级域名覆盖的冗余规则。
+- AppleOTA、Apple 两份远程规则提前到 Cloudflare 前；普通 Cloudflare 业务仍使用 Cloudflare 策略组。
+- Stripe 的 `stripe.com` 和 `stripe.network` 加入现有 SharedInfrastructure / Proxy 远程规则。
+- 原有 40 个策略组、55 份远程文件规则、DNS 和 Final 保持不变。无需添加本地域名或新策略组。
+- 同步正式 Stash、Privacy、Local、ALL 与 Preview 配置，远程链接继续固定到不可变 Git 提交。
+
 ## v0.1.22 · 同步 LoonKit v7.0.15 分流
 
 - 夸克网盘继续直连，维基百科和多邻国国际站继续走代理。

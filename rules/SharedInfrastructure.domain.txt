@@ -22,3 +22,5 @@ client-api.arkoselabs.com
 +.wikivoyage.org
 +.wiktionary.org
 +.wmfusercontent.org
++.stripe.com
++.stripe.network
