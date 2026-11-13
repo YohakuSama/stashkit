@@ -21,6 +21,18 @@ jobs:
           ref: 5f272104fc1207612c1cbd18f3e19d861d459ed9
           path: upstream/loonkit
           persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: YohakuSama/loonkit
+          ref: edbfedad1b568578edc1a6dcebf422867a36a3ed
+          path: upstream/policy-loonkit
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: YohakuSama/loonkit
+          ref: 66b01bffe8982d6a8153af7b03c897dc1bbab648
+          path: upstream/crypto-loonkit
+          persist-credentials: false
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: '3.12'
@@ -38,8 +50,11 @@ jobs:
           pin = "2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9"
           old = "f4feec81dfc9bde9824d297b6959fa977d5dc39b"
           names = ("DomesticSupplement", "SharedInfrastructure")
-          source = (root / "StashKit.yaml").read_text(encoding="utf-8")
-          assert source.count(pin) == 2
+          path = root / "StashKit.yaml"
+source = path.read_text(encoding="utf-8")
+source = source.replace(old, pin).replace("./rules/v0.1.4/", "./rules/v0.1.22/")
+path.write_text(source, encoding="utf-8")
+          assert source.count(pin) == 54
           for name in names:
               assert f"/{pin}/rules/{name}.domain.txt" in source
               assert f"path: ./rules/v0.1.22/{name}.domain.txt" in source
@@ -52,6 +67,7 @@ jobs:
               assert path.is_file()
               text = path.read_text(encoding="utf-8")
               text = text.replace("v0.1.21", "v0.1.22")
+    text = text.replace(old, pin).replace("./rules/v0.1.4/", "./rules/v0.1.22/")
               for name in names:
                   oldurl = f"https://raw.githubusercontent.com/YohakuSama/stashkit/{old}/rules/{name}.domain.txt"
                   newurl = f"https://raw.githubusercontent.com/YohakuSama/stashkit/{pin}/rules/{name}.domain.txt"
