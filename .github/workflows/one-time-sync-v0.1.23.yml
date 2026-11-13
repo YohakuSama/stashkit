@@ -1,0 +1,61 @@
+name: One-time build StashKit v0.1.23
+on:
+  push:
+    branches:
+      - sync/loonkit-v7.0.16-routing-v0.1.23
+    paths:
+      - .github/workflows/one-time-sync-v0.1.23.yml
+      - StashKit.yaml
+permissions:
+  contents: write
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: true
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: YohakuSama/loonkit
+          ref: 5f272104fc1207612c1cbd18f3e19d861d459ed9
+          path: upstream/loonkit
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: YohakuSama/loonkit
+          ref: edbfedad1b568578edc1a6dcebf422867a36a3ed
+          path: upstream/policy-loonkit
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: YohakuSama/loonkit
+          ref: 66b01bffe8982d6a8153af7b03c897dc1bbab648
+          path: upstream/crypto-loonkit
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12'
+      - name: Install locked verification dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Generate all derived Stash profiles
+        run: python scripts/build_profiles.py --write
+      - name: Verify frozen rule generation and all routing
+        run: |
+          python scripts/build_rules.py --check
+          python -m unittest discover -s tests -v
+          python scripts/verify.py
+          python scripts/build_profiles.py --check
+          python scripts/build_offline_bundle.py --check
+      - name: Commit generated profiles on the sync branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add StashKit-Privacy.yaml StashKit-Local.yaml StashKit-Subscription.yaml StashKit-ALL.yaml StashKit-Privacy-ALL.yaml StashKit-Local-ALL.yaml StashKit-Loon-Preview.yaml StashKit-Native-Preview.yaml
+          if git diff --cached --quiet; then
+            echo "Derived profiles already match source"
+          else
+            git -c user.name="StashKit CI" -c user.email="ci@example.invalid" commit -m "build: generate all StashKit v0.1.23 profile variants"
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi

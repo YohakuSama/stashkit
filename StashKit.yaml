@@ -1,4 +1,4 @@
-# StashKit v0.1.22
+# StashKit v0.1.23
 mode: rule
 log-level: warning
 
@@ -453,60 +453,60 @@ rule-providers:
       "DOMAIN-SUFFIX,kis.v2.scr.kaspersky-labs.com"
     ]
   "Crypto-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/fd6627fc33eef9cf1e93b001a2327c47b0993133/rules/extra/Crypto.v7.0.13.domain.txt, path: ./rules/v0.1.18/Crypto.v7.0.13.domain.txt, interval: 86400}
-  "AdBlockBalanced-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/AdBlockBalanced.domain.txt, path: ./rules/v0.1.22/AdBlockBalanced.domain.txt, interval: 86400}
-  "DomesticCore-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/DomesticCore.domain.txt, path: ./rules/v0.1.22/DomesticCore.domain.txt, interval: 86400}
-  "DomesticSupplement-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/DomesticSupplement.domain.txt, path: ./rules/v0.1.22/DomesticSupplement.domain.txt, interval: 86400}
-  "SteamCN-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/SteamCN.domain.txt, path: ./rules/v0.1.22/SteamCN.domain.txt, interval: 86400}
-  "DomesticAI-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/DomesticAI.domain.txt, path: ./rules/v0.1.22/DomesticAI.domain.txt, interval: 86400}
-  "ChatGPT-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/ChatGPT.domain.txt, path: ./rules/v0.1.22/ChatGPT.domain.txt, interval: 86400}
-  "Gemini-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Gemini.domain.txt, path: ./rules/v0.1.22/Gemini.domain.txt, interval: 86400}
-  "Claude-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Claude.domain.txt, path: ./rules/v0.1.22/Claude.domain.txt, interval: 86400}
-  "AIScoped-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/AIScoped.domain.txt, path: ./rules/v0.1.22/AIScoped.domain.txt, interval: 86400}
-  "GitHub-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/GitHub.domain.txt, path: ./rules/v0.1.22/GitHub.domain.txt, interval: 86400}
-  "Speedtest-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Speedtest.domain.txt, path: ./rules/v0.1.22/Speedtest.domain.txt, interval: 86400}
-  "Cloudflare-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Cloudflare.domain.txt, path: ./rules/v0.1.22/Cloudflare.domain.txt, interval: 86400}
-  "Service-Spotify-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Service-Spotify.domain.txt, path: ./rules/v0.1.22/Service-Spotify.domain.txt, interval: 86400}
-  "Service-Twitch-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Service-Twitch.domain.txt, path: ./rules/v0.1.22/Service-Twitch.domain.txt, interval: 86400}
-  "Service-BBC-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Service-BBC.domain.txt, path: ./rules/v0.1.22/Service-BBC.domain.txt, interval: 86400}
-  "Service-Line-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Service-Line.domain.txt, path: ./rules/v0.1.22/Service-Line.domain.txt, interval: 86400}
-  "Service-Reddit-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Service-Reddit.domain.txt, path: ./rules/v0.1.22/Service-Reddit.domain.txt, interval: 86400}
-  "Service-Linkedin-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Service-Linkedin.domain.txt, path: ./rules/v0.1.22/Service-Linkedin.domain.txt, interval: 86400}
-  "Service-Abema-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Service-Abema.domain.txt, path: ./rules/v0.1.22/Service-Abema.domain.txt, interval: 86400}
-  "SharedInfrastructure-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/SharedInfrastructure.domain.txt, path: ./rules/v0.1.22/SharedInfrastructure.domain.txt, interval: 86400}
-  "AppleOTA-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/AppleOTA.domain.txt, path: ./rules/v0.1.22/AppleOTA.domain.txt, interval: 86400}
-  "SteamGlobal-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/SteamGlobal.domain.txt, path: ./rules/v0.1.22/SteamGlobal.domain.txt, interval: 86400}
-  "YouTube-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/YouTube.domain.txt, path: ./rules/v0.1.22/YouTube.domain.txt, interval: 86400}
-  "YouTube-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/YouTube.ipcidr.txt, path: ./rules/v0.1.22/YouTube.ipcidr.txt, interval: 86400}
-  "Netflix-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Netflix.domain.txt, path: ./rules/v0.1.22/Netflix.domain.txt, interval: 86400}
-  "Netflix-asn": {behavior: classical, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Netflix.asn.txt, path: ./rules/v0.1.22/Netflix.asn.txt, interval: 86400}
-  "Disney-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Disney.domain.txt, path: ./rules/v0.1.22/Disney.domain.txt, interval: 86400}
-  "PrimeVideo-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/PrimeVideo.domain.txt, path: ./rules/v0.1.22/PrimeVideo.domain.txt, interval: 86400}
-  "TikTok-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/TikTok.domain.txt, path: ./rules/v0.1.22/TikTok.domain.txt, interval: 86400}
-  "Bilibili-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Bilibili.domain.txt, path: ./rules/v0.1.22/Bilibili.domain.txt, interval: 86400}
-  "AnimeCrazy-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/AnimeCrazy.domain.txt, path: ./rules/v0.1.22/AnimeCrazy.domain.txt, interval: 86400}
-  "Dazn-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Dazn.domain.txt, path: ./rules/v0.1.22/Dazn.domain.txt, interval: 86400}
-  "Telegram-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Telegram.domain.txt, path: ./rules/v0.1.22/Telegram.domain.txt, interval: 86400}
-  "Telegram-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Telegram.ipcidr.txt, path: ./rules/v0.1.22/Telegram.ipcidr.txt, interval: 86400}
-  "Telegram-asn": {behavior: classical, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Telegram.asn.txt, path: ./rules/v0.1.22/Telegram.asn.txt, interval: 86400}
-  "Whatsapp-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Whatsapp.domain.txt, path: ./rules/v0.1.22/Whatsapp.domain.txt, interval: 86400}
-  "Whatsapp-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Whatsapp.ipcidr.txt, path: ./rules/v0.1.22/Whatsapp.ipcidr.txt, interval: 86400}
-  "Instagram-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Instagram.domain.txt, path: ./rules/v0.1.22/Instagram.domain.txt, interval: 86400}
-  "Facebook-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Facebook.domain.txt, path: ./rules/v0.1.22/Facebook.domain.txt, interval: 86400}
-  "Facebook-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Facebook.ipcidr.txt, path: ./rules/v0.1.22/Facebook.ipcidr.txt, interval: 86400}
-  "Facebook-asn": {behavior: classical, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Facebook.asn.txt, path: ./rules/v0.1.22/Facebook.asn.txt, interval: 86400}
-  "Twitter-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Twitter.domain.txt, path: ./rules/v0.1.22/Twitter.domain.txt, interval: 86400}
-  "Twitter-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Twitter.ipcidr.txt, path: ./rules/v0.1.22/Twitter.ipcidr.txt, interval: 86400}
-  "Discord-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Discord.domain.txt, path: ./rules/v0.1.22/Discord.domain.txt, interval: 86400}
-  "HBO-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/HBO.domain.txt, path: ./rules/v0.1.22/HBO.domain.txt, interval: 86400}
-  "Google-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Google.domain.txt, path: ./rules/v0.1.22/Google.domain.txt, interval: 86400}
-  "Google-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Google.ipcidr.txt, path: ./rules/v0.1.22/Google.ipcidr.txt, interval: 86400}
-  "Microsoft-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Microsoft.domain.txt, path: ./rules/v0.1.22/Microsoft.domain.txt, interval: 86400}
-  "Apple-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Apple.domain.txt, path: ./rules/v0.1.22/Apple.domain.txt, interval: 86400}
-  "Steam-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Steam.domain.txt, path: ./rules/v0.1.22/Steam.domain.txt, interval: 86400}
-  "Paypal-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/Paypal.domain.txt, path: ./rules/v0.1.22/Paypal.domain.txt, interval: 86400}
-  "ChinaDirect-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/ChinaDirect.domain.txt, path: ./rules/v0.1.22/ChinaDirect.domain.txt, interval: 86400}
-  "ChinaDirect-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/ChinaDirect.ipcidr.txt, path: ./rules/v0.1.22/ChinaDirect.ipcidr.txt, interval: 86400}
-  "ChinaDirect-asn": {behavior: classical, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/ChinaDirect.asn.txt, path: ./rules/v0.1.22/ChinaDirect.asn.txt, interval: 86400}
+  "AdBlockBalanced-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/AdBlockBalanced.domain.txt, path: ./rules/v0.1.23/AdBlockBalanced.domain.txt, interval: 86400}
+  "DomesticCore-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/DomesticCore.domain.txt, path: ./rules/v0.1.23/DomesticCore.domain.txt, interval: 86400}
+  "DomesticSupplement-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/DomesticSupplement.domain.txt, path: ./rules/v0.1.23/DomesticSupplement.domain.txt, interval: 86400}
+  "SteamCN-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/SteamCN.domain.txt, path: ./rules/v0.1.23/SteamCN.domain.txt, interval: 86400}
+  "DomesticAI-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/DomesticAI.domain.txt, path: ./rules/v0.1.23/DomesticAI.domain.txt, interval: 86400}
+  "ChatGPT-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/ChatGPT.domain.txt, path: ./rules/v0.1.23/ChatGPT.domain.txt, interval: 86400}
+  "Gemini-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Gemini.domain.txt, path: ./rules/v0.1.23/Gemini.domain.txt, interval: 86400}
+  "Claude-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Claude.domain.txt, path: ./rules/v0.1.23/Claude.domain.txt, interval: 86400}
+  "AIScoped-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/AIScoped.domain.txt, path: ./rules/v0.1.23/AIScoped.domain.txt, interval: 86400}
+  "GitHub-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/GitHub.domain.txt, path: ./rules/v0.1.23/GitHub.domain.txt, interval: 86400}
+  "Speedtest-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Speedtest.domain.txt, path: ./rules/v0.1.23/Speedtest.domain.txt, interval: 86400}
+  "Cloudflare-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Cloudflare.domain.txt, path: ./rules/v0.1.23/Cloudflare.domain.txt, interval: 86400}
+  "Service-Spotify-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Service-Spotify.domain.txt, path: ./rules/v0.1.23/Service-Spotify.domain.txt, interval: 86400}
+  "Service-Twitch-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Service-Twitch.domain.txt, path: ./rules/v0.1.23/Service-Twitch.domain.txt, interval: 86400}
+  "Service-BBC-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Service-BBC.domain.txt, path: ./rules/v0.1.23/Service-BBC.domain.txt, interval: 86400}
+  "Service-Line-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Service-Line.domain.txt, path: ./rules/v0.1.23/Service-Line.domain.txt, interval: 86400}
+  "Service-Reddit-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Service-Reddit.domain.txt, path: ./rules/v0.1.23/Service-Reddit.domain.txt, interval: 86400}
+  "Service-Linkedin-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Service-Linkedin.domain.txt, path: ./rules/v0.1.23/Service-Linkedin.domain.txt, interval: 86400}
+  "Service-Abema-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Service-Abema.domain.txt, path: ./rules/v0.1.23/Service-Abema.domain.txt, interval: 86400}
+  "SharedInfrastructure-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/SharedInfrastructure.domain.txt, path: ./rules/v0.1.23/SharedInfrastructure.domain.txt, interval: 86400}
+  "AppleOTA-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/AppleOTA.domain.txt, path: ./rules/v0.1.23/AppleOTA.domain.txt, interval: 86400}
+  "SteamGlobal-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/SteamGlobal.domain.txt, path: ./rules/v0.1.23/SteamGlobal.domain.txt, interval: 86400}
+  "YouTube-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/YouTube.domain.txt, path: ./rules/v0.1.23/YouTube.domain.txt, interval: 86400}
+  "YouTube-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/YouTube.ipcidr.txt, path: ./rules/v0.1.23/YouTube.ipcidr.txt, interval: 86400}
+  "Netflix-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Netflix.domain.txt, path: ./rules/v0.1.23/Netflix.domain.txt, interval: 86400}
+  "Netflix-asn": {behavior: classical, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Netflix.asn.txt, path: ./rules/v0.1.23/Netflix.asn.txt, interval: 86400}
+  "Disney-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Disney.domain.txt, path: ./rules/v0.1.23/Disney.domain.txt, interval: 86400}
+  "PrimeVideo-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/PrimeVideo.domain.txt, path: ./rules/v0.1.23/PrimeVideo.domain.txt, interval: 86400}
+  "TikTok-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/TikTok.domain.txt, path: ./rules/v0.1.23/TikTok.domain.txt, interval: 86400}
+  "Bilibili-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Bilibili.domain.txt, path: ./rules/v0.1.23/Bilibili.domain.txt, interval: 86400}
+  "AnimeCrazy-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/AnimeCrazy.domain.txt, path: ./rules/v0.1.23/AnimeCrazy.domain.txt, interval: 86400}
+  "Dazn-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Dazn.domain.txt, path: ./rules/v0.1.23/Dazn.domain.txt, interval: 86400}
+  "Telegram-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Telegram.domain.txt, path: ./rules/v0.1.23/Telegram.domain.txt, interval: 86400}
+  "Telegram-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Telegram.ipcidr.txt, path: ./rules/v0.1.23/Telegram.ipcidr.txt, interval: 86400}
+  "Telegram-asn": {behavior: classical, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Telegram.asn.txt, path: ./rules/v0.1.23/Telegram.asn.txt, interval: 86400}
+  "Whatsapp-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Whatsapp.domain.txt, path: ./rules/v0.1.23/Whatsapp.domain.txt, interval: 86400}
+  "Whatsapp-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Whatsapp.ipcidr.txt, path: ./rules/v0.1.23/Whatsapp.ipcidr.txt, interval: 86400}
+  "Instagram-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Instagram.domain.txt, path: ./rules/v0.1.23/Instagram.domain.txt, interval: 86400}
+  "Facebook-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Facebook.domain.txt, path: ./rules/v0.1.23/Facebook.domain.txt, interval: 86400}
+  "Facebook-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Facebook.ipcidr.txt, path: ./rules/v0.1.23/Facebook.ipcidr.txt, interval: 86400}
+  "Facebook-asn": {behavior: classical, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Facebook.asn.txt, path: ./rules/v0.1.23/Facebook.asn.txt, interval: 86400}
+  "Twitter-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Twitter.domain.txt, path: ./rules/v0.1.23/Twitter.domain.txt, interval: 86400}
+  "Twitter-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Twitter.ipcidr.txt, path: ./rules/v0.1.23/Twitter.ipcidr.txt, interval: 86400}
+  "Discord-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Discord.domain.txt, path: ./rules/v0.1.23/Discord.domain.txt, interval: 86400}
+  "HBO-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/HBO.domain.txt, path: ./rules/v0.1.23/HBO.domain.txt, interval: 86400}
+  "Google-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Google.domain.txt, path: ./rules/v0.1.23/Google.domain.txt, interval: 86400}
+  "Google-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Google.ipcidr.txt, path: ./rules/v0.1.23/Google.ipcidr.txt, interval: 86400}
+  "Microsoft-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Microsoft.domain.txt, path: ./rules/v0.1.23/Microsoft.domain.txt, interval: 86400}
+  "Apple-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Apple.domain.txt, path: ./rules/v0.1.23/Apple.domain.txt, interval: 86400}
+  "Steam-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Steam.domain.txt, path: ./rules/v0.1.23/Steam.domain.txt, interval: 86400}
+  "Paypal-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/Paypal.domain.txt, path: ./rules/v0.1.23/Paypal.domain.txt, interval: 86400}
+  "ChinaDirect-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/ChinaDirect.domain.txt, path: ./rules/v0.1.23/ChinaDirect.domain.txt, interval: 86400}
+  "ChinaDirect-ipcidr": {behavior: ipcidr, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/ChinaDirect.ipcidr.txt, path: ./rules/v0.1.23/ChinaDirect.ipcidr.txt, interval: 86400}
+  "ChinaDirect-asn": {behavior: classical, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/761389efd705e608d66e9bc61c428e65b2c86a58/rules/ChinaDirect.asn.txt, path: ./rules/v0.1.23/ChinaDirect.asn.txt, interval: 86400}
 
 rules:
   # Block tunneled STUN before any direct route.
@@ -552,6 +552,8 @@ rules:
   - "RULE-SET,AIScoped-domain,AI"
   - "RULE-SET,GitHub-domain,GitHub"
   - "RULE-SET,Speedtest-domain,Speedtest"
+  - "RULE-SET,AppleOTA-domain,Apple"
+  - "RULE-SET,Apple-domain,Apple"
   - "RULE-SET,Cloudflare-domain,Cloudflare"
   - "RULE-SET,Service-Spotify-domain,Spotify"
   - "RULE-SET,Service-Twitch-domain,Twitch"
@@ -561,7 +563,6 @@ rules:
   - "RULE-SET,Service-Linkedin-domain,Linkedin"
   - "RULE-SET,Service-Abema-domain,Abema"
   - "RULE-SET,SharedInfrastructure-domain,Proxy"
-  - "RULE-SET,AppleOTA-domain,Apple"
   - "RULE-SET,SteamGlobal-domain,Steam"
   - "RULE-SET,YouTube-domain,YouTube"
   - "RULE-SET,YouTube-ipcidr,YouTube,no-resolve"
@@ -589,7 +590,6 @@ rules:
   - "RULE-SET,Google-domain,Google"
   - "RULE-SET,Google-ipcidr,Google,no-resolve"
   - "RULE-SET,Microsoft-domain,Microsoft"
-  - "RULE-SET,Apple-domain,Apple"
   - "RULE-SET,Steam-domain,Steam"
   - "RULE-SET,Paypal-domain,Paypal"
   - "RULE-SET,ChinaDirect-domain,DIRECT"

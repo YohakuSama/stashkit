@@ -156,6 +156,49 @@ class RoutingTests(unittest.TestCase):
                 self.assertEqual(route(target, self.profile), policy)
 
 
+    def test_loonkit_v7016_apple_pcc_stripe_split_with_existing_providers(self):
+        checks = {
+            "guzzoni.apple.com": "Apple",
+            "search.smoot.apple.com": "Apple",
+            "apple-relay.apple.com": "Apple",
+            "apple-relay.cloudflare.com": "Apple",
+            "apple-relay.fastly-edge.com": "Apple",
+            "cp4.cloudflare.com": "Apple",
+            "api.cloudflare.com": "Cloudflare",
+            "challenges.cloudflare.com": "Cloudflare",
+            "stripe.com": "Proxy",
+            "api.stripe.com": "Proxy",
+            "m.stripe.network": "Proxy",
+            "api.openai.com": "ChatGPT",
+            "gemini.google.com": "Gemini",
+            "quark.cn": "DIRECT",
+            "www.youtube.com": "YouTube",
+            "notstripe.com": "Final",
+            "cloudflare.com.example.invalid": "Final",
+            "unknown-stashkit.example.invalid": "Final",
+        }
+        for filename in ("StashKit.yaml", "StashKit-Subscription.yaml",
+                         "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+            profile = yaml.load((ROOT / filename).read_text(), Loader=UniqueKeysLoader)
+            groups = profile["proxy-groups"]
+            self.assertEqual(len(groups), 40)
+            providers = profile["rule-providers"]
+            self.assertEqual(len(providers), 56)
+            self.assertEqual(providers["Apple-domain"]["behavior"], "domain")
+            self.assertEqual(providers["SharedInfrastructure-domain"]["behavior"], "domain")
+            rules = profile["rules"]
+            self.assertLess(rules.index("RULE-SET,AppleOTA-domain,Apple"),
+                            rules.index("RULE-SET,Apple-domain,Apple"))
+            self.assertLess(rules.index("RULE-SET,Apple-domain,Apple"),
+                            rules.index("RULE-SET,Cloudflare-domain,Cloudflare"))
+            self.assertEqual(rules[-2:], ["GEOIP,CN,DIRECT,no-resolve", "MATCH,Final"])
+            for host, wanted in checks.items():
+                with self.subTest(profile=filename, host=host):
+                    self.assertEqual(route(host, profile), wanted)
+            self.assertFalse(any(rule.startswith(("DOMAIN,apple-relay.", "DOMAIN,cp4.",
+                                                    "DOMAIN-SUFFIX,stripe."))
+                                 for rule in rules))
+
     def test_loonkit_v7015_sites_use_existing_remote_categories(self):
         international = (
             "duolingo.com", "mediawiki.org", "w.wiki", "wikibooks.org",

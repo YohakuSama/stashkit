@@ -30,6 +30,9 @@ LoonKit v7.0.12 的策略组与直连基线在 StashKit 保持为两层；Crypto
 | www.amazon.com、Amazon 共用图片主机 | PrimeVideo | 沿用既有集合；购物请求也可能命中此组 |
 | gvt1.com、gvt2.com 及其子域名 | YouTube | 沿用既有集合；共享域名上的其他请求也由此组控制 |
 | api.statsig.com | Proxy | 功能配置共用接口；没有整体封禁 Statsig |
+| apple-relay.cloudflare.com、apple-relay.fastly-edge.com、cp4.cloudflare.com | Apple | LoonKit v7.0.16 的 Apple Intelligence / Siri PCC 精确域名；AppleOTA 和 Apple 远程规则先于通用 Cloudflare |
+| guzzoni.apple.com、search.smoot.apple.com | Apple | 原有 Apple 后缀已经覆盖 |
+| api.stripe.com、m.stripe.network | Proxy | Stripe 自有支付和风控主机；沿用 SharedInfrastructure，不增加策略组 |
 | challenges.cloudflare.com | Cloudflare | 沿用 Cloudflare 后缀规则；独立选节点时可能与业务出口不同 |
 | graph.facebook.com | Whatsapp | 沿用上游对共享 Meta 接口的优先级；会同时影响其他使用此域名的服务 |
 
@@ -44,3 +47,7 @@ LoonKit v7.0.12 的策略组与直连基线在 StashKit 保持为两层；Crypto
 `AdBlock → DIRECT` 是终止匹配后直连，不是跳过广告规则继续分流。对某个业务需要放行时，在广告规则之前使用精确域名例外并指向其正确服务组。域名规则无法区分同一主机上的业务路径和广告路径。
 
 54 份文件规则的 URL 固定提交，定时更新只获取同一快照。发布新规则时需切换规则 pin 与版本缓存目录；不自动追随可变上游。
+
+## v0.1.23 对齐 LoonKit v7.0.16
+
+StashKit 用原有 AppleOTA-domain、Apple-domain、Cloudflare-domain、SharedInfrastructure-domain 四份规则集承接 LoonKit 新版路由。AppleOTA、Apple 两个 RULE-SET 现在都位于 Cloudflare 之前，Apple 的 PCC 精确域名覆盖通用 Cloudflare 后缀，其他 Cloudflare 请求仍归 Cloudflare。Stripe 自有域名走 SharedInfrastructure 的 Proxy。全局规则依然以 `GEOIP,CN,DIRECT,no-resolve`、`MATCH,Final` 结束。新规则均在独立远程域名资源中，不增加本地域名规则。
