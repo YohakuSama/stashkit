@@ -156,6 +156,34 @@ class RoutingTests(unittest.TestCase):
                 self.assertEqual(route(target, self.profile), policy)
 
 
+    def test_loonkit_v7015_sites_use_existing_remote_categories(self):
+        international = (
+            "duolingo.com", "mediawiki.org", "w.wiki", "wikibooks.org",
+            "wikidata.org", "wikimedia.org", "wikimediafoundation.org",
+            "wikinews.org", "wikipedia.org", "wikiquote.org",
+            "wikisource.org", "wikiversity.org", "wikivoyage.org",
+            "wiktionary.org", "wmfusercontent.org",
+        )
+        for name in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+            profile = yaml.load((ROOT / name).read_text(), Loader=UniqueKeysLoader)
+            self.assertEqual(len(profile["rule-providers"]), 56)  # 55 remote + Private-local inline
+            self.assertEqual(len(profile["proxy-groups"]), 40)
+            self.assertFalse(any("QuarkDirect" in key or "WikipediaDuolingo" in key
+                                 for key in profile["rule-providers"]))
+            for host in ("quark.cn", "www.quark.cn", "pan.myquark.cn"):
+                with self.subTest(profile=name, host=host):
+                    self.assertEqual(route(host, profile), "DIRECT")
+            for root in international:
+                for host in (root, "www." + root):
+                    with self.subTest(profile=name, host=host):
+                        self.assertEqual(route(host, profile), "Proxy")
+            for host in ("notquark.cn",
+                         "notduolingo.com", "wikipedia.org.unrelated.example"):
+                with self.subTest(profile=name, host=host):
+                    self.assertNotEqual(route(host, profile),
+                                        "DIRECT" if "quark" in host else "Proxy")
+            self.assertNotEqual(route("duolingo.cn", profile), "Proxy")
+
     def test_crypto_routes_take_priority_over_domestic_and_fallback(self):
         exact = (
             "binance.com", "api.binance.com", "www.okx.com", "www.bybit.com",

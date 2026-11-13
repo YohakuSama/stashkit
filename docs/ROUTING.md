@@ -15,6 +15,8 @@ LoonKit v7.0.12 的策略组与直连基线在 StashKit 保持为两层；Crypto
 
 | 目标 | 策略 | 原因 |
 | --- | --- | --- |
+| quark.cn、myquark.cn 及子域名 | DIRECT | 现有 DomesticSupplement-domain 远程分类，LoonKit v7.0.15 同步 |
+| wikipedia.org、wikimedia.org、duolingo.com 国际站及子域名 | Proxy | 现有 SharedInfrastructure-domain 远程分类，保持 duolingo.cn 原有分流 |
 | api.binance.com、www.okx.com、wallet.metamask.io | Crypto | 独立 Crypto-domain 远程规则集，按 LoonKit v7.0.13 提供 219 条规则，保留原 29 条后缀，避免被 ChinaDirect / CN GeoIP 兜底直连 |
 | 私有域名、LAN 地址 | DIRECT | Private-local 内嵌精确域名、后缀与单标签匹配，不依赖首次下载 GeoSite；Fake-IP 过滤不等于直连 |
 | raw.githubusercontent.com | GitHub | 默认仍经 Proxy，手动切换 GitHub 组时同时生效 |

@@ -22,7 +22,7 @@
 
 <p align="center"><sub>先下载并在本地填写自己的订阅或节点，再导入 Stash；仓库不提供代理节点和订阅。</sub></p>
 
-当前配置：**v0.1.21** · 对齐 [LoonKit v7.0.13](https://github.com/YohakuSama/loonkit/tree/66b01bffe8982d6a8153af7b03c897dc1bbab648) 的 Crypto 远程规则 · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
+当前配置：**v0.1.22** · 对齐 [LoonKit v7.0.13](https://github.com/YohakuSama/loonkit/tree/66b01bffe8982d6a8153af7b03c897dc1bbab648) 的 Crypto 远程规则，并同步 LoonKit v7.0.15 的夸克、维基百科和多邻国分流 · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
 
 ---
 
@@ -73,7 +73,7 @@ VPN 启动前后，`Proxy` 都应保留 Auto、Fallback、REJECT，再显示实�
 
 ## 规则、优先级与同步边界
 
-正式配置保留独立的 `rule-providers` 和 `RULE-SET`，不在 YAML 中展开 219 条 Crypto 域名，也不把 54 份大型规则复制到本地。现有 54 份规则继续使用审查过的 v0.1.4 冻结资源，Crypto 则单独同步到 LoonKit v7.0.13 的 219 条固定快照；不会因为 LoonKit 或 GitHub `main` 改动而静默换规则。
+正式配置保留独立的 `rule-providers` 和 `RULE-SET`，不在 YAML 中展开 219 条 Crypto 域名，也不把 54 份大型规则复制到本地。其中 52 份规则继续使用审查过的 v0.1.4 冻结资源，国内补充和通用代理两份规则使用 v0.1.22 的固定快照，Crypto 则单独同步到 LoonKit v7.0.13 的 219 条固定快照；不会因为 LoonKit 或 GitHub `main` 改动而静默换规则。
 
 规则顺序为 **WebRTC 防护 → 局域网直连 → 精确服务例外 → AdBlock → Crypto → 国内与其他服务 → Final**。旧版广告快照对 `coincheck.com` 主页存在误拦，当前通过**仅针对该主机的一条精确例外**与 LoonKit v7.0.13 对齐；其余广告遥测仍先进入 AdBlock。只有冷启动必需的 **133 条 Private-local 私网匹配器**继续内嵌，避免 LAN / DNS 防护首次启动就依赖远程下载。
 

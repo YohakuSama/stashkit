@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source_commit": "5f272104fc1207612c1cbd18f3e19d861d459ed9",
-  "expected_generated_rule_count": 196570,
+  "expected_generated_rule_count": 196587,
   "changes": [
     {
       "source": "AnimeCrazy",
@@ -42,6 +42,39 @@
       ],
       "reason": "Block Google advertising and measurement endpoints before the broad Google service collection, including the corresponding -cn domains.",
       "reference": "https://developers.google.com/tag-platform/gtagjs"
+    },
+    {
+      "source": "DomesticSupplement",
+      "behavior": "domain",
+      "remove": [],
+      "add": [
+        "+.myquark.cn",
+        "+.quark.cn"
+      ],
+      "reason": "Reviewed LoonKit v7.0.15 existing-category routing sync, issue #186."
+    },
+    {
+      "source": "SharedInfrastructure",
+      "behavior": "domain",
+      "remove": [],
+      "add": [
+        "+.duolingo.com",
+        "+.mediawiki.org",
+        "+.w.wiki",
+        "+.wikibooks.org",
+        "+.wikidata.org",
+        "+.wikimedia.org",
+        "+.wikimediafoundation.org",
+        "+.wikinews.org",
+        "+.wikipedia.org",
+        "+.wikiquote.org",
+        "+.wikisource.org",
+        "+.wikiversity.org",
+        "+.wikivoyage.org",
+        "+.wiktionary.org",
+        "+.wmfusercontent.org"
+      ],
+      "reason": "Reviewed LoonKit v7.0.15 existing-category routing sync, issue #186."
     }
   ]
 }

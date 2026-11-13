@@ -1,4 +1,4 @@
-# StashKit v0.1.21 — local rule providers — legacy ALL compatibility
+# StashKit v0.1.22 — local rule providers — legacy ALL compatibility
 mode: rule
 log-level: warning
 dns:
@@ -503,219 +503,219 @@ rule-providers:
   AdBlockBalanced-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/AdBlockBalanced.domain.txt
+    path: ./rules/v0.1.22/AdBlockBalanced.domain.txt
   DomesticCore-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/DomesticCore.domain.txt
+    path: ./rules/v0.1.22/DomesticCore.domain.txt
   DomesticSupplement-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/DomesticSupplement.domain.txt
+    path: ./rules/v0.1.22/DomesticSupplement.domain.txt
   SteamCN-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/SteamCN.domain.txt
+    path: ./rules/v0.1.22/SteamCN.domain.txt
   DomesticAI-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/DomesticAI.domain.txt
+    path: ./rules/v0.1.22/DomesticAI.domain.txt
   ChatGPT-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/ChatGPT.domain.txt
+    path: ./rules/v0.1.22/ChatGPT.domain.txt
   Gemini-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Gemini.domain.txt
+    path: ./rules/v0.1.22/Gemini.domain.txt
   Claude-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Claude.domain.txt
+    path: ./rules/v0.1.22/Claude.domain.txt
   AIScoped-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/AIScoped.domain.txt
+    path: ./rules/v0.1.22/AIScoped.domain.txt
   GitHub-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/GitHub.domain.txt
+    path: ./rules/v0.1.22/GitHub.domain.txt
   Speedtest-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Speedtest.domain.txt
+    path: ./rules/v0.1.22/Speedtest.domain.txt
   Cloudflare-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Cloudflare.domain.txt
+    path: ./rules/v0.1.22/Cloudflare.domain.txt
   Service-Spotify-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Service-Spotify.domain.txt
+    path: ./rules/v0.1.22/Service-Spotify.domain.txt
   Service-Twitch-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Service-Twitch.domain.txt
+    path: ./rules/v0.1.22/Service-Twitch.domain.txt
   Service-BBC-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Service-BBC.domain.txt
+    path: ./rules/v0.1.22/Service-BBC.domain.txt
   Service-Line-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Service-Line.domain.txt
+    path: ./rules/v0.1.22/Service-Line.domain.txt
   Service-Reddit-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Service-Reddit.domain.txt
+    path: ./rules/v0.1.22/Service-Reddit.domain.txt
   Service-Linkedin-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Service-Linkedin.domain.txt
+    path: ./rules/v0.1.22/Service-Linkedin.domain.txt
   Service-Abema-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Service-Abema.domain.txt
+    path: ./rules/v0.1.22/Service-Abema.domain.txt
   SharedInfrastructure-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/SharedInfrastructure.domain.txt
+    path: ./rules/v0.1.22/SharedInfrastructure.domain.txt
   AppleOTA-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/AppleOTA.domain.txt
+    path: ./rules/v0.1.22/AppleOTA.domain.txt
   SteamGlobal-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/SteamGlobal.domain.txt
+    path: ./rules/v0.1.22/SteamGlobal.domain.txt
   YouTube-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/YouTube.domain.txt
+    path: ./rules/v0.1.22/YouTube.domain.txt
   YouTube-ipcidr:
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.4/YouTube.ipcidr.txt
+    path: ./rules/v0.1.22/YouTube.ipcidr.txt
   Netflix-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Netflix.domain.txt
+    path: ./rules/v0.1.22/Netflix.domain.txt
   Netflix-asn:
     behavior: classical
     format: text
-    path: ./rules/v0.1.4/Netflix.asn.txt
+    path: ./rules/v0.1.22/Netflix.asn.txt
   Disney-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Disney.domain.txt
+    path: ./rules/v0.1.22/Disney.domain.txt
   PrimeVideo-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/PrimeVideo.domain.txt
+    path: ./rules/v0.1.22/PrimeVideo.domain.txt
   TikTok-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/TikTok.domain.txt
+    path: ./rules/v0.1.22/TikTok.domain.txt
   Bilibili-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Bilibili.domain.txt
+    path: ./rules/v0.1.22/Bilibili.domain.txt
   AnimeCrazy-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/AnimeCrazy.domain.txt
+    path: ./rules/v0.1.22/AnimeCrazy.domain.txt
   Dazn-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Dazn.domain.txt
+    path: ./rules/v0.1.22/Dazn.domain.txt
   Telegram-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Telegram.domain.txt
+    path: ./rules/v0.1.22/Telegram.domain.txt
   Telegram-ipcidr:
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.4/Telegram.ipcidr.txt
+    path: ./rules/v0.1.22/Telegram.ipcidr.txt
   Telegram-asn:
     behavior: classical
     format: text
-    path: ./rules/v0.1.4/Telegram.asn.txt
+    path: ./rules/v0.1.22/Telegram.asn.txt
   Whatsapp-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Whatsapp.domain.txt
+    path: ./rules/v0.1.22/Whatsapp.domain.txt
   Whatsapp-ipcidr:
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.4/Whatsapp.ipcidr.txt
+    path: ./rules/v0.1.22/Whatsapp.ipcidr.txt
   Instagram-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Instagram.domain.txt
+    path: ./rules/v0.1.22/Instagram.domain.txt
   Facebook-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Facebook.domain.txt
+    path: ./rules/v0.1.22/Facebook.domain.txt
   Facebook-ipcidr:
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.4/Facebook.ipcidr.txt
+    path: ./rules/v0.1.22/Facebook.ipcidr.txt
   Facebook-asn:
     behavior: classical
     format: text
-    path: ./rules/v0.1.4/Facebook.asn.txt
+    path: ./rules/v0.1.22/Facebook.asn.txt
   Twitter-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Twitter.domain.txt
+    path: ./rules/v0.1.22/Twitter.domain.txt
   Twitter-ipcidr:
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.4/Twitter.ipcidr.txt
+    path: ./rules/v0.1.22/Twitter.ipcidr.txt
   Discord-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Discord.domain.txt
+    path: ./rules/v0.1.22/Discord.domain.txt
   HBO-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/HBO.domain.txt
+    path: ./rules/v0.1.22/HBO.domain.txt
   Google-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Google.domain.txt
+    path: ./rules/v0.1.22/Google.domain.txt
   Google-ipcidr:
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.4/Google.ipcidr.txt
+    path: ./rules/v0.1.22/Google.ipcidr.txt
   Microsoft-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Microsoft.domain.txt
+    path: ./rules/v0.1.22/Microsoft.domain.txt
   Apple-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Apple.domain.txt
+    path: ./rules/v0.1.22/Apple.domain.txt
   Steam-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Steam.domain.txt
+    path: ./rules/v0.1.22/Steam.domain.txt
   Paypal-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/Paypal.domain.txt
+    path: ./rules/v0.1.22/Paypal.domain.txt
   ChinaDirect-domain:
     behavior: domain
     format: text
-    path: ./rules/v0.1.4/ChinaDirect.domain.txt
+    path: ./rules/v0.1.22/ChinaDirect.domain.txt
   ChinaDirect-ipcidr:
     behavior: ipcidr
     format: text
-    path: ./rules/v0.1.4/ChinaDirect.ipcidr.txt
+    path: ./rules/v0.1.22/ChinaDirect.ipcidr.txt
   ChinaDirect-asn:
     behavior: classical
     format: text
-    path: ./rules/v0.1.4/ChinaDirect.asn.txt
+    path: ./rules/v0.1.22/ChinaDirect.asn.txt
 rules:
 - PROTOCOL,STUN,REJECT
 - DST-PORT,3478,REJECT

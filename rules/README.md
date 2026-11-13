@@ -6,13 +6,15 @@ StashKit 的**在线配置只声明远程引用**，不将大批域名、CIDR �
 
 | 类别 | 数量与来源 | 加载方式 |
 | --- | --- | --- |
-| 基础分类规则 | 54 份 Stash text（43 domain、7 ipcidr、4 classical ASN），合计 196,570 条处理后的匹配器 | GitHub Raw 固定提交，`rules/v0.1.4/` 缓存 |
+| 基础分类规则 | 54 份 Stash text（43 domain、7 ipcidr、4 classical ASN），合计 196,587 条处理后的匹配器 | GitHub Raw 固定提交，52 份旧资源使用 `rules/v0.1.4/`，2 份新版资源使用 `rules/v0.1.22/` 缓存 |
 | Crypto | 1 份 domain 文本规则集，219 条（1 精确域名 + 218 后缀） | [Crypto.v7.0.13.domain.txt](./extra/Crypto.v7.0.13.domain.txt) 固定提交，`rules/v0.1.18/` 缓存 |
 | Private-local | 133 条私网匹配器 | 配置内嵌，不依赖首次远程加载 |
 
-基础分类来源为 [LoonKit v7.0.10 固定清单](../build/release_manifest.json) 中的 43 个远程源文件（196,561 条原始匹配器），转换时使用 [adjustments.json](../build/adjustments.json) 做显式的增删和范围调整；这 54 份文件不随 LoonKit main 自动更新。规则总量以锁文件和各资产为准，不与 Python 生成器的原始匹配器数混为一谈。
+基础分类来源为 [LoonKit v7.0.10 固定清单](../build/release_manifest.json) 中的 43 个远程源文件（196,561 条原始匹配器），转换时使用 [adjustments.json](../build/adjustments.json) 做显式的增删和范围调整；其中 52 份文件保留原有冻结资源，国内补充和通用代理两份按 LoonKit v7.0.15 同步，不随 LoonKit main 自动更新。规则总量以锁文件和各资产为准，不与 Python 生成器的原始匹配器数混为一谈。
 
 Crypto 独立使用 [LoonKit v7.0.13 固定提交](https://github.com/YohakuSama/loonkit/tree/66b01bffe8982d6a8153af7b03c897dc1bbab648) 的 [Crypto.lsr](https://github.com/YohakuSama/loonkit/blob/66b01bffe8982d6a8153af7b03c897dc1bbab648/rules/releases/v7.0.13/Crypto.lsr)。构建时将原生 `DOMAIN` 转为 Stash text 精确域名，将 `DOMAIN-SUFFIX` 转为 `+.` 前缀的后缀域名，保持**原始类型语义**，不混用 Loon / Stash 配置语法。固定资源的路径、上游提交、摘要和 219 条数量记录在 [crypto-source-lock.json](../build/crypto-source-lock.json)。
+
+夸克网盘 `quark.cn`、`myquark.cn` 已加入原有 `DomesticSupplement-domain` 直连分类。维基百科、Wikimedia 及多邻国国际站加入原有 `SharedInfrastructure-domain` 代理分类。没有新增 Provider、策略组或本地域名规则。
 
 ## 优先级与例外
 
