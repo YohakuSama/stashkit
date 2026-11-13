@@ -1,4 +1,4 @@
-# StashKit v0.1.21
+# StashKit v0.1.22
 mode: rule
 log-level: warning
 
@@ -455,7 +455,7 @@ rule-providers:
   "Crypto-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/fd6627fc33eef9cf1e93b001a2327c47b0993133/rules/extra/Crypto.v7.0.13.domain.txt, path: ./rules/v0.1.18/Crypto.v7.0.13.domain.txt, interval: 86400}
   "AdBlockBalanced-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/AdBlockBalanced.domain.txt, path: ./rules/v0.1.4/AdBlockBalanced.domain.txt, interval: 86400}
   "DomesticCore-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/DomesticCore.domain.txt, path: ./rules/v0.1.4/DomesticCore.domain.txt, interval: 86400}
-  "DomesticSupplement-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/DomesticSupplement.domain.txt, path: ./rules/v0.1.4/DomesticSupplement.domain.txt, interval: 86400}
+  "DomesticSupplement-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/DomesticSupplement.domain.txt, path: ./rules/v0.1.22/DomesticSupplement.domain.txt, interval: 86400}
   "SteamCN-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/SteamCN.domain.txt, path: ./rules/v0.1.4/SteamCN.domain.txt, interval: 86400}
   "DomesticAI-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/DomesticAI.domain.txt, path: ./rules/v0.1.4/DomesticAI.domain.txt, interval: 86400}
   "ChatGPT-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/ChatGPT.domain.txt, path: ./rules/v0.1.4/ChatGPT.domain.txt, interval: 86400}
@@ -472,7 +472,7 @@ rule-providers:
   "Service-Reddit-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/Service-Reddit.domain.txt, path: ./rules/v0.1.4/Service-Reddit.domain.txt, interval: 86400}
   "Service-Linkedin-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/Service-Linkedin.domain.txt, path: ./rules/v0.1.4/Service-Linkedin.domain.txt, interval: 86400}
   "Service-Abema-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/Service-Abema.domain.txt, path: ./rules/v0.1.4/Service-Abema.domain.txt, interval: 86400}
-  "SharedInfrastructure-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/SharedInfrastructure.domain.txt, path: ./rules/v0.1.4/SharedInfrastructure.domain.txt, interval: 86400}
+  "SharedInfrastructure-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9/rules/SharedInfrastructure.domain.txt, path: ./rules/v0.1.22/SharedInfrastructure.domain.txt, interval: 86400}
   "AppleOTA-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/AppleOTA.domain.txt, path: ./rules/v0.1.4/AppleOTA.domain.txt, interval: 86400}
   "SteamGlobal-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/SteamGlobal.domain.txt, path: ./rules/v0.1.4/SteamGlobal.domain.txt, interval: 86400}
   "YouTube-domain": {behavior: domain, format: text, url: https://raw.githubusercontent.com/YohakuSama/stashkit/f4feec81dfc9bde9824d297b6959fa977d5dc39b/rules/YouTube.domain.txt, path: ./rules/v0.1.4/YouTube.domain.txt, interval: 86400}
