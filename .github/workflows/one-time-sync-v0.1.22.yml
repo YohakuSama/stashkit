@@ -51,9 +51,9 @@ jobs:
           old = "f4feec81dfc9bde9824d297b6959fa977d5dc39b"
           names = ("DomesticSupplement", "SharedInfrastructure")
           path = root / "StashKit.yaml"
-source = path.read_text(encoding="utf-8")
-source = source.replace(old, pin).replace("./rules/v0.1.4/", "./rules/v0.1.22/")
-path.write_text(source, encoding="utf-8")
+          source = path.read_text(encoding="utf-8")
+          source = source.replace(old, pin).replace("./rules/v0.1.4/", "./rules/v0.1.22/")
+          path.write_text(source, encoding="utf-8")
           assert source.count(pin) == 54
           for name in names:
               assert f"/{pin}/rules/{name}.domain.txt" in source
@@ -67,7 +67,7 @@ path.write_text(source, encoding="utf-8")
               assert path.is_file()
               text = path.read_text(encoding="utf-8")
               text = text.replace("v0.1.21", "v0.1.22")
-    text = text.replace(old, pin).replace("./rules/v0.1.4/", "./rules/v0.1.22/")
+              text = text.replace(old, pin).replace("./rules/v0.1.4/", "./rules/v0.1.22/")
               for name in names:
                   oldurl = f"https://raw.githubusercontent.com/YohakuSama/stashkit/{old}/rules/{name}.domain.txt"
                   newurl = f"https://raw.githubusercontent.com/YohakuSama/stashkit/{pin}/rules/{name}.domain.txt"
