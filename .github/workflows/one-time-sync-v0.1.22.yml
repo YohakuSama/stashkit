@@ -1,0 +1,71 @@
+name: One-time build StashKit v0.1.22
+on:
+  push:
+    branches:
+      - sync/loonkit-v7.0.15-routing-v0.1.22
+    paths:
+      - .github/workflows/one-time-sync-v0.1.22.yml
+permissions:
+  contents: write
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: true
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: YohakuSama/loonkit
+          ref: 5f272104fc1207612c1cbd18f3e19d861d459ed9
+          path: upstream/loonkit
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12'
+      - name: Install pinned dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Generate derived profiles and run all checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          import json
+          root = Path(".")
+          pin = "2ceedb0a82b7b7cb6d26d81bd6fdc6837c7515c9"
+          old = "f4feec81dfc9bde9824d297b6959fa977d5dc39b"
+          names = ("DomesticSupplement", "SharedInfrastructure")
+          source = (root / "StashKit.yaml").read_text(encoding="utf-8")
+          assert source.count(pin) == 2
+          for name in names:
+              assert f"/{pin}/rules/{name}.domain.txt" in source
+              assert f"path: ./rules/v0.1.22/{name}.domain.txt" in source
+              assert f"RULE-SET,{name}-domain," in source
+          for file in ("StashKit-ALL.yaml", "StashKit-Local-ALL.yaml",
+                       "StashKit-Loon-Preview.yaml", "StashKit-Native-Preview.yaml",
+                       "StashKit-Local.yaml", "StashKit-Privacy-ALL.yaml",
+                       "StashKit-Privacy.yaml", "StashKit-Subscription.yaml"):
+              path = root / file
+              assert path.is_file()
+              text = path.read_text(encoding="utf-8")
+              text = text.replace("v0.1.21", "v0.1.22")
+              for name in names:
+                  oldurl = f"https://raw.githubusercontent.com/YohakuSama/stashkit/{old}/rules/{name}.domain.txt"
+                  newurl = f"https://raw.githubusercontent.com/YohakuSama/stashkit/{pin}/rules/{name}.domain.txt"
+                  text = text.replace(oldurl, newurl)
+                  text = text.replace(f"./rules/v0.1.4/{name}.domain.txt",
+                                      f"./rules/v0.1.22/{name}.domain.txt")
+              path.write_text(text, encoding="utf-8")
+          PY
+          python3 scripts/build_profiles.py
+          python3 scripts/build_rules.py --check
+          python3 -m unittest discover -s tests -v
+          python3 scripts/verify.py
+          python3 scripts/build_profiles.py --check
+          python3 scripts/check_remote.py --ref "$GITHUB_SHA"
+          git add -A
+          git -c user.name="StashKit CI" -c user.email="ci@example.invalid" commit -m "release: synchronize all Stash profiles for v0.1.22"
+          git push origin "HEAD:$GITHUB_REF_NAME"
