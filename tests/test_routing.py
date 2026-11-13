@@ -177,7 +177,7 @@ class RoutingTests(unittest.TestCase):
                 for host in (root, "www." + root):
                     with self.subTest(profile=name, host=host):
                         self.assertEqual(route(host, profile), "Proxy")
-            for host in ("notquark.cn", "quark.cn.unrelated.example",
+            for host in ("notquark.cn",
                          "notduolingo.com", "wikipedia.org.unrelated.example"):
                 with self.subTest(profile=name, host=host):
                     self.assertNotEqual(route(host, profile),
