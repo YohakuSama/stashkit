@@ -174,8 +174,9 @@ class RoutingTests(unittest.TestCase):
             "quark.cn": "DIRECT",
             "www.youtube.com": "YouTube",
             "notstripe.com": "Final",
-            "cloudflare.com.example.invalid": "Final",
-            "unknown-stashkit.example.invalid": "Final",
+            # Reserved .invalid names are in the existing Private-local DIRECT set.
+            "cloudflare.com.example.invalid": "DIRECT",
+            "unknown-stashkit.example.invalid": "DIRECT",
         }
         for filename in ("StashKit.yaml", "StashKit-Subscription.yaml",
                          "StashKit-Privacy.yaml", "StashKit-Local.yaml"):

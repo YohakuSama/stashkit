@@ -6,6 +6,7 @@ on:
     paths:
       - .github/workflows/one-time-sync-v0.1.23.yml
       - StashKit.yaml
+      - tests/test_routing.py
 permissions:
   contents: write
 jobs:
