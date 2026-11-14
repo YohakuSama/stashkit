@@ -18,7 +18,7 @@ class PrivateRulesTests(unittest.TestCase):
         self.assertEqual(len(expected['payload']), 133)
         self.assertIn('DOMAIN,router.asus.com', expected['payload'])
         self.assertIn('DOMAIN-SUFFIX,ts.net', expected['payload'])
-        for name in ('StashKit.yaml', 'StashKit-Privacy.yaml', 'StashKit-Local.yaml'):
+        for name in ('StashKit.yaml',):
             with self.subTest(profile=name):
                 profile = yaml.safe_load((ROOT / name).read_text())
                 self.assertEqual(profile['rule-providers'][NAME], expected)

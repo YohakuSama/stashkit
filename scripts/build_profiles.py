@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the privacy and offline profiles from the canonical StashKit.yaml."""
+"""Build compatibility profiles and an on-demand offline profile from StashKit.yaml."""
 import argparse
 import re
 from pathlib import Path
@@ -11,7 +11,6 @@ from release_meta import PROFILE_VERSION, RULES_PATH_PREFIX
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADER = f"# StashKit {PROFILE_VERSION}\n"
-PRIVACY_HEADER = f"# StashKit {PROFILE_VERSION} — privacy DNS\n"
 LOCAL_HEADER = f"# StashKit {PROFILE_VERSION} — local rule providers\n"
 SUBSCRIPTION_BLOCK = (
     "# Edit the subscription URL locally; never publish private subscription credentials.\n"
@@ -22,7 +21,6 @@ SUBSCRIPTION_BLOCK = (
     "    path: ./providers/stashkit-airport.yaml\n"
     "    interval: 3600\n"
 )
-PRIVACY_DNS_RULE = '  - "DOMAIN,dns.alidns.com,Proxy"\n'
 REMOTE_PROVIDER_LINE = re.compile(
     r'^(  "[^"]+": \{behavior: (?:domain|ipcidr|classical), format: text), '
     r'url: https://raw\.githubusercontent\.com/YohakuSama/stashkit/'
@@ -36,14 +34,6 @@ def replace_once(content, old, new, context):
     if content.count(old) != 1:
         raise ValueError(f"{context}: expected exactly one source occurrence")
     return content.replace(old, new, 1)
-
-
-def privacy_profile(config=None):
-    content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
-    content = replace_once(content, HEADER, PRIVACY_HEADER, "profile header")
-    content = replace_once(content, "  follow-rule: false\n", "  follow-rule: true\n", "privacy DNS")
-    return replace_once(content, "rules:\n",
-                        "rules:\n" + PRIVACY_DNS_RULE, "privacy routing")
 
 
 def local_profile(config=None):
@@ -71,15 +61,9 @@ def subscription_profile(config=None):
 
 
 def derived_profiles(config):
-    outputs = {
-        "StashKit-Privacy.yaml": privacy_profile(config),
-        "StashKit-Subscription.yaml": subscription_profile(config),
-        "StashKit-Local.yaml": local_profile(config),
-    }
+    outputs = {"StashKit-Subscription.yaml": subscription_profile(config)}
     # ALL remains an explicit compatibility variant, never a default alias.
-    for filename, content in (("StashKit-ALL.yaml", config),
-                              ("StashKit-Privacy-ALL.yaml", outputs["StashKit-Privacy.yaml"]),
-                              ("StashKit-Local-ALL.yaml", outputs["StashKit-Local.yaml"])):
+    for filename, content in (("StashKit-ALL.yaml", config),):
         legacy = build_loon_selection(yaml.safe_load(content),
                                       providers={"binding": {"path": "./unused.yaml"}},
                                       layout="nested")

@@ -39,11 +39,11 @@
 | 使用场景 | 入口 | 需要填写的内容 |
 | --- | --- | --- |
 | 机场提供 Clash / Stash YAML 节点订阅 | [StashKit.yaml](./StashKit.yaml) | `proxy-providers.Airport.url` |
-| 公共 DoH 希望优先走代理 | [StashKit-Privacy.yaml](./StashKit-Privacy.yaml) | 同订阅版的 `Airport.url` |
-| 事先安装全部规则资源、离线启动 | [StashKit-Local.yaml](./StashKit-Local.yaml) | 本地节点来源与 55 份规则文件 |
+| 公共 DoH 优先走代理 | 在主配置中启用 [DNS 隐私覆写](./overrides/dns-privacy.stoverride.example) | 先绑定真实节点并选择 Proxy |
+| 预部署离线规则 | [CI 离线资源 ZIP](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) | ZIP 内按需生成 Local YAML，手动安装 55 份规则 |
 
 1. **备份**：导出你当前的 Stash 配置，确认私人订阅和密钥没有存放在公开仓库。
-2. **选择并下载**：默认使用 `StashKit.yaml`，Privacy 与 Local 仅供特殊需求，保存为本地文件。
+2. **选择并下载**：日常使用只下载 `StashKit.yaml`；DNS 隐私通过覆写启用，离线资源仅在打包时生成。
 3. **填入节点来源**：替换 `proxy-providers.Airport.url`，**不要**修改 `rule-providers` 的固定远程 URL 或乱改 `proxy-groups` 引用。
 4. **导入 Stash**：从配置文件管理界面导入本地文件，选中并启用；等待首次远程规则加载完成，再检查 `Proxy`、`Auto`、`Fallback` 及业务组。
 5. **验收流量**：核对请求记录中的规则、策略、节点和最终出口；特别检查国内直连、广告拦截、Crypto 与 DNS。参见[验收清单](./docs/VALIDATION.md)。
@@ -105,7 +105,7 @@ VPN 启动前后，`Proxy` 都应保留 Auto、Fallback、REJECT，再显示实�
 </details>
 
 <details>
-<summary><strong>离线版为什么提示规则集不存在？</strong></summary>
+<summary><strong>离线包为什么提示规则集不存在？</strong></summary>
 
 离线 YAML 引用的是 Stash 受管目录中的资源路径。需从 [Releases](https://github.com/YohakuSama/stashkit/releases) 或 CI 获取离线包，校验 SHA256 并按版本目录部署；普通 ZIP 导入不会自动安装规则。
 

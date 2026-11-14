@@ -118,7 +118,7 @@ class RoutingTests(unittest.TestCase):
                    "www.doubleclick-cn.net", "www.googlesyndication-cn.com",
                    "www.googleadservices-cn.com", "www.google-analytics-cn.com",
                    "copilot-telemetry.githubusercontent.com")
-        for name in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+        for name in ("StashKit.yaml",):
             profile = yaml.load((ROOT / name).read_text(), Loader=UniqueKeysLoader)
             for target in targets:
                 with self.subTest(profile=name, target=target):
@@ -128,7 +128,7 @@ class RoutingTests(unittest.TestCase):
                 self.assertEqual(route(target, profile), policy)
 
     def test_private_names_work_without_geosite_downloads(self):
-        for name in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+        for name in ("StashKit.yaml",):
             profile = yaml.load((ROOT / name).read_text(), Loader=UniqueKeysLoader)
             self.assertNotIn("GEOSITE,private,DIRECT", profile["rules"])
             for target in ("nas", "router.internal", "host.localdomain", "router.asus.com",
@@ -178,8 +178,7 @@ class RoutingTests(unittest.TestCase):
             "cloudflare.com.example.invalid": "DIRECT",
             "unknown-stashkit.example.invalid": "DIRECT",
         }
-        for filename in ("StashKit.yaml", "StashKit-Subscription.yaml",
-                         "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+        for filename in ("StashKit.yaml", "StashKit-Subscription.yaml"):
             profile = yaml.load((ROOT / filename).read_text(), Loader=UniqueKeysLoader)
             groups = profile["proxy-groups"]
             self.assertEqual(len(groups), 40)
@@ -208,7 +207,7 @@ class RoutingTests(unittest.TestCase):
             "wikisource.org", "wikiversity.org", "wikivoyage.org",
             "wiktionary.org", "wmfusercontent.org",
         )
-        for name in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+        for name in ("StashKit.yaml",):
             profile = yaml.load((ROOT / name).read_text(), Loader=UniqueKeysLoader)
             self.assertEqual(len(profile["rule-providers"]), 56)  # 55 remote + Private-local inline
             self.assertEqual(len(profile["proxy-groups"]), 40)
@@ -240,7 +239,7 @@ class RoutingTests(unittest.TestCase):
         )
         unrelated = ("notbinance.com", "binance.com.example.net",
                      "crypto.example.net", "notcoincheck.com")
-        for filename in ("StashKit.yaml", "StashKit-Privacy.yaml", "StashKit-Local.yaml"):
+        for filename in ("StashKit.yaml",):
             profile = yaml.load((ROOT / filename).read_text(), Loader=UniqueKeysLoader)
             for target in exact:
                 with self.subTest(filename=filename, target=target):

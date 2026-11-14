@@ -33,7 +33,7 @@ class PolicyGroupParityTests(unittest.TestCase):
         filters = {'ALL_Filter', 'Auto_Filter', 'Fallback_Filter'}
         expected = loon_groups()
         self.assertEqual(len(expected), 40)
-        for filename in ('StashKit.yaml', 'StashKit-Privacy.yaml', 'StashKit-Local.yaml'):
+        for filename in ('StashKit.yaml',):
             source = yaml.safe_load((ROOT / filename).read_text())
             result = build_flat_selection(source, nodes=[NODE])
             groups = result['proxy-groups']
@@ -52,7 +52,7 @@ class PolicyGroupParityTests(unittest.TestCase):
 
     def test_public_templates_preserve_original_39_policies_without_helpers(self):
         expected = loon_groups()
-        for filename in ('StashKit.yaml', 'StashKit-Privacy.yaml', 'StashKit-Local.yaml'):
+        for filename in ('StashKit.yaml',):
             profile = yaml.safe_load((ROOT / filename).read_text())
             groups = {g['name']: g for g in profile['proxy-groups']}
             self.assertEqual(list(groups), [row[0] for row in expected])

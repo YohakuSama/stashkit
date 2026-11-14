@@ -18,9 +18,6 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def make_zip(root=ROOT):
     profile = local_profile((root / "StashKit.yaml").read_text(encoding="utf-8")).encode("utf-8")
-    committed = (root / "StashKit-Local.yaml").read_bytes()
-    if profile != committed:
-        raise ValueError("StashKit-Local.yaml is out of sync with main profile")
     assets = sorted((root / "rules").glob("*.txt"))
     if len(assets) != 54:
         raise ValueError(f"Expected 54 rule assets, got {len(assets)}")

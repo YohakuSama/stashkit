@@ -1,5 +1,12 @@
 # 变更记录
 
+## 未发布 · 精简公开配置入口
+
+- 删除独立 Privacy、Local YAML 及对应的 ALL 派生版本。日常使用统一从 `StashKit.yaml` 导入。
+- DNS 隐私继续通过现有 `overrides/dns-privacy.stoverride.example` 启用，不改变主配置的 DNS 和路由规则。
+- 离线 ZIP 仍按需生成 `StashKit-Local.yaml` 和 55 份规则资源，不再在仓库根目录维护该文件。
+- 生成器仅保留正式默认模板；同步精简校验、测试与当前文档，不影响历史发布资产。
+
 ## v0.1.23 · 同步 LoonKit v7.0.16 Apple Intelligence、Siri 与 Stripe 分流
 
 - Apple 增加三个私有云计算精确主机，保留既有 Siri 的 Apple 后缀覆盖，并移除四条被上级域名覆盖的冗余规则。

@@ -8,17 +8,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
+from build_profiles import local_profile
 from release_meta import (PROFILE_VERSION, RULES_VERSION, RULES_REF,
                           RULES_PATH_PREFIX, RULES_URL_PREFIX, archive_name, load_lock)
 
 
 class ReleaseMetadataTests(unittest.TestCase):
     def test_versioned_profiles_and_readme_agree_with_release_lock(self):
-        names = (
-            ("StashKit.yaml", f"# StashKit {PROFILE_VERSION}"),
-            ("StashKit-Privacy.yaml", f"# StashKit {PROFILE_VERSION} — privacy DNS"),
-            ("StashKit-Local.yaml", f"# StashKit {PROFILE_VERSION} — local rule providers"),
-        )
+        names = (("StashKit.yaml", f"# StashKit {PROFILE_VERSION}"),)
         for name, header in names:
             with self.subTest(file=name):
                 content = (ROOT / name).read_text(encoding="utf-8")
@@ -31,7 +28,7 @@ class ReleaseMetadataTests(unittest.TestCase):
 
     def test_existing_immutable_rule_snapshot_is_reused(self):
         standard = (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
-        local = (ROOT / "StashKit-Local.yaml").read_text(encoding="utf-8")
+        local = local_profile(standard)
         self.assertRegex(RULES_VERSION, r"^v[0-9]+\.[0-9]+\.[0-9]+$")
         self.assertTrue(re.fullmatch(r"[0-9a-f]{40}", RULES_REF))
         self.assertEqual(standard.count(RULES_URL_PREFIX), 54)

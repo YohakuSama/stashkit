@@ -32,7 +32,7 @@ class OfflineAndPrivacyTests(unittest.TestCase):
                 (ROOT / "rules/extra/Crypto.v7.0.13.domain.txt").read_bytes(),
             )
             self.assertEqual(archive.read("StashKit-Local.yaml"),
-                             (ROOT / "StashKit-Local.yaml").read_bytes())
+                             local_profile((ROOT / "StashKit.yaml").read_text()).encode("utf-8"))
             profile = yaml.safe_load(archive.read("StashKit-Local.yaml"))
             self.assertEqual(len(profile["rule-providers"]), 56)
             for provider in profile["rule-providers"].values():
@@ -47,17 +47,6 @@ class OfflineAndPrivacyTests(unittest.TestCase):
 
     def test_bundle_is_byte_reproducible(self):
         self.assertEqual(make_zip(), make_zip())
-
-    def test_privacy_profile_preserves_all_other_settings(self):
-        standard = yaml.safe_load((ROOT / "StashKit.yaml").read_text())
-        private = yaml.safe_load((ROOT / "StashKit-Privacy.yaml").read_text())
-        validate_profile(private)
-        self.assertFalse(standard["dns"]["follow-rule"])
-        self.assertTrue(private["dns"]["follow-rule"])
-        private["dns"]["follow-rule"] = False
-        self.assertEqual(private["rules"][0], "DOMAIN,dns.alidns.com,Proxy")
-        private["rules"].pop(0)
-        self.assertEqual(private, standard)
 
     def test_privacy_dns_override_prefix_and_bootstrap(self):
         profile = yaml.safe_load((ROOT / "StashKit.yaml").read_text())

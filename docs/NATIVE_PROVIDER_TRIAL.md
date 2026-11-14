@@ -28,7 +28,7 @@ python scripts/build_loon_selection.py --layout flat \
 
 ## 首次准备
 
-公开 `StashKit.yaml`、Privacy、Local 已声明 `Airport` Provider，但其 URL 是无效占位地址。简单使用无需生成器，在本地填真实 URL 即可。以下仅说明复杂多来源使用时如何通过生成器替换示例 Provider：
+公开主配置 `StashKit.yaml` 已声明 `Airport` Provider，但其 URL 是无效占位地址。简单使用无需生成器，在本地填真实 URL 即可。以下仅说明复杂多来源使用时如何通过生成器替换示例 Provider：
 
 ```sh
 git clone https://github.com/YohakuSama/stashkit.git
@@ -84,7 +84,7 @@ python scripts/stash_runtime_audit.py \
 
 默认 native 不下载订阅内容，因此生成成功仅证明引用与结构有效；必须在 Stash 中确认 Provider 已加载非空真实节点。官方说明空 Provider 可能用 DIRECT 替代，Proxy 中的 REJECT 手动选项不能保证空订阅阻断。运行时审计会拒绝这种替代。
 
-`--profile privacy` / `--profile local` 选择相应模板。Local 仍需按[安装说明](./VALIDATION.md)准备 54 份规则文件。
+DNS 隐私设置请使用现有 `overrides/dns-privacy.stoverride.example`；离线包中的 Local YAML 由打包脚本按需生成。
 
 ## 显式兼容选项
 
