@@ -12,15 +12,6 @@ from release_meta import PROFILE_VERSION, RULES_PATH_PREFIX
 ROOT = Path(__file__).resolve().parents[1]
 HEADER = f"# StashKit {PROFILE_VERSION}\n"
 LOCAL_HEADER = f"# StashKit {PROFILE_VERSION} — local rule providers\n"
-SUBSCRIPTION_BLOCK = (
-    "# Edit the subscription URL locally; never publish private subscription credentials.\n"
-    "proxy-providers:\n"
-    "  Airport:\n"
-    "    # Replace this URL with your private Clash/Stash YAML subscription.\n"
-    "    url: 'https://example.invalid/REPLACE-WITH-YOUR-CLASH-SUBSCRIPTION'\n"
-    "    path: ./providers/stashkit-airport.yaml\n"
-    "    interval: 3600\n"
-)
 REMOTE_PROVIDER_LINE = re.compile(
     r'^(  "[^"]+": \{behavior: (?:domain|ipcidr|classical), format: text), '
     r'url: https://raw\.githubusercontent\.com/YohakuSama/stashkit/'
@@ -52,16 +43,8 @@ def local_profile(config=None):
 
 
 
-def subscription_profile(config=None):
-    """Keep the old Subscription filename as an alias of the official main profile."""
-    content = config if config is not None else (ROOT / "StashKit.yaml").read_text(encoding="utf-8")
-    if content.count("    use:\n      - Airport\n") != 38 or content.count("proxy-providers:\n") != 1:
-        raise ValueError("Expected 38 policy groups bound to the official Airport provider")
-    return content
-
-
 def derived_profiles(config):
-    outputs = {"StashKit-Subscription.yaml": subscription_profile(config)}
+    outputs = {}
     # ALL remains an explicit compatibility variant, never a default alias.
     for filename, content in (("StashKit-ALL.yaml", config),):
         legacy = build_loon_selection(yaml.safe_load(content),
@@ -100,7 +83,7 @@ def main():
                       if (ROOT / name).read_bytes() != value.encode("utf-8")]
         if mismatches:
             raise ValueError(f"Derived profiles differ from canonical source: {mismatches}")
-        print("PASS: 40-group subscription and compatibility variants match canonical source")
+        print("PASS: 40-group compatibility variants match canonical source")
     else:
         for name, value in outputs.items():
             (ROOT / name).write_text(value, encoding="utf-8")

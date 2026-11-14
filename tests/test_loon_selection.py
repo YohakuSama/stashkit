@@ -78,9 +78,8 @@ class LoonSelectionTests(unittest.TestCase):
                     result = build_loon_selection(source, **options)
                     groups = {group["name"]: group for group in result["proxy-groups"]}
                     self.assertEqual(result["rules"], source["rules"])
-                    self.assertEqual(groups["Proxy"]["proxies"][0:2],
-                                     ["Auto", "Fallback"])
-                    self.assertEqual(groups["Proxy"]["proxies"][2], "REJECT")
+                    self.assertEqual(groups["Proxy"]["proxies"][:3],
+                                     ["REJECT", "Auto", "Fallback"])
                     self.assertNotIn("DIRECT", groups["Proxy"]["proxies"])
                     for name in direct_first:
                         self.assertEqual(groups[name]["proxies"][0:4],
@@ -296,7 +295,7 @@ class LoonSelectionTests(unittest.TestCase):
                     self.assertEqual(len(groups), 40)
                     self.assertNotIn("ALL", groups)
                     self.assertEqual(groups["Proxy"]["proxies"],
-                                     ["Auto", "Fallback", "REJECT"] + names)
+                                     ["REJECT", "Auto", "Fallback"] + names)
                     self.assertEqual(groups["ChatGPT"]["proxies"],
                                      ["Proxy", "Auto", "Fallback"] + names)
                     self.assertEqual(groups["Auto"]["proxies"], names)
@@ -360,7 +359,7 @@ class LoonSelectionTests(unittest.TestCase):
             self.assertNotIn("ALL", groups)
             self.assertEqual(groups["Proxy"]["use"], list(PROVIDERS))
             self.assertEqual(groups["Proxy"]["proxies"],
-                             ["Auto", "Fallback", "REJECT"])
+                             ["REJECT", "Auto", "Fallback"])
             self.assertEqual(source["rules"], generated["rules"])
             self.assertEqual(source["dns"], generated["dns"])
 

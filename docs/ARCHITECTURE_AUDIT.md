@@ -11,18 +11,18 @@ v0.1.21 起公开仓库取消独立自建版 YAML，统一以 `StashKit.yaml` �
 | 固定来源 | `build/source-lock.json`、`build/release_manifest.json`、上游 SHA256 | 可审查的源版本 |
 | 规则转换 | `scripts/rule_sources.py` 按类型转换，`build/adjustments.json` 记录额外改动 | `rules/*.txt` |
 | 主配置 | `StashKit.yaml` 手工维护 DNS、策略组、规则顺序和 provider 引用 | 在线配置 |
-| 兼容配置 | `scripts/build_profiles.py` 从主配置生成 Subscription、ALL 与 Preview | 历史兼容与参考 YAML |
+| 兼容配置 | `scripts/build_profiles.py` 从主配置生成 ALL 与 Preview | 历史兼容与参考 YAML |
 | 离线包 | `scripts/build_offline_bundle.py` 在打包时临时生成 Local YAML，连同固定规则打包 | ZIP 和 SHA256SUMS |
 | 校验 | `scripts/validate_config.py`、`scripts/verify.py`、`tests/` | CI 静态断言 |
 | 真机证据 | `scripts/stash_runtime_audit.py` 读取 Stash 控制器的规则、策略和 provider 状态 | 运行时诊断 |
 
-主配置是**唯一手工维护的 YAML**。`python scripts/build_profiles.py --check` 验证仍保留的兼容文件与主配置一致。Privacy 独立 YAML 已移除，改用现有 DNS 覆写。Local YAML 只在离线 ZIP 打包时临时生成，校验不会悄悄改写输出。
+主配置是**唯一手工维护的 YAML**。`python scripts/build_profiles.py --check` 验证仍保留的兼容文件与主配置一致。重复的 Subscription 别名已移除，旧订阅链接应改用 `StashKit.yaml`。Privacy 独立 YAML 已移除，改用现有 DNS 覆写。Local YAML 只在离线 ZIP 打包时临时生成，校验不会悄悄改写输出。
 
 ## 固定的行为与资源
 
 - 54 个冻结文件规则 provider（43 domain、7 ipcidr、4 classical ASN），另有独立 Crypto-domain（domain，219 条，其中 1 条精确匹配）和 1 个内嵌 `Private-local`，合计 56 个 provider。
 - 原上游 43 份输入经人工审查的 [adjustments.json](../build/adjustments.json) 转换。规则资源固定到 [release-lock.json](../build/release-lock.json) 指向的不可变提交，不跟随远程 `main`。
-- 正式主配置和默认 native 输出均保留 LoonKit 的 40 个策略组，无 ALL/Manual 中间组。正式 YAML 使用 `Airport` 具名 Provider 和无效占位 URL，可直接在本地改为私人订阅；高级生成器仍可将其替换为多 Provider/use-url 来源，保留 Stash 的后台节点更新，不下载成静态快照。旧 ALL 仅为显式兼容选项，flat 仅为静态快照选项。运行时审计逐组核对当前订阅节点，CI 不启动 Stash iOS，详见[订阅绑定说明](./NATIVE_PROVIDER_TRIAL.md)。
+- 正式主配置和默认 native 输出均保留 LoonKit 的 40 个策略组，无 ALL/Manual 中间组。Proxy 将 REJECT 放在首位，默认需手动选定真实节点；Stash 的旧选择和空 Provider 的 DIRECT 替代仍须运行时验收。正式 YAML 使用 `Airport` 具名 Provider 和无效占位 URL，可直接在本地改为私人订阅；高级生成器仍可将其替换为多 Provider/use-url 来源，保留 Stash 的后台节点更新，不下载成静态快照。旧 ALL 仅为显式兼容选项，flat 仅为静态快照选项。运行时审计逐组核对当前订阅节点，CI 不启动 Stash iOS，详见[订阅绑定说明](./NATIVE_PROVIDER_TRIAL.md)。
 - STUN 和常用 TURN 端口拦截位于 LAN/CN 直连之前。此次清理**不修改**这些网络规则。
 
 ## 测试与已知边界

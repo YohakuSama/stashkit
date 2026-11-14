@@ -42,7 +42,9 @@ class RuntimeAuditTests(unittest.TestCase):
         for group in self.profile['proxy-groups']:
             kind = {'select': 'Selector', 'url-test': 'URLTest', 'fallback': 'Fallback'}[group['type']]
             members = group['proxies'][:] + (['private-node-name'] if group.get('use') else [])
-            loaded[group['name']] = {'type': kind, 'all': members, 'now': members[0]}
+            # The accepted test fixture explicitly selects Auto after loading valid nodes.
+            chosen = 'Auto' if group['name'] == 'Proxy' else members[0]
+            loaded[group['name']] = {'type': kind, 'all': members, 'now': chosen}
         for target, kind, payload, policy in SENTINELS:
             self.responses[self.match_path(target)] = {
                 "rule": {"type": kind, "payload": payload},

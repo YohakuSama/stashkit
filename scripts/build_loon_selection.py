@@ -137,8 +137,8 @@ def build_loon_selection(source, providers=None, nodes=None, subscription_urls=N
         group.pop("include-all", None)
         group.pop("filter", None)
         if name == "Proxy":
-            # REJECT remains a manual choice; it is not an empty-pool guarantee.
-            group["proxies"] = (["Auto", "Fallback", "REJECT"] + local_names
+            # Native selection starts blocked; old nested layout keeps its existing order.
+            group["proxies"] = (["REJECT", "Auto", "Fallback"] + local_names
                                 if layout == "native"
                                 else ["Auto", "Fallback", "ALL", "REJECT"])
         elif name in {"Auto", "Fallback", "ALL"}:

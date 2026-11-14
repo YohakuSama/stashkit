@@ -43,7 +43,7 @@ class PolicyGroupParityTests(unittest.TestCase):
                 with self.subTest(profile=filename, group=name):
                     expanded = [NODE['name'] if child in filters else child for child in choices]
                     if name == 'Proxy':
-                        expanded.insert(2, 'REJECT')
+                        expanded.insert(0, 'REJECT')
                     self.assertEqual(group['type'], kind)
                     self.assertEqual(group['proxies'], expanded)
                     self.assertFalse(set(group) & {'use', 'use-url', 'include-all', 'filter'})
@@ -64,7 +64,7 @@ class PolicyGroupParityTests(unittest.TestCase):
                     translated = [c for c in choices
                                   if c not in {'ALL_Filter', 'Auto_Filter', 'Fallback_Filter'}]
                     if name == 'Proxy':
-                        translated.append('REJECT')
+                        translated.insert(0, 'REJECT')
                     self.assertEqual(groups[name]['type'], kind)
                     self.assertEqual(groups[name]['proxies'], translated)
                     self.assertNotIn('include-all', groups[name])

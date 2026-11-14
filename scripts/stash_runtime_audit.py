@@ -114,8 +114,8 @@ def inspect_strategy_groups(profile, proxies):
                 or len(members) != len(set(members))):
             failures.append(f"Strategy group has no verifiable member list: {name}")
             continue
-        if name == "Proxy" and members[:3] != ["Auto", "Fallback", "REJECT"]:
-            failures.append("Proxy choices are not ordered Auto, Fallback, REJECT, then nodes")
+        if name == "Proxy" and members[:3] != ["REJECT", "Auto", "Fallback"]:
+            failures.append("Proxy choices are not ordered REJECT, Auto, Fallback, then nodes")
         if not set(expected.get("proxies", [])) <= set(members):
             failures.append(f"Strategy group is missing configured choices: {name}")
         if (not any(expected.get(key) for key in ("include-all", "use", "use-url"))

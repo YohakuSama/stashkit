@@ -30,8 +30,8 @@ python scripts/build_offline_bundle.py --check
 | 广告 | control.kochava.com、Google Ads / DoubleClick / Analytics 与 Copilot 遥测端点 → AdBlock；改选 DIRECT 为终止匹配后直连 |
 | DNS | 查看应答服务器：公共真实解析使用 DoH，私有域名使用系统 DNS；独立检查其他 App 内置 DNS 和 VPN 接管范围 |
 | 测速 | 检查 provider 的 benchmark-url 生效、节点失效后 Auto/Fallback 的实际选择；测速不证明服务地区解锁 |
-| 默认安全出口 | 初次导入检查实际出口，不能仅根据 Proxy 的 REJECT 配置保证故障阻断；先确认同一配置中真实节点已加载；默认 native 的 Proxy 与各业务组应同时列出自动策略和当前订阅节点，无 ALL；检查每个服务组的策略选项及连接记录；旧配置升级时策略选择可能被保留 |
-| 空订阅 | 分别测试合法但 proxies 为空、过滤后为空、首次下载失败、有旧缓存时下载失败；flat 生成必须失败且不覆盖旧文件；默认 native 观察 Auto/Fallback 及每个业务组的真实成员和出口，不应把空 Provider 的 DIRECT 替代当成节点 |
+| 默认安全出口 | 新导入应先看到 Proxy 的 REJECT 选项为第一项，未手动选择有效节点前代理流量保持阻断；已有设备的旧选择可能被保留，必须检查当前实际出口。默认 native 的 Proxy 与业务组应同时显示自动策略和当前订阅节点，无 ALL。此设置不保证已经选用 Auto/Fallback 且节点为空时自动阻断 |
+| 空订阅 | 分别测试 proxies 为空、过滤后为空、首次下载失败和缓存丢失。确认初始 Proxy 为 REJECT；若手动选过 Auto/Fallback，检查是否发生 DIRECT 替代。flat 生成仍必须失败且不覆盖旧输出 |
 | 网络变化 | Wi-Fi/蜂窝切换、IPv4/IPv6、断网重连；检查节点域名解析与规则缓存 |
 | 性能与播放 | 检查内存和请求记录，实际播放对应流媒体；离线路由测试不能证明播放或地区解锁 |
 
@@ -84,9 +84,9 @@ iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，�
 
 **Coincheck / 广告优先级验收**：使用 Stash 的 `/rules/match` 分别核对 `coincheck.com` → `DOMAIN,coincheck.com,Crypto`、`trade.coincheck.com` → `RULE-SET,Crypto-domain,Crypto`，并核对广告遥测域名仍先由 `AdBlockBalanced-domain` 处理。前两条是远程快照配合精确例外的预期行为；不要把整个 coincheck.com 后缀设为直连或无条件放行。远程资源未加载时必须先修复 Provider 状态，不能仅根据静态配置判断实际出口。
 
-## v0.1.19 Proxy 选项顺序与 VPN 状态验收
+## Proxy 选项顺序与 VPN 状态验收
 
-在 Stash 网络设置里选择**按配置文件顺序**排列节点，使用同一个已导入并选中的配置；分别在 VPN **关闭、开启、节点刷新后**查看 Proxy 列表，目标始终为：`Auto`、`Fallback`、`REJECT`、随后实际节点（顺序与订阅自身一致）。Auto / Fallback 的组内部应只包含节点，不能把 REJECT 当测速节点。依次切换这些选项，确认实际出口和请求记录。不要将进入首页、配置文件切换或 Provider 尚未载入时的空组截图当作完整运行结果。
+在 Stash 网络设置里选择**按配置文件顺序**排列节点，使用同一个已导入并选中的配置；分别在 VPN **关闭、开启、节点刷新后**查看 Proxy 列表，目标始终为：`REJECT`、`Auto`、`Fallback`、随后实际节点（顺序与订阅自身一致）。Auto / Fallback 的组内部应只包含节点，不能把 REJECT 当测速节点。依次切换这些选项，确认实际出口和请求记录。不要将进入首页、配置文件切换或 Provider 尚未载入时的空组截图当作完整运行结果。
 
 如可使用 Stash 控制器，读取 `GET /proxies`，检查 `Proxy.all` 同时包含所有固定选项及 `Airport` 实际节点；`scripts/stash_runtime_audit.py --profile 个人配置.yaml` 对缺失或选项错序的运行时列表会报错。**CLI / CI 不启动 iOS VPN，无法证明该界面故障已经解决**。实际选项缺失时先排查 Provider 与已选配置，必要时回退已确认可用的个人配置。
 
@@ -97,6 +97,6 @@ iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，�
 v0.1.13 正式版依靠 `use: [Airport]` 读取具名订阅；v0.1.16–v0.1.19 自建版使用 `include-all`，已有用户复现 VPN 开启后 `Proxy` 中 Auto、Fallback、REJECT 消失的现象。**不要以 YAML 语法合法或 CI 通过认定已修复该真机问题**。
 
 - 从 v0.1.21 起公开自建模板已移除，统一入口为 `Airport` Provider；历史单节点模板的检查不属于当前发布物。
-- 多节点个人输出使用 `--layout flat`，将实际节点名称逐一写入每个需节点组，`Proxy` 的固定前三项必须为 Auto、Fallback、REJECT。不能将节点名称硬编码到公开模板。
+- 多节点个人输出使用 `--layout flat`，将实际节点名称逐一写入每个需节点组，`Proxy` 的固定前三项必须为 REJECT、Auto、Fallback。不能将节点名称硬编码到公开模板。
 - 用完全相同的已选配置，在 VPN **关闭、开启、节点测速/刷新之后**依次验证 `Proxy` 和业务组；必要时对照控制器 `/proxies` 和 `/stash/proxy/display/v2`，确认三项固定策略始终显示。运行时仍失效时保留日志与 App 版本继续排查。
 - 远程规则仍为 55 份快照并由 Stash 按需加载，不要求额外粘贴或复制本地规则。

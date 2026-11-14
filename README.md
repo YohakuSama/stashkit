@@ -32,7 +32,7 @@
 
 **规则按需远程加载** — 正式在线配置引用 **55 份独立、固定提交的远程规则文件**：54 份经审查的 Stash 原生规则集，加一份来自 LoonKit v7.0.13 的 **219 条 Crypto 域名规则集**。规则不铺进主 YAML；Stash 下载并缓存各 Provider，缓存过期可重新拉取相同的不可变快照。
 
-**统一节点管理** — 唯一推荐入口为 `StashKit.yaml`，通过具名 `Airport` Provider 绑定私人 Clash/Stash YAML 订阅。`Proxy` 固定选择顺序为 **Auto → Fallback → REJECT**，然后是 Provider 提供的真实节点；不发布独立自建版模板，不使用 `include-all` 混合策略与节点。
+**统一节点管理** — 唯一推荐入口为 `StashKit.yaml`，通过具名 `Airport` Provider 绑定私人 Clash/Stash YAML 订阅。`Proxy` 的初始选项为 **REJECT → Auto → Fallback**，然后是 Provider 提供的真实节点；不发布独立自建版模板，不使用 `include-all` 混合策略与节点。
 
 ## 快速开始
 
@@ -61,7 +61,7 @@ proxy-providers:
     interval: 3600
 ```
 
-将 `url` 换为**返回顶层 `proxies` 列表的 HTTPS Clash/Stash YAML 订阅**，其他字段保留。普通 Base64 节点文本不是此 Provider 直接支持的 YAML。订阅每 3600 秒可刷新节点；不要把含 Token 的地址提交到 GitHub。`StashKit.yaml` 是唯一推荐的正式在线入口；`StashKit-Subscription.yaml` 仅作历史兼容别名。
+将 `url` 换为**返回顶层 `proxies` 列表的 HTTPS Clash/Stash YAML 订阅**，其他字段保留。普通 Base64 节点文本不是此 Provider 直接支持的 YAML。订阅每 3600 秒可刷新节点；不要把含 Token 的地址提交到 GitHub。`StashKit.yaml` 是唯一正式在线入口，旧的 `StashKit-Subscription.yaml` 已停止发布，请将订阅地址改为主配置。
 
 ### 统一入口与私人节点
 
@@ -69,7 +69,7 @@ proxy-providers:
 
 个人 VPS 节点也可以通过可信的私人 YAML 订阅使用统一入口。如果三个节点只存在于手机本地、没有有效的订阅 URL，不能仅凭节点名称生成完整可用配置；可以在个人设备上使用[高级生成器](./docs/NATIVE_PROVIDER_TRIAL.md)把包含完整连接参数的节点源转换为私人 flat 配置。**个人订阅、节点连接信息与 Token 不要提交到公开仓库。**
 
-VPN 启动前后，`Proxy` 都应保留 Auto、Fallback、REJECT，再显示实际节点。如发生缺失，请按[运行时验收](./docs/VALIDATION.md)排查，而不是以静态校验通过作为真机修复证明。
+首次导入时 `Proxy` 按顺序显示 REJECT、Auto、Fallback 和实际节点。先确认订阅节点已加载，再手动选择 Auto 或指定节点；新配置默认 REJECT，旧设备已有的策略选择仍需手动核对。若选项缺失，请按[运行时验收](./docs/VALIDATION.md)排查。
 
 ## 规则、优先级与同步边界
 
@@ -81,7 +81,7 @@ VPN 启动前后，`Proxy` 都应保留 Auto、Fallback、REJECT，再显示实�
 
 ## 使用与排查
 
-- **没有节点或 VPN 启动后选项消失**：先确认 `Airport` 订阅可访问且包含真实节点，重新导入并启用完整配置。`Proxy` 应包含 Auto、Fallback、REJECT 与订阅节点；开启 VPN 后如丢失选项，请对照控制器 `/proxies` 数据并按[真机验收](./docs/VALIDATION.md)排查。
+- **没有节点或 VPN 启动后选项消失**：空订阅在 Stash 中可能被替换为 DIRECT；初次导入默认 REJECT 无法覆盖旧选项或手动选中 Auto 的情况。先确认 `Airport` 订阅可访问且包含真实节点，重新导入并启用完整配置。`Proxy` 应包含 REJECT、Auto、Fallback 与订阅节点；开启 VPN 后如丢失选项，请对照控制器 `/proxies` 数据并按[真机验收](./docs/VALIDATION.md)排查。
 - **Crypto 没走预期出口**：检查域名是否命中 `Crypto-domain`、是否先匹配广告规则，以及 Crypto 策略组选中了哪个节点；`Final` 或国家 IP 规则并不能替代域名匹配。
 - **部分流媒体或 App 不可用**：先查看实际请求记录，尤其共享 CDN、登录、支付与统计接口，不应随意将大型公共根域归入特定服务。
 - **DNS / WebRTC**：默认使用 AliDNS DoH、Fake-IP 和常见 STUN/TURN 端口防护；它们不能保证未由 Tunnel 接管的所有流量也不会泄露。公共 DoH 的选路与系统 DNS 需要真机核验。
