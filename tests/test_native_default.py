@@ -31,7 +31,7 @@ class NativeDefaultTests(unittest.TestCase):
         groups = {g['name']: g for g in output['proxy-groups']}
         self.assertEqual(len(groups), 40)
         self.assertFalse({'ALL', 'Manual'} & set(groups))
-        self.assertEqual(groups['Proxy']['proxies'], ['Auto', 'Fallback', 'REJECT'])
+        self.assertEqual(groups['Proxy']['proxies'], ['REJECT', 'Auto', 'Fallback'])
         self.assertEqual(groups['ChatGPT']['proxies'], ['Proxy', 'Auto', 'Fallback'])
         self.assertEqual(groups['Auto']['proxies'], [])
         self.assertEqual(groups['Fallback']['proxies'], [])

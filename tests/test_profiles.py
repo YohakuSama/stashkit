@@ -25,7 +25,7 @@ class ProfileVariantTests(unittest.TestCase):
 
     def test_official_profiles_stay_compact_and_remote_rule_backed(self):
         # Keep file providers remote; legible strategy groups may occupy more lines.
-        for name in ("StashKit.yaml", "StashKit-Subscription.yaml"):
+        for name in ("StashKit.yaml",):
             with self.subTest(name=name):
                 content = (ROOT / name).read_text(encoding="utf-8")
                 self.assertLessEqual(len(content.splitlines()), 700)
@@ -46,7 +46,7 @@ class ProfileVariantTests(unittest.TestCase):
                         source["rules"].index("RULE-SET,Crypto-domain,Crypto"))
 
     def test_selectors_place_fixed_choices_before_dynamic_nodes(self):
-        for name in ("StashKit.yaml", "StashKit-Subscription.yaml"):
+        for name in ("StashKit.yaml",):
             with self.subTest(profile=name):
                 data = yaml.safe_load((ROOT / name).read_text(encoding="utf-8"))
                 for group in data["proxy-groups"]:
@@ -57,7 +57,7 @@ class ProfileVariantTests(unittest.TestCase):
                                     f"{name}: {group['name']}: fixed options first")
                     self.assertNotIn("include-all", group)
                 proxy = data["proxy-groups"][0]
-                self.assertEqual(proxy["proxies"], ["Auto", "Fallback", "REJECT"])
+                self.assertEqual(proxy["proxies"], ["REJECT", "Auto", "Fallback"])
                 self.assertEqual(data["proxy-groups"][1]["proxies"], [])
                 self.assertEqual(data["proxy-groups"][2]["proxies"], [])
 
@@ -79,7 +79,7 @@ class ProfileVariantTests(unittest.TestCase):
                     render(bad)
 
     def test_yaml_comments_are_concise_and_english(self):
-        for name in ("StashKit.yaml", "StashKit-Subscription.yaml"):
+        for name in ("StashKit.yaml",):
             comments = [line.strip() for line in (ROOT / name).read_text().splitlines()
                         if line.lstrip().startswith("#")]
             with self.subTest(profile=name):

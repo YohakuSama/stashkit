@@ -10,9 +10,9 @@
 
 正式主配置现在直接填写订阅链接：下载 [StashKit.yaml](../StashKit.yaml) 到本地，把 `proxy-providers.Airport.url` 的 `example.invalid` URL 改成 HTTPS Clash/Stash YAML 节点订阅，再在 Stash 从文件导入。无需可视化编辑或 Python。
 
-所有 38 个需要节点的组显式使用 `use: [Airport]`，保留 `Proxy` 内的 `Auto`、`Fallback` 和 `REJECT`，每 3600 秒自动更新 Provider。若添加多个机场，请增加 `proxy-providers` 条目，并将名称加入需要节点的策略组 `use`。私人订阅可能含 Token，**切勿推送到公开 GitHub**。导入后要确认节点非空并检查实际策略选择。
+所有 38 个需要节点的组显式使用 `use: [Airport]`，保留 `Proxy` 内按 `REJECT`、`Auto`、`Fallback` 排列的固定选择，每 3600 秒自动更新 Provider。若添加多个机场，请增加 `proxy-providers` 条目，并将名称加入需要节点的策略组 `use`。私人订阅可能含 Token，**切勿推送到公开 GitHub**。导入后要确认节点非空并检查实际策略选择。
 
-下文的生成器继续适合复杂、多机场和高级绑定需求；`StashKit-Subscription.yaml` 仅为兼容别名。
+下文的生成器继续适合复杂、多机场和高级绑定需求；旧订阅别名 `StashKit-Subscription.yaml` 已移除。
 
 ## 私人静态节点：高级生成，不发布公共模板
 
@@ -24,7 +24,7 @@ python scripts/build_loon_selection.py --layout flat \
   --output dist/StashKit-Personal.yaml
 ```
 
-生成器接受任意不冲突的节点名称及数量；`Proxy` 选项依次为 Auto、Fallback、REJECT、用户节点，Auto/Fallback 只有用户节点，所有 38 个需节点组均不含 `include-all`。保留 55 份固定远程规则集，更新静态节点后须重新生成。无法在设备本地运行 Python 时可改用 Airport YAML 订阅的 `use` 方案，不能声称纯 YAML 会自动展开其他用户的节点名。
+生成器接受任意不冲突的节点名称及数量；`Proxy` 选项依次为 REJECT、Auto、Fallback、用户节点，Auto/Fallback 只有用户节点，所有 38 个需节点组均不含 `include-all`。保留 55 份固定远程规则集，更新静态节点后须重新生成。无法在设备本地运行 Python 时可改用 Airport YAML 订阅的 `use` 方案，不能声称纯 YAML 会自动展开其他用户的节点名。
 
 ## 首次准备
 
@@ -82,7 +82,7 @@ python scripts/stash_runtime_audit.py \
 
 控制器密钥通过 STASH_API_TOKEN 环境变量传入。公开配置只包含无效订阅占位符，不能用于证明真实订阅已通过验收。
 
-默认 native 不下载订阅内容，因此生成成功仅证明引用与结构有效；必须在 Stash 中确认 Provider 已加载非空真实节点。官方说明空 Provider 可能用 DIRECT 替代，Proxy 中的 REJECT 手动选项不能保证空订阅阻断。运行时审计会拒绝这种替代。
+默认 native 不下载订阅内容，因此生成成功仅证明引用与结构有效；必须在 Stash 中确认 Provider 已加载非空真实节点。Proxy 将 REJECT 放在第一位，新导入后需主动选择 Auto 或实际节点。旧选择可能被保留，已选 Auto/Fallback 的空 Provider 仍会有 DIRECT 替代风险，运行时审计会拒绝这种替代。
 
 DNS 隐私设置请使用现有 `overrides/dns-privacy.stoverride.example`；离线包中的 Local YAML 由打包脚本按需生成。
 

@@ -2,6 +2,10 @@
 
 ## 未发布 · 精简公开配置入口
 
+- 移除与主配置逐字节相同的 `StashKit-Subscription.yaml`，统一使用 `StashKit.yaml`。
+- 将正式主配置与默认 native 个人输出中的 Proxy 首选项改为 REJECT，降低新导入且节点为空时意外直连的风险。节点加载后需手动选 Auto；旧选择仍需核验。
+- 13 条 WebRTC 防护规则及 40 个组、55 份远程规则保持不变；旧 ALL 兼容布局保留原顺序。
+
 - 删除独立 Privacy、Local YAML 及对应的 ALL 派生版本。日常使用统一从 `StashKit.yaml` 导入。
 - DNS 隐私继续通过现有 `overrides/dns-privacy.stoverride.example` 启用，不改变主配置的 DNS 和路由规则。
 - 离线 ZIP 仍按需生成 `StashKit-Local.yaml` 和 55 份规则资源，不再在仓库根目录维护该文件。

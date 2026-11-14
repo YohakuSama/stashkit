@@ -110,7 +110,7 @@ def main():
     assert by_name["Auto"]["type"] == "url-test" and by_name["Auto"]["interval"] == 600
     assert by_name["Auto"]["tolerance"] == 60
     assert by_name["Fallback"]["type"] == "fallback" and by_name["Fallback"]["interval"] == 900
-    assert by_name["Proxy"]["proxies"] == ["Auto", "Fallback", "REJECT"]
+    assert by_name["Proxy"]["proxies"] == ["REJECT", "Auto", "Fallback"]
     assert all(list(group).index("proxies") < list(group).index("use")
                for group in groups if group.get("use")), (
         "Fixed policy choices must precede dynamically loaded provider nodes")
@@ -136,7 +136,7 @@ def main():
         if name.strip() in {"Auto", "Fallback"}:
             expected_children = []
         if name.strip() == "Proxy":
-            expected_children.append("REJECT")
+            expected_children.insert(0, "REJECT")
         if name.strip() not in {"Proxy", "Auto", "Fallback", "Final", "AdBlock"}:
             assert {"Proxy", "Auto", "Fallback"} <= set(expected_children), name
         assert group["proxies"] == expected_children, f"Group option order differs: {name}"

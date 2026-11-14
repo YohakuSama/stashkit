@@ -8,7 +8,7 @@
 
 | 组 | 明确的策略选项 | 动态节点来源 |
 | --- | --- | --- |
-| Proxy | Auto、Fallback、REJECT | use: [my-provider] |
+| Proxy | REJECT、Auto、Fallback | use: [my-provider] |
 | Auto | 无内置策略；url-test，600 秒，tolerance 60ms | use: [my-provider] |
 | Fallback | 无内置策略；fallback，900 秒 | use: [my-provider] |
 | ChatGPT 等海外服务 | Proxy、Auto、Fallback | use: [my-provider] |
@@ -19,17 +19,17 @@
 
 多个 Provider 按输入顺序引用；URL、刷新间隔、认证头、过滤条件、缓存和测速参数保留。只有订阅 URL 时，生成器可直接写入各组的 use-url，保持 Stash 后台更新。Auto/Fallback 只引用真实节点来源，不混入 REJECT。
 
-具体节点从动态来源导入，策略选项按 Loon 原来的顺序保留；订阅节点增删后无需重新生成配置。运行时审计会比较 Auto/Fallback 的实际节点，以及每个业务组是否同时包含策略和当前节点，避免只验证 Auto 有出口。
+具体节点从动态来源导入，业务策略选项按 Loon 原来的顺序保留；Proxy 将 REJECT 前置作为新配置的默认阻断选择。订阅节点增删后无需重新生成配置。运行时审计会比较 Auto/Fallback 的实际节点，以及每个业务组是否同时包含策略和当前节点，避免只验证 Auto 有出口。
 
 ## 公开模板与首次绑定
 
 唯一正式入口 `StashKit.yaml` 使用 `Airport` Provider，其订阅 URL 为故意无效的 `example.invalid` 占位符。第一次使用须在本地填写自己的 HTTPS Clash/Stash YAML 订阅地址，再导入 Stash；也可通过[绑定说明](./NATIVE_PROVIDER_TRIAL.md)使用高级生成器，不能指望另一个独立配置中的订阅自动合入。
 
-默认 native 不会提前下载私人订阅。生成成功说明引用与结构有效，Provider 是否非空、实际节点是否连通需要在 Stash 中检查。空组或空 Provider 可能按 DIRECT 处理，手动 REJECT 选项不能保证自动阻断。
+默认 native 不会提前下载私人订阅。初次导入先保留 Proxy 的 REJECT 选择，确认节点非空后手动选择 Auto 或指定节点。Stash 会记住旧策略；如果曾选择 Auto/Fallback，空组或空 Provider 仍可能按 DIRECT 处理，REJECT 排在第一位不能保证所有情况下自动阻断。
 
 ## 私人节点与旧版兼容
 
-v0.1.21 起不再发布独立自建模板，统一使用 `StashKit.yaml` 的 `Airport` Provider 引用私人 HTTPS Clash/Stash YAML 订阅。没有订阅 URL、只有完整本地节点定义时，可使用 `python scripts/build_loon_selection.py --layout flat --nodes-from dist/nodes-source.yaml --output dist/StashKit-Personal.yaml` 生成私人静态文件；生成结果不应提交到公开仓库。flat 模式将 Auto、Fallback、REJECT 保留为 Proxy 的固定前三项，再显式列出真实节点，不使用 `include-all` 混合固定选项。
+v0.1.21 起不再发布独立自建模板，统一使用 `StashKit.yaml` 的 `Airport` Provider 引用私人 HTTPS Clash/Stash YAML 订阅。没有订阅 URL、只有完整本地节点定义时，可使用 `python scripts/build_loon_selection.py --layout flat --nodes-from dist/nodes-source.yaml --output dist/StashKit-Personal.yaml` 生成私人静态文件；生成结果不应提交到公开仓库。flat 模式将 REJECT、Auto、Fallback 保留为 Proxy 的固定前三项，再显式列出真实节点，不使用 `include-all` 混合固定选项。
 
 ## 可选布局
 

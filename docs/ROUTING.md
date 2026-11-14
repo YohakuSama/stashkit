@@ -9,7 +9,7 @@ LoonKit v7.0.12 的策略组与直连基线在 StashKit 保持为两层；Crypto
 - **规则直接直连**：`DomesticCore`、`DomesticSupplement`、`DomesticAI`、`SteamCN` 和国内 IP 命中对应规则后直接走 `DIRECT`，独立于 `Proxy` 当前选中什么。
 - **服务策略可以直连**：`Apple`、`Microsoft`、`Bilibili`、`Line`、`Speedtest` 的首选项为 `DIRECT`；`Steam` 可手动选 `DIRECT`，但默认仍为 `Proxy`。这些组还能直接选择 `Auto`、`Fallback` 或订阅节点。
 - **加密货币代理优先**：Crypto 的 219 条交易平台、钱包和行情域名（含原 29 个后缀）已置入独立、固定提交的 `Crypto-domain` 远程域名规则集，经 `RULE-SET,Crypto-domain,Crypto` 在 ChinaDirect / GEOIP CN 之前匹配，且不提供 DIRECT 选项。
-- **海外服务不自动直连**：`ChatGPT`、`Gemini`、`Claude` 等保留 LoonKit 的默认代理逻辑。`Proxy` 不添加 `DIRECT` 选项，避免把多个海外服务一次性切成直连。
+- **海外服务不自动直连**：`ChatGPT`、`Gemini`、`Claude` 等继续经 Proxy 分流。`Proxy` 首项为 `REJECT`，新导入后需确认有效节点并手动选择 `Auto` 或节点；不添加 `DIRECT` 选项，避免多个海外服务同时直连。旧选项和空 Provider 的回退须在 Stash 真机检查。
 
 策略组选择仅对**实际命中该策略组的请求**有效。例如广告规则先命中 `AdBlock`、国内服务先命中 `DIRECT` 时，之后的 Apple / Steam 组不会再覆盖它们。Stash 可能保留更新前设备上的旧选择，需在策略界面明确检查当前选中项。
 

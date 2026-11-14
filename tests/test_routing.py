@@ -178,7 +178,7 @@ class RoutingTests(unittest.TestCase):
             "cloudflare.com.example.invalid": "DIRECT",
             "unknown-stashkit.example.invalid": "DIRECT",
         }
-        for filename in ("StashKit.yaml", "StashKit-Subscription.yaml"):
+        for filename in ("StashKit.yaml",):
             profile = yaml.load((ROOT / filename).read_text(), Loader=UniqueKeysLoader)
             groups = profile["proxy-groups"]
             self.assertEqual(len(groups), 40)

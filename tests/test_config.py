@@ -44,7 +44,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_public_template_has_39_groups_and_no_invented_node_source(self):
         by_name = {group["name"]: group for group in self.profile["proxy-groups"]}
-        self.assertEqual(by_name["Proxy"]["proxies"], ["Auto", "Fallback", "REJECT"])
+        self.assertEqual(by_name["Proxy"]["proxies"], ["REJECT", "Auto", "Fallback"])
         self.assertEqual(by_name["Proxy"]["use"], ["Airport"])
         self.assertNotIn("include-all", by_name["Proxy"])
         self.assertNotIn("filter", by_name["Proxy"])
