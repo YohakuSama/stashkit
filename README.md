@@ -22,7 +22,7 @@
 
 <p align="center"><sub>先下载并在本地填写自己的订阅或节点，再导入 Stash；仓库不提供代理节点和订阅。</sub></p>
 
-当前配置：**v0.1.23** · 对齐 LoonKit v7.0.16 的 Apple Intelligence、Siri、Stripe 分流，保留 v7.0.15 的夸克、维基百科、多邻国和 v7.0.13 的 Crypto 规则 · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
+当前配置：**v0.1.24** · 对齐 LoonKit v7.0.16 的 Apple Intelligence、Siri、Stripe 分流，保留 v7.0.15 的夸克、维基百科、多邻国和 v7.0.13 的 Crypto 规则 · [v0.1.24 发布说明](./docs/RELEASE_NOTES_v0.1.24.md) · [更新记录](./docs/CHANGELOG.md) · [CI](https://github.com/YohakuSama/stashkit/actions/workflows/ci.yml) · [GPL-2.0-only](./LICENSE)
 
 ---
 
