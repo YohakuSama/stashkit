@@ -1,6 +1,6 @@
 # 变更记录
 
-## 未发布 · 精简公开配置入口
+## v0.1.24 · 发布已合并修复并精简过期工作流
 
 - 移除与主配置逐字节相同的 `StashKit-Subscription.yaml`，统一使用 `StashKit.yaml`。
 - 将正式主配置与默认 native 个人输出中的 Proxy 首选项改为 REJECT，降低新导入且节点为空时意外直连的风险。节点加载后需手动选 Auto；旧选择仍需核验。
@@ -10,6 +10,8 @@
 - DNS 隐私继续通过现有 `overrides/dns-privacy.stoverride.example` 启用，不改变主配置的 DNS 和路由规则。
 - 离线 ZIP 仍按需生成 `StashKit-Local.yaml` 和 55 份规则资源，不再在仓库根目录维护该文件。
 - 生成器仅保留正式默认模板；同步精简校验、测试与当前文档，不影响历史发布资产。
+- 仅将配置版本升为 v0.1.24，沿用 v0.1.23 的 54 份固定规则快照及独立 Crypto 规则，不刷新任何远程规则内容。
+- 删除两份已经完成任务且引用失效文件的 one-time-sync 工作流，主 CI 和正式发布流程保持不变。
 
 ## v0.1.23 · 同步 LoonKit v7.0.16 Apple Intelligence、Siri 与 Stripe 分流
 
