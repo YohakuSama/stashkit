@@ -14,7 +14,7 @@ from verify import UniqueKeysLoader
 PORTS = (3478, 3479, 5349, 5350, 19302, 19303, 19304, 19305,
          19306, 19307, 19308, 19309)
 GUARDS = ["PROTOCOL,STUN,REJECT"] + [f"DST-PORT,{port},REJECT" for port in PORTS]
-PROFILES = ("StashKit.yaml", "StashKit-Local.yaml", "StashKit-Privacy.yaml")
+PROFILES = ("StashKit.yaml",)
 
 
 def load(name):
@@ -28,9 +28,7 @@ class WebRTCGuardTests(unittest.TestCase):
                 profile = load(name)
                 validate_profile(profile)
                 rules = profile["rules"]
-                # DNS-privacy's encrypted resolver rule must remain at index zero.
-                offset = 1 if name == "StashKit-Privacy.yaml" else 0
-                self.assertEqual(rules[offset:offset + len(GUARDS)], GUARDS)
+                self.assertEqual(rules[:len(GUARDS)], GUARDS)
                 self.assertLess(rules.index(GUARDS[0]),
                                 rules.index("GEOIP,LAN,DIRECT,no-resolve"))
                 self.assertLess(rules.index(GUARDS[0]),

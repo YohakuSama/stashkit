@@ -23,16 +23,6 @@ EXPECTED_GROUP_COUNT = 40
 DEFAULT_LAYOUT = "native"
 # Public templates contain the original 40 policies. Bind private sources once;
 # Stash then keeps the Provider/use-url node lists up to date itself.
-PROFILE_FILES = {
-    "default": "StashKit.yaml",
-    "privacy": "StashKit-Privacy.yaml",
-    "local": "StashKit-Local.yaml",
-}
-NATIVE_PROFILE_FILES = {
-    "default": "StashKit.yaml",
-    "privacy": "StashKit-Privacy.yaml",
-    "local": "StashKit-Local.yaml",
-}
 
 
 def read_node_sources(path):
@@ -209,7 +199,6 @@ def write_private_profile(output_file, output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--profile", choices=PROFILE_FILES, default="default")
     parser.add_argument("--layout", choices=("native", "flat", "nested"), default=DEFAULT_LAYOUT,
                         help="native (default) keeps Provider/use-url updates; flat snapshots nodes")
     origin = parser.add_mutually_exclusive_group(required=True)
@@ -237,8 +226,7 @@ def main():
         urls = read_subscription_urls(args.subscription_file)
     else:
         nodes, providers = [], read_provider_override(args.provider_override)
-    source_files = PROFILE_FILES
-    source = yaml.safe_load((ROOT / source_files[args.profile]).read_text(encoding="utf-8"))
+    source = yaml.safe_load((ROOT / "StashKit.yaml").read_text(encoding="utf-8"))
     if args.layout == "flat":
         output = build_flat_selection(source, providers, nodes, urls,
                                       base_dir=input_file.resolve().parent)

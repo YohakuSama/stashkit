@@ -15,7 +15,7 @@ python scripts/build_offline_bundle.py --check
 
 回归测试使用离线输入；真实 HTTPS DoH 探测单独运行，遇到证书错误、DNS 错误或不完整消息会失败，不跳过 TLS 身份检查。GitHub CI 的实测不等于每个用户网络都可用。
 
-合并前可运行 `python scripts/check_remote.py --ref 完整候选提交SHA`，逐字节检查该提交原有 54 个远程文件（另检查已单独固定提交的新版 Crypto 文件）；省略参数则检查配置锁定的生产快照，始终不跟随 main。新的规则先在独立提交发布并完成字节校验，随后配置切换 pin 与缓存版本。内嵌 Private-local 由源文件、许可证摘要及三套配置一致性测试验证。
+合并前可运行 `python scripts/check_remote.py --ref 完整候选提交SHA`，逐字节检查该提交原有 54 个远程文件（另检查已单独固定提交的新版 Crypto 文件）；省略参数则检查配置锁定的生产快照，始终不跟随 main。新的规则先在独立提交发布并完成字节校验，随后配置切换 pin 与缓存版本。内嵌 Private-local 由源文件、许可证摘要及主配置测试验证。
 
 ## Stash 真机验收
 
@@ -49,7 +49,7 @@ curl --get 'http://127.0.0.1:9090/rules/match' \
 
 ## WebRTC / 公网 IPv4+IPv6 真机验收（不能由 CI 代替）
 
-- 分别导入普通、Privacy 和 Local 配置，确认规则顺序：隐私版首条为 AliDNS DoH Proxy，之后所有配置先匹配 `PROTOCOL,STUN,REJECT` 和常见 STUN/TURN `DST-PORT`，再执行 LAN/国内直连。
+- 导入主配置，确认首先匹配 `PROTOCOL,STUN,REJECT` 和常见 STUN/TURN `DST-PORT`，再执行 LAN/国内直连。若启用 DNS 隐私覆写，另核对前置 AliDNS DoH Proxy 规则。
 - 打开 Stash Tunnel/VPN。在有 IPv6 的 Wi-Fi、蜂窝网络分别检查实际出口；IPv6 Tunnel 路由的 `Auto` 已通过测试时可保持，不需要强制切换到 Always。仅修改 DNS 的 IPv6 设置不能代替 Tunnel 接管。
 - 使用 Stash 官方 `/rules/match` API 检查 `target=stun.l.google.com&network=udp&port=19302`、`target=1.1.1.1&network=udp&port=3478`、`target=[2606:4700:4700::1111]&network=udp&port=3478`（IPv6 `target` 语法以本机实际 API 为准），预期命中 REJECT 端口规则。再发真实 UDP STUN 探测到**非标准端口**，在连接日志确认 PROTOCOL STUN 拦截；静态 API 无法验证协议嗅探。
 - 对照直连真实运营商 IPv4/IPv6、代理 HTTP 出口、[BrowserLeaks WebRTC](https://browserleaks.com/webrtc) 的 ICE `host/srflx/relay` 候选。目标是不暴露真实公网地址；若是 `host` 全局 IPv6，需额外通过浏览器隐私策略或禁用 WebRTC 修复，不能归功于 Stash 规则。重测 Wi-Fi/蜂窝、浏览器重启和系统休眠恢复。
@@ -60,8 +60,8 @@ curl --get 'http://127.0.0.1:9090/rules/match' \
 ## 离线资源快照与 DNS 隐私验收
 
 - **在线**：检查各规则 URL 含同一固定 40 位 Git commit、provider 缓存路径使用 `build/release-lock.json` 的 `rules_version`（以 `build/release-lock.json` 的实际值为准，两者允许不同）；第一次联网加载成功后切断网络再重启，确认 55 个缓存是否能继续使用（要注意代理本身也可能无法连通）。
-- **离线**：从主分支 CI 下载 ZIP，验 SHA256SUMS，按 ZIP 内的版本目录结构，将 54 份基础规则及 1 份 Crypto 规则部署到 Stash 受管资源目录，并在本地替换 Local 配置里的 Airport URL 后导入；高级用法仍可通过 `--profile local` 生成个人配置。单独导入 YAML 而不部署文件**应失败**，不能标记为正常配置。GitHub Actions 的 ZIP 是备份/安装材料，不是 App 一键导入包。
-- **隐私**：先在本地填写 Privacy YAML 的 Airport URL，手动切换 Proxy，再导入这份文件（或对普通配置启用 `dns-privacy.stoverride`，不要重复启用）；查看 AliDNS 主机的最终代理链及 DNS 记录。观察 Apple CDN、Wi-Fi/蜂窝切换、节点域名解析。若 DNS 不可用，先禁用覆写，不能断言绝对防泄漏。
+- **离线**：从主分支 CI 下载 ZIP，验 SHA256SUMS，按 ZIP 内的版本目录结构，将 54 份基础规则及 1 份 Crypto 规则部署到 Stash 受管资源目录，再将 ZIP 内按需生成的 `StashKit-Local.yaml` 的 Airport URL 换成个人订阅后导入。单独导入 YAML 而不部署文件**应失败**。GitHub Actions 的 ZIP 是备份/安装材料，不是 App 一键导入包。
+- **隐私**：先在主配置本地填写 Airport URL 并选择 Proxy，再启用 `dns-privacy.stoverride` 覆写；查看 AliDNS 主机的最终代理链及 DNS 记录。观察 Apple CDN、Wi-Fi/蜂窝切换、节点域名解析。若 DNS 不可用，先禁用覆写，不能断言绝对防泄漏。
 - **图标**：40 张原始 PNG 已迁入 StashKit 自有仓库，40 个正式策略组均指向 StashKit 固定提交；联网更新配置后应看到专用图标。如仍显示默认图标，请重新导入或更新配置，并检查手机是否能访问 StashKit 的图标 PNG URL。
 - **发布流程**：新的规则变更先完成源文件与生成器 CI，在一个包含全部新规则的固定 commit 上发布；配置文件随后单独修改 pin 和缓存版本号，切勿以当前配置 commit 的可变 main 指针做规则订阅。
 
@@ -77,10 +77,10 @@ python scripts/stash_runtime_audit.py --base-url http://127.0.0.1:9090 \
 
 iOS 使用界面显示的本地受信任设备地址替换 `127.0.0.1:9090`，不要向公共互联网开放控制接口。脚本使用**只读 GET** 检查模式、40 个组的类型/选项/选择、每个业务组是否包含当前 Provider 全部节点、Proxy 递归后的真实节点、56 个预期 provider 的名称和条目数、规则总量、广告及业务哨兵的命中规则与最终出口，并读取内存接口；不会输出 API 密钥、个人节点名、订阅或者整个 DNS 缓存。**运行结果来自你的真实 Stash 才能称为真机验收**，GitHub Actions 无法代替它。DNS 旁路测试还需检查客户端连接记录与第三方 DNS 测试；单次 API 通过不是绝对无泄漏证明。
 
-私网冷启动应在未缓存 GeoSite 的设备上验证 `router.internal`、NAS 单标签名称、路由器品牌域名与私有反向解析；三套配置不再含 GeoSite 引用。脚本通过只证明控制器返回的规则与出口符合配置，不代替真实业务连通性、播放或 DNS 旁路测试。
+私网冷启动应在未缓存 GeoSite 的设备上验证 `router.internal`、NAS 单标签名称、路由器品牌域名与私有反向解析；主配置不含 GeoSite 引用。脚本通过只证明控制器返回的规则与出口符合配置，不代替真实业务连通性、播放或 DNS 旁路测试。
 
 
-**当前规则架构**：正式订阅、Privacy、Local 文件采用可读策略组排版，远程规则仍是 54 份冻结业务规则加独立 Crypto 规则集（219 条）；`Private-local` 133 条继续内嵌以保证首次私网 / DNS 处理不依赖网络。检查 Crypto 单独固定的 URL、LoonKit v7.0.13 源 SHA256、219 条转换内容和匹配顺序；离线包中 `rules/v0.1.18/Crypto.v7.0.13.domain.txt` 必须一并安装。旧 ALL 和 Preview 兼容文件保留展开排版，不属于推荐入口。
+**当前规则架构**：正式主配置采用可读策略组排版，远程规则仍是 54 份冻结业务规则加独立 Crypto 规则集（219 条）；`Private-local` 133 条继续内嵌以保证首次私网 / DNS 处理不依赖网络。检查 Crypto 单独固定的 URL、LoonKit v7.0.13 源 SHA256、219 条转换内容和匹配顺序；离线包中 `rules/v0.1.18/Crypto.v7.0.13.domain.txt` 必须一并安装。旧 ALL 和 Preview 兼容文件保留展开排版，不属于推荐入口。
 
 **Coincheck / 广告优先级验收**：使用 Stash 的 `/rules/match` 分别核对 `coincheck.com` → `DOMAIN,coincheck.com,Crypto`、`trade.coincheck.com` → `RULE-SET,Crypto-domain,Crypto`，并核对广告遥测域名仍先由 `AdBlockBalanced-domain` 处理。前两条是远程快照配合精确例外的预期行为；不要把整个 coincheck.com 后缀设为直连或无条件放行。远程资源未加载时必须先修复 Provider 状态，不能仅根据静态配置判断实际出口。
 

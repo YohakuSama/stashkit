@@ -23,7 +23,7 @@
 
 ## 公开模板与首次绑定
 
-三份正式公开 YAML 使用同一个 `Airport` Provider，其订阅 URL 为故意无效的 `example.invalid` 占位符。第一次使用须在本地填写自己的 HTTPS Clash/Stash YAML 订阅地址，再导入 Stash；也可通过[绑定说明](./NATIVE_PROVIDER_TRIAL.md)使用高级生成器，不能指望另一个独立配置中的订阅自动合入。
+唯一正式入口 `StashKit.yaml` 使用 `Airport` Provider，其订阅 URL 为故意无效的 `example.invalid` 占位符。第一次使用须在本地填写自己的 HTTPS Clash/Stash YAML 订阅地址，再导入 Stash；也可通过[绑定说明](./NATIVE_PROVIDER_TRIAL.md)使用高级生成器，不能指望另一个独立配置中的订阅自动合入。
 
 默认 native 不会提前下载私人订阅。生成成功说明引用与结构有效，Provider 是否非空、实际节点是否连通需要在 Stash 中检查。空组或空 Provider 可能按 DIRECT 处理，手动 REJECT 选项不能保证自动阻断。
 

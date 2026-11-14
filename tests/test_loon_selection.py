@@ -9,7 +9,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from build_loon_selection import (NODE_POOLS, PROFILE_FILES, NATIVE_PROFILE_FILES, build_loon_selection,
+from build_loon_selection import (NODE_POOLS, build_loon_selection,
                                   read_provider_override, read_node_sources, read_subscription_urls)
 from validate_config import validate_profile
 
@@ -29,7 +29,7 @@ PROVIDERS = {
 
 class LoonSelectionTests(unittest.TestCase):
     def test_provider_groups_preserve_policies_and_allow_direct_node_selection(self):
-        for profile_name in PROFILE_FILES.values():
+        for profile_name in ("StashKit.yaml",):
             with self.subTest(profile=profile_name):
                 original = yaml.safe_load((ROOT / profile_name).read_text(encoding="utf-8"))
                 snapshot = copy.deepcopy(original)
@@ -71,7 +71,7 @@ class LoonSelectionTests(unittest.TestCase):
             ("local", {"nodes": [local_node]}),
             ("use-url", {"subscription_urls": ["https://example.org/sub"]}),
         )
-        for profile_name in PROFILE_FILES.values():
+        for profile_name in ("StashKit.yaml",):
             source = yaml.safe_load((ROOT / profile_name).read_text(encoding="utf-8"))
             for source_type, options in sources:
                 with self.subTest(profile=profile_name, source=source_type):
@@ -148,7 +148,7 @@ class LoonSelectionTests(unittest.TestCase):
             discovered_nodes, discovered_providers = read_node_sources(path)
             self.assertEqual(discovered_nodes, nodes)
             self.assertEqual(discovered_providers, {})
-            for name in PROFILE_FILES.values():
+            for name in ("StashKit.yaml",):
                 with self.subTest(profile=name):
                     original = yaml.safe_load((ROOT / name).read_text(encoding="utf-8"))
                     result = build_loon_selection(original, discovered_providers, discovered_nodes, layout="nested")
@@ -204,7 +204,7 @@ class LoonSelectionTests(unittest.TestCase):
             "https://example.org/clash/sub?token=redacted-1",
             "https://example.org/clash/backup?token=redacted-2",
         ]
-        for filename in PROFILE_FILES.values():
+        for filename in ("StashKit.yaml",):
             with self.subTest(profile=filename):
                 original = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
                 snapshot = copy.deepcopy(original)
@@ -283,7 +283,7 @@ class LoonSelectionTests(unittest.TestCase):
             ("local", {"nodes": [node]}, ["Experiment Node"]),
             ("use-url", {"subscription_urls": ["https://example.org/sub"]}, []),
         )
-        for profile_name in PROFILE_FILES.values():
+        for profile_name in ("StashKit.yaml",):
             original = yaml.safe_load((ROOT / profile_name).read_text(encoding="utf-8"))
             for mode, inputs, names in source_modes:
                 with self.subTest(profile=profile_name, mode=mode):
@@ -344,7 +344,7 @@ class LoonSelectionTests(unittest.TestCase):
             build_loon_selection(source, providers=PROVIDERS, layout="unknown")
 
     def test_published_native_profile_is_valid_and_usable_for_generation(self):
-        for filename in NATIVE_PROFILE_FILES.values():
+        for filename in ("StashKit.yaml",):
             source = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
             validate_profile(source)
             self.assertEqual(list(source["proxy-providers"]), ["Airport"])

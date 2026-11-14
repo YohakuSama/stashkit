@@ -34,6 +34,6 @@ python scripts/verify.py
 python scripts/check_remote.py
 ```
 
-CI 使用三个分离的固定来源：v7.0.10 规则快照、v7.0.12 策略组基线、v7.0.13 Crypto 来源；切换其中一层不会自动更改其他层。在线版按需缓存并刷新固定快照，离线版须事先将全部 55 个文件安装到 Stash 受管资源目录；`StashKit-Local.yaml` 本身不会从网络下载规则。
+CI 使用三个分离的固定来源：v7.0.10 规则快照、v7.0.12 策略组基线、v7.0.13 Crypto 来源；切换其中一层不会自动更改其他层。在线主配置按需缓存并刷新固定快照。若使用离线 ZIP，须事先将全部 55 个文件安装到 Stash 受管资源目录；ZIP 内的 `StashKit-Local.yaml` 由打包脚本临时生成，不在仓库根目录单独维护。
 
 [路由优先级](../docs/ROUTING.md) · [离线验收](../docs/VALIDATION.md) · [第三方来源及许可](../docs/THIRD_PARTY_NOTICES.md) · [返回首页](../README.md)

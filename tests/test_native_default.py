@@ -45,7 +45,7 @@ class NativeDefaultTests(unittest.TestCase):
         return groups
 
     def test_api_default_binds_every_provider_directly_and_retains_refresh_metadata(self):
-        for filename in ('StashKit.yaml', 'StashKit-Privacy.yaml', 'StashKit-Local.yaml'):
+        for filename in ('StashKit.yaml',):
             template = yaml.safe_load((ROOT / filename).read_text())
             snapshot = copy.deepcopy((template, PROVIDERS))
             output = build_loon_selection(template, providers=PROVIDERS)
@@ -88,13 +88,13 @@ class NativeDefaultTests(unittest.TestCase):
             output = Path(directory) / 'private.yaml'
             source.write_text(yaml.safe_dump({'proxy-providers': PROVIDERS}, sort_keys=False))
             result = subprocess.run([sys.executable, str(ROOT / 'scripts/build_loon_selection.py'),
-                                     '--nodes-from', str(source), '--profile', 'privacy',
+                                     '--nodes-from', str(source),
                                      '--output', str(output)], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             profile = yaml.safe_load(output.read_text())
             self.assert_native(profile, 'use', list(PROVIDERS))
             self.assertEqual(profile['proxy-providers'], PROVIDERS)
-            self.assertTrue(profile['dns']['follow-rule'])
+            self.assertFalse(profile['dns']['follow-rule'])
             self.assertNotIn('SECRET', result.stdout + result.stderr)
 
 
