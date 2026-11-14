@@ -19,6 +19,11 @@ class OfflineAndPrivacyTests(unittest.TestCase):
         binary = make_zip()
         with zipfile.ZipFile(io.BytesIO(binary)) as archive:
             names = archive.namelist()
+            instructions = archive.read("README-OFFLINE.txt").decode("utf-8")
+            self.assertIn(
+                f"Install rules/{RULES_VERSION}/*.txt AND rules/v0.1.18/Crypto.v7.0.13.domain.txt",
+                instructions,
+            )
             self.assertEqual(len([n for n in names if n.startswith(f"rules/{RULES_VERSION}/")]), 54)
             self.assertEqual(len(names), 58)
             self.assertIn("rules/v0.1.18/Crypto.v7.0.13.domain.txt", names)
