@@ -66,6 +66,9 @@ class ReleaseMetadataTests(unittest.TestCase):
                       workflow)
         self.assertIn("    permissions:\n      contents: write\n", workflow)
         self.assertIn("gh release create", workflow)
+        release_job = workflow.split("\n  release:\n", 1)[1]
+        self.assertIn("python-version: '3.12'", release_job)
+        self.assertIn("python -m pip install -r requirements-dev.txt", release_job)
 
 
 if __name__ == "__main__":
