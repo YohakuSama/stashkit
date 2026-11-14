@@ -49,7 +49,7 @@ class NodeSourceTests(unittest.TestCase):
         output = build_flat_selection(source, providers, local, fetcher=fetcher)
         groups = {g['name']: g for g in output['proxy-groups']}
         self.assertEqual(groups['Fallback']['proxies'], ['Local', 'HK-A', 'JP-A'])
-        self.assertEqual(groups['Proxy']['proxies'], ['Auto', 'Fallback', 'REJECT', 'Local', 'HK-A', 'JP-A'])
+        self.assertEqual(groups['Proxy']['proxies'], ['REJECT', 'Auto', 'Fallback', 'Local', 'HK-A', 'JP-A'])
         self.assertEqual(groups['ChatGPT']['proxies'], ['Proxy', 'Auto', 'Fallback', 'Local', 'HK-A', 'JP-A'])
         self.assertNotIn('ALL', groups)
         self.assertNotIn('proxy-providers', output)

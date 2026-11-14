@@ -35,7 +35,7 @@ class FlatNodesTests(unittest.TestCase):
                 self.assertEqual(profile["rule-providers"], self.template["rule-providers"])
                 self.assertEqual(profile["rules"], self.template["rules"])
                 groups = {g["name"]: g for g in profile["proxy-groups"]}
-                self.assertEqual(groups["Proxy"]["proxies"], ["Auto", "Fallback", "REJECT"] + names)
+                self.assertEqual(groups["Proxy"]["proxies"], ["REJECT", "Auto", "Fallback"] + names)
                 self.assertEqual(groups["Auto"]["proxies"], names)
                 self.assertEqual(groups["Fallback"]["proxies"], names)
                 for group in groups.values():
@@ -57,7 +57,7 @@ class FlatNodesTests(unittest.TestCase):
             profile = yaml.safe_load(target.read_text())
             validate_profile(profile)
             groups = {g["name"]: g for g in profile["proxy-groups"]}
-            self.assertEqual(groups["Proxy"]["proxies"], ["Auto", "Fallback", "REJECT"] + names)
+            self.assertEqual(groups["Proxy"]["proxies"], ["REJECT", "Auto", "Fallback"] + names)
             self.assertEqual(groups["Auto"]["proxies"], names)
             self.assertEqual(groups["Fallback"]["proxies"], names)
 
